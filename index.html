@@ -6,7 +6,7 @@
 <title>MEA PM Planner — เขตสมุทรปราการ</title>
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<!-- SheetJS สำหรับ Export/Import Excel -->
+<!-- SheetJS -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
@@ -215,6 +215,15 @@
 
   .alert-box{ padding:10px 14px; border-radius:8px; background:var(--red-soft); color:var(--red); font-size:13px; margin-bottom:16px; }
 
+  /* Guide Cards */
+  .guide-grid{ display:grid; grid-template-columns:1fr; gap:16px; margin-bottom:24px; }
+  @media(min-width:768px){ .guide-grid{ grid-template-columns:1fr 1fr; } }
+  .guide-card{ background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px; }
+  .guide-card h3{ font-size:15px; font-weight:700; color:var(--navy); margin:0 0 12px; display:flex; align-items:center; gap:8px; }
+  .guide-card p, .guide-card li{ font-size:13px; line-height:1.6; color:var(--text); margin:4px 0; }
+  .guide-card ul{ margin:6px 0; padding-left:20px; }
+  .guide-code{ font-family:'IBM Plex Mono',monospace; background:var(--bg); padding:2px 6px; border-radius:4px; font-size:12px; color:var(--blue); font-weight:600; }
+
   /* Route Box */
   .route-step-badge{
     width:24px; height:24px; border-radius:50%; background:var(--blue); color:#fff;
@@ -276,6 +285,7 @@ const ICONS = {
   coins: (c)=>`<svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="6"/><path d="M14.6 4.6A6 6 0 1 1 19.4 14"/></svg>`,
   trophy: (c)=>`<svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h3a2 2 0 0 1-2 4M7 5H4a2 2 0 0 0 2 4"/></svg>`,
   mapPin: (c)=>`<svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
+  book: (c)=>`<svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`,
   navigation: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>`,
   plus: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>`,
   fileExcel: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="17"/><line x1="16" y1="13" x2="8" y2="17"/></svg>`,
@@ -300,76 +310,38 @@ const EQUIPMENT_TYPES = ["หม้อแปลงจำหน่าย","LBS","
 const PRIORITIES = ["สูง","กลาง","ต่ำ"];
 const PLAN_STATUSES = ["วางแผน","กำลังดำเนินการ","เสร็จสิ้น","เลื่อน"];
 const PM_STATUSES = ["เสร็จสิ้น","ระหว่างดำเนินการ","รอดำเนินการ"];
-const STORAGE_KEY = "mea-pm-app-data-v12-final";
-const AUTH_KEY = "mea-pm-auth-v8";
+const STORAGE_KEY = "mea-pm-app-data-v13-guide";
+const AUTH_KEY = "mea-pm-auth-v9";
 
 const uid = () => Date.now() + "-" + Math.random().toString(36).slice(2,8);
 const baht = (n) => "฿" + Number(n||0).toLocaleString("th-TH",{maximumFractionDigits:0});
 const thDate = (d) => d ? new Date(d).toLocaleDateString("th-TH",{day:"2-digit",month:"short",year:"2-digit"}) : "-";
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 
-/* -------------------------------------------------------------------
-   ชุดข้อมูลตัวอย่างขนาดใหญ่ (30 PM Records & 15 Plans)
-------------------------------------------------------------------- */
 function seedData(){
   const today = new Date();
   const iso = (off) => { const d = new Date(today); d.setDate(d.getDate()+off); return d.toISOString().slice(0,10); };
   return {
-    benchmarks:{ 
-      "หม้อแปลงจำหน่าย": 8500, 
-      "LBS": 4200, 
-      "UNIT SUBSTATION": 12500, 
-      "รีโคลสเซอร์ (Recloser)": 6500, 
-      "ดรอปเอาท์ฟิวส์": 2500 
-    },
+    benchmarks:{ "หม้อแปลงจำหน่าย":8500, "LBS":4200, "UNIT SUBSTATION":12500, "รีโคลสเซอร์ (Recloser)":6500, "ดรอปเอาท์ฟิวส์":2500 },
     pmRecords:[
-      {id:uid(),date:iso(-28),equipmentType:"หม้อแปลงจำหน่าย",equipmentId:"TR-SP-0101",location:"สายป้อน สป.01 (ปากน้ำ-สายลวด)",team:"ทีม A",technician:"สมชาย ใจดี",laborHours:6.0,materialCost:3100,laborCost:2100,otherCost:300,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ตรวจสภาพน้ำมันและบุชชิ่ง เปลี่ยนปะเก็นยางฝาถัง"},
-      {id:uid(),date:iso(-27),equipmentType:"LBS",equipmentId:"LBS-SP-0045",location:"สายป้อน สป.02 (ท้ายบ้าน)",team:"ทีม B",technician:"วิภา ศรีสุข",laborHours:3.5,materialCost:1400,laborCost:1200,otherCost:100,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"หล่อลื่นกลไกสับปลด ทำความสะอาดลูกถ้วย"},
-      {id:uid(),date:iso(-26),equipmentType:"UNIT SUBSTATION",equipmentId:"US-SP-0012",location:"นิคมฯ บางปู ซอย 4",team:"ทีม A",technician:"สมชาย ใจดี",laborHours:8.0,materialCost:5600,laborCost:2800,otherCost:500,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ตรวจ Thermoscan ขันกวดจุดต่อสายและทำความสะอาดตู้"},
-      {id:uid(),date:iso(-25),equipmentType:"รีโคลสเซอร์ (Recloser)",equipmentId:"RC-SP-0008",location:"สายป้อน สป.05 (บางปูเหนือ)",team:"ทีม C",technician:"อรุณ พงษ์ไทย",laborHours:4.5,materialCost:2300,laborCost:1700,otherCost:200,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ทดสอบระบบควบคุมและแบตเตอรี่สำรองปกติ"},
-      {id:uid(),date:iso(-24),equipmentType:"ดรอปเอาท์ฟิวส์",equipmentId:"DF-SP-0112",location:"สายป้อน สป.03 (บางเมือง)",team:"ทีม D",technician:"กฤษณะ วงศ์ษา",laborHours:2.5,materialCost:750,laborCost:900,otherCost:100,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"เปลี่ยนฟิวส์ลิงค์และตรวจเช็คหน้าสัมผัส"},
-      {id:uid(),date:iso(-23),equipmentType:"หม้อแปลงจำหน่าย",equipmentId:"TR-SP-0142",location:"สายป้อน สป.12 (แพรกษา)",team:"ทีม A",technician:"สมชาย ใจดี",laborHours:6.5,materialCost:3300,laborCost:2200,otherCost:300,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"วัดค่าความเป็นฉนวน เติมน้ำมันหม้อแปลง"},
-      {id:uid(),date:iso(-22),equipmentType:"LBS",equipmentId:"LBS-SP-0087",location:"สายป้อน สป.06 (บางโปรง)",team:"ทีม B",technician:"วิภา ศรีสุข",laborHours:3.0,materialCost:1600,laborCost:1050,otherCost:150,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ปรับตั้งระยะใบมีดสวิตช์และตรวจเช็คสายดิน"},
-      {id:uid(),date:iso(-21),equipmentType:"UNIT SUBSTATION",equipmentId:"US-SP-0021",location:"นิคมฯ บางปู ซอย 9",team:"ทีม A",technician:"มนตรี แสนสุข",laborHours:7.5,materialCost:6100,laborCost:2600,otherCost:400,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ตรวจระบบระบายอากาศและแผงควบคุมสวิตช์เกียร์"},
-      {id:uid(),date:iso(-20),equipmentType:"รีโคลสเซอร์ (Recloser)",equipmentId:"RC-SP-0015",location:"สายป้อน สป.07 (สำโรงเหนือ)",team:"ทีม C",technician:"อรุณ พงษ์ไทย",laborHours:4.0,materialCost:2100,laborCost:1500,otherCost:200,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ตรวจสอบสายสัญญาณคอนโทรล ปรับตั้งค่าความไว"},
-      {id:uid(),date:iso(-19),equipmentType:"ดรอปเอาท์ฟิวส์",equipmentId:"DF-SP-0205",location:"สายป้อน สป.08 (ศรีนครินทร์)",team:"ทีม D",technician:"กฤษณะ วงศ์ษา",laborHours:3.0,materialCost:850,laborCost:1050,otherCost:100,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ทำความสะอาดฉนวนลูกถ้วยและเปลี่ยนฟิวส์ลิงค์"},
-      {id:uid(),date:iso(-18),equipmentType:"หม้อแปลงจำหน่าย",equipmentId:"TR-SP-0198",location:"สายป้อน สป.09 (ปู่เจ้าสมิงพราย)",team:"ทีม C",technician:"ชวลิต ดวงดี",laborHours:5.5,materialCost:2950,laborCost:1950,otherCost:200,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ขันกวดขั้วต่อแรงต่ำ ทำความสะอาดซิลิกาเจล"},
-      {id:uid(),date:iso(-17),equipmentType:"LBS",equipmentId:"LBS-SP-0105",location:"สายป้อน สป.10 (แบริ่ง)",team:"ทีม B",technician:"วิภา ศรีสุข",laborHours:3.5,materialCost:1450,laborCost:1200,otherCost:100,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ตรวจสภาพหน้าสัมผัสหลักและชุดประกบ"},
-      {id:uid(),date:iso(-16),equipmentType:"UNIT SUBSTATION",equipmentId:"US-SP-0033",location:"นิคมฯ บางพลี โครงการ 2",team:"ทีม A",technician:"มนตรี แสนสุข",laborHours:8.0,materialCost:5900,laborCost:2800,otherCost:500,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ตรวจระบบตัดวงจรอัตโนมัติและระบบกราวเดด"},
-      {id:uid(),date:iso(-15),equipmentType:"รีโคลสเซอร์ (Recloser)",equipmentId:"RC-SP-0022",location:"สายป้อน สป.11 (แพรกษาใหม่)",team:"ทีม C",technician:"อรุณ พงษ์ไทย",laborHours:5.0,materialCost:2600,laborCost:1800,otherCost:250,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ทดสอบ Trip/Close Test กลไกทำงานปกติ"},
-      {id:uid(),date:iso(-14),equipmentType:"ดรอปเอาท์ฟิวส์",equipmentId:"DF-SP-0304",location:"สายป้อน สป.13 (บางปูใหม่)",team:"ทีม D",technician:"กฤษณะ วงศ์ษา",laborHours:2.5,materialCost:800,laborCost:900,otherCost:100,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"เปลี่ยนกระบอกฟิวส์ที่แตกลายงา"},
-      {id:uid(),date:iso(-13),equipmentType:"หม้อแปลงจำหน่าย",equipmentId:"TR-SP-0220",location:"สายป้อน สป.14 (เทพารักษ์ กม.4)",team:"ทีม B",technician:"อนุชา ทับทิม",laborHours:6.0,materialCost:3400,laborCost:2200,otherCost:250,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"เปลี่ยนปะเก็นวาล์วถ่ายน้ำมันและทำความสะอาดตัวถัง"},
-      {id:uid(),date:iso(-12),equipmentType:"LBS",equipmentId:"LBS-SP-0112",location:"สายป้อน สป.15 (บางด้วน)",team:"ทีม A",technician:"สมชาย ใจดี",laborHours:3.0,materialCost:1300,laborCost:1100,otherCost:150,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ตรวจระยะห่างหน้าสัมผัส สภาพปกติ"},
-      {id:uid(),date:iso(-11),equipmentType:"UNIT SUBSTATION",equipmentId:"US-SP-0045",location:"นิคมฯ บางปู ซอย 12",team:"ทีม D",technician:"กฤษณะ วงศ์ษา",laborHours:8.5,materialCost:6400,laborCost:2900,otherCost:500,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ทำความสะอาดหม้อแปลงภายในสถานีย่อยและตรวจเช็คเกจวัด"},
-      {id:uid(),date:iso(-10),equipmentType:"รีโคลสเซอร์ (Recloser)",equipmentId:"RC-SP-0030",location:"สายป้อน สป.16 (คลองด่าน)",team:"ทีม C",technician:"ชวลิต ดวงดี",laborHours:4.5,materialCost:2400,laborCost:1650,otherCost:200,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ตรวจวัดค่าความเป็นฉนวนแกนบุชชิ่ง"},
-      {id:uid(),date:iso(-9),equipmentType:"ดรอปเอาท์ฟิวส์",equipmentId:"DF-SP-0412",location:"สายป้อน สป.17 (ตำหรุ-บางพลี)",team:"ทีม D",technician:"ประเสริฐ ชัยนาท",laborHours:2.5,materialCost:900,laborCost:900,otherCost:100,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"เปลี่ยนฟิวส์ลิงค์ขนาดตามพิกัดหม้อแปลง"},
-      {id:uid(),date:iso(-8),equipmentType:"หม้อแปลงจำหน่าย",equipmentId:"TR-SP-0290",location:"สายป้อน สป.18 (กิ่งแก้ว)",team:"ทีม B",technician:"อนุชา ทับทิม",laborHours:5.5,materialCost:3150,laborCost:2000,otherCost:200,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ขันอัดขั้วต่อสายแรงสูงเข้าบุชชิ่ง"},
-      {id:uid(),date:iso(-7),equipmentType:"LBS",equipmentId:"LBS-SP-0120",location:"สายป้อน สป.19 (หนามแดง)",team:"ทีม A",technician:"มนตรี แสนสุข",laborHours:3.5,materialCost:1550,laborCost:1200,otherCost:100,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ทำความสะอาดเขม่าอาร์คและฉีดน้ำยาเคลือบผิว"},
-      {id:uid(),date:iso(-6),equipmentType:"UNIT SUBSTATION",equipmentId:"US-SP-0050",location:"นิคมฯ บางพลี เฟส 3",team:"ทีม C",technician:"อรุณ พงษ์ไทย",laborHours:7.5,materialCost:5700,laborCost:2600,otherCost:400,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ตรวจเช็คระบบไฟเตือนและไฟส่องสว่างภายในตู้"},
-      {id:uid(),date:iso(-5),equipmentType:"รีโคลสเซอร์ (Recloser)",equipmentId:"RC-SP-0038",location:"สายป้อน สป.20 (เทพารักษ์ กม.12)",team:"ทีม D",technician:"ประเสริฐ ชัยนาท",laborHours:4.0,materialCost:2250,laborCost:1500,otherCost:200,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ตรวจวัดแรงดันแบตเตอรี่และตรวจจุดต่อสายกราวด์"},
-      {id:uid(),date:iso(-4),equipmentType:"ดรอปเอาท์ฟิวส์",equipmentId:"DF-SP-0502",location:"สายป้อน สป.04 (ด่านสำโรง)",team:"ทีม B",technician:"วิภา ศรีสุข",laborHours:3.0,materialCost:820,laborCost:1050,otherCost:100,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ตรวจความแน่นของขายึดโครงเหล็กเสาไฟฟ้า"},
-      {id:uid(),date:iso(-3),equipmentType:"หม้อแปลงจำหน่าย",equipmentId:"TR-SP-0305",location:"สายป้อน สป.02 (สายลวด ซอย 5)",team:"ทีม A",technician:"สมชาย ใจดี",laborHours:6.0,materialCost:3300,laborCost:2100,otherCost:250,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ตรวจเช็คความร้อนด้วย Thermoscan พบอุณหภูมิปกติ"},
-      {id:uid(),date:iso(-2),equipmentType:"LBS",equipmentId:"LBS-SP-0135",location:"สายป้อน สป.12 (แพรกษา ซอย 7)",team:"ทีม C",technician:"อรุณ พงษ์ไทย",laborHours:3.5,materialCost:1400,laborCost:1200,otherCost:100,maintenanceType:"ป้องกัน",status:"ระหว่างดำเนินการ",notes:"กำลังตรวจสอบระยะฟรีของก้านชักสับปลด"},
-      {id:uid(),date:iso(-1),equipmentType:"หม้อแปลงจำหน่าย",equipmentId:"TR-SP-0310",location:"สายป้อน สป.03 (บางเมืองพัฒนา)",team:"ทีม B",technician:"อนุชา ทับทิม",laborHours:4.0,materialCost:2200,laborCost:1500,otherCost:200,maintenanceType:"ป้องกัน",status:"ระหว่างดำเนินการ",notes:"กำลังดำเนินการเปลี่ยนถ่ายสารดูดความชื้น"},
-      {id:uid(),date:iso(0),equipmentType:"UNIT SUBSTATION",equipmentId:"US-SP-0058",location:"นิคมฯ บางปู ซอย 14",team:"ทีม A",technician:"สมชาย ใจดี",laborHours:2.0,materialCost:1000,laborCost:800,otherCost:100,maintenanceType:"ป้องกัน",status:"รอดำเนินการ",notes:"รอประสานงานแผนดับไฟกับโรงงาน"},
-      {id:uid(),date:iso(0),equipmentType:"รีโคลสเซอร์ (Recloser)",equipmentId:"RC-SP-0042",location:"สายป้อน สป.09 (ปู่เจ้าสมิงพราย ซอย 1)",team:"ทีม D",technician:"กฤษณะ วงศ์ษา",laborHours:1.5,materialCost:800,laborCost:600,otherCost:100,maintenanceType:"ป้องกัน",status:"รอดำเนินการ",notes:"เตรียมเครื่องมือเข้าตรวจสอบตู้คอนโทรล"},
+      {id:uid(),date:iso(-20),equipmentType:"หม้อแปลงจำหน่าย",equipmentId:"TR-SP-0142",location:"สายป้อน สป.12 (แพรกษา)",team:"ทีม A",technician:"สมชาย ใจดี",laborHours:6.0,materialCost:3200,laborCost:2100,otherCost:300,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ตรวจสภาพน้ำมันและบุชชิ่ง เปลี่ยนปะเก็นฝาถัง"},
+      {id:uid(),date:iso(-18),equipmentType:"LBS",equipmentId:"LBS-SP-0087",location:"สายป้อน สป.05 (บางปูเหนือ)",team:"ทีม B",technician:"วิภา ศรีสุข",laborHours:3.5,materialCost:1500,laborCost:1200,otherCost:100,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"หล่อลื่นกลไกและตรวจหน้าสัมผัส"},
+      {id:uid(),date:iso(-16),equipmentType:"UNIT SUBSTATION",equipmentId:"US-SP-0021",location:"นิคมฯ บางปู ซอย 8",team:"ทีม A",technician:"สมชาย ใจดี",laborHours:8.0,materialCost:5800,laborCost:2800,otherCost:600,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ตรวจ Thermoscan จุดต่อสายแรงสูง-แรงต่ำ"},
+      {id:uid(),date:iso(-14),equipmentType:"รีโคลสเซอร์ (Recloser)",equipmentId:"RC-SP-0015",location:"สายป้อน สป.02 (สุขุมวิทสายเก่า)",team:"ทีม C",technician:"อรุณ พงษ์ไทย",laborHours:4.0,materialCost:2200,laborCost:1600,otherCost:200,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ทดสอบระบบคอนโทรลเลอร์ แบตเตอรี่สำรองปกติ"},
+      {id:uid(),date:iso(-12),equipmentType:"ดรอปเอาท์ฟิวส์",equipmentId:"DF-SP-0304",location:"สายป้อน สป.18 (กิ่งแก้ว)",team:"ทีม D",technician:"กฤษณะ วงศ์ษา",laborHours:2.5,materialCost:800,laborCost:900,otherCost:100,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"เปลี่ยนฟิวส์ลิงค์และตรวจสภาพกระบอกฟิวส์"},
+      {id:uid(),date:iso(-10),equipmentType:"หม้อแปลงจำหน่าย",equipmentId:"TR-SP-0198",location:"สายป้อน สป.08 (ศรีนครินทร์)",team:"ทีม C",technician:"อรุณ พงษ์ไทย",laborHours:5.5,materialCost:2900,laborCost:1900,otherCost:250,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"วัดค่าความเป็นฉนวน (Megger) ขันกวดจุดต่อสาย"},
+      {id:uid(),date:iso(-8),equipmentType:"UNIT SUBSTATION",equipmentId:"US-SP-0033",location:"นิคมฯ บางพลี โครงการ 3",team:"ทีม B",technician:"วิภา ศรีสุข",laborHours:7.5,materialCost:6200,laborCost:2600,otherCost:400,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ตรวจเช็คระบบกราวด์และระบายอากาศ"},
+      {id:uid(),date:iso(-2),equipmentType:"ดรอปเอาท์ฟิวส์",equipmentId:"DF-SP-0412",location:"สายป้อน สป.11 (แพรกษาใหม่)",team:"ทีม C",technician:"อรุณ พงษ์ไทย",laborHours:3.0,materialCost:950,laborCost:1000,otherCost:100,maintenanceType:"ป้องกัน",status:"ระหว่างดำเนินการ",notes:"กำลังดำเนินการตรวจสอบหน้าสัมผัส"},
+      {id:uid(),date:iso(-1),equipmentType:"หม้อแปลงจำหน่าย",equipmentId:"TR-SP-0305",location:"สายป้อน สป.07 (สำโรงเหนือ)",team:"ทีม A",technician:"สมชาย ใจดี",laborHours:4.0,materialCost:2100,laborCost:1500,otherCost:150,maintenanceType:"ป้องกัน",status:"ระหว่างดำเนินการ",notes:"เตรียมสับเปลี่ยนชุดต่อสาย"},
+      {id:uid(),date:iso(0),equipmentType:"UNIT SUBSTATION",equipmentId:"US-SP-0045",location:"นิคมฯ บางปู ซอย 12",team:"ทีม D",technician:"กฤษณะ วงศ์ษา",laborHours:2.0,materialCost:1000,laborCost:800,otherCost:100,maintenanceType:"ป้องกัน",status:"รอดำเนินการ",notes:"รออนุมัติดับกระแสไฟฟ้า"},
     ],
     planRecords:[
-      {id:uid(),equipmentType:"หม้อแปลงจำหน่าย",equipmentId:"TR-SP-0322",location:"สายป้อน สป.10 (แบริ่ง-สุขุมวิท 107)",plannedDate:iso(1),team:"ทีม B",priority:"สูง",status:"วางแผน"},
-      {id:uid(),equipmentType:"LBS",equipmentId:"LBS-SP-0140",location:"สายป้อน สป.05 (บางปู ซอย 59)",plannedDate:iso(2),team:"ทีม A",priority:"กลาง",status:"วางแผน"},
-      {id:uid(),equipmentType:"UNIT SUBSTATION",equipmentId:"US-SP-0062",location:"นิคมฯ บางพลี ซอย 5",plannedDate:iso(3),team:"ทีม C",priority:"สูง",status:"วางแผน"},
-      {id:uid(),equipmentType:"รีโคลสเซอร์ (Recloser)",equipmentId:"RC-SP-0048",location:"สายป้อน สป.18 (กิ่งแก้ว ซอย 21)",plannedDate:iso(4),team:"ทีม D",priority:"สูง",status:"วางแผน"},
-      {id:uid(),equipmentType:"ดรอปเอาท์ฟิวส์",equipmentId:"DF-SP-0518",location:"สายป้อน สป.06 (บางโปรงพัฒนา)",plannedDate:iso(5),team:"ทีม A",priority:"ต่ำ",status:"วางแผน"},
-      {id:uid(),equipmentType:"หม้อแปลงจำหน่าย",equipmentId:"TR-SP-0335",location:"สายป้อน สป.08 (ศรีนครินทร์-ลาซาล)",plannedDate:iso(6),team:"ทีม B",priority:"กลาง",status:"วางแผน"},
-      {id:uid(),equipmentType:"LBS",equipmentId:"LBS-SP-0155",location:"สายป้อน สป.14 (ท้ายบ้านใหม่)",plannedDate:iso(7),team:"ทีม C",priority:"กลาง",status:"วางแผน"},
-      {id:uid(),equipmentType:"UNIT SUBSTATION",equipmentId:"US-SP-0070",location:"นิคมฯ บางปู ซอย 11",plannedDate:iso(8),team:"ทีม A",priority:"สูง",status:"วางแผน"},
-      {id:uid(),equipmentType:"รีโคลสเซอร์ (Recloser)",equipmentId:"RC-SP-0055",location:"สายป้อน สป.01 (ปากน้ำ ตลาดสด)",plannedDate:iso(9),team:"ทีม D",priority:"กลาง",status:"วางแผน"},
-      {id:uid(),equipmentType:"ดรอปเอาท์ฟิวส์",equipmentId:"DF-SP-0530",location:"สายป้อน สป.11 (แพรกษา ซอย 14)",plannedDate:iso(10),team:"ทีม B",priority:"ต่ำ",status:"วางแผน"},
-      {id:uid(),equipmentType:"หม้อแปลงจำหน่าย",equipmentId:"TR-SP-0348",location:"สายป้อน สป.07 (สำโรง-ปู่เจ้า)",plannedDate:iso(11),team:"ทีม C",priority:"สูง",status:"วางแผน"},
-      {id:uid(),equipmentType:"LBS",equipmentId:"LBS-SP-0168",location:"สายป้อน สป.16 (คลองด่าน กม.28)",plannedDate:iso(12),team:"ทีม A",priority:"กลาง",status:"วางแผน"},
-      {id:uid(),equipmentType:"UNIT SUBSTATION",equipmentId:"US-SP-0075",location:"นิคมฯ บางพลี เฟส 4",plannedDate:iso(14),team:"ทีม D",priority:"สูง",status:"วางแผน"},
-      {id:uid(),equipmentType:"LBS",equipmentId:"LBS-SP-0120",location:"สายป้อน สป.16 (คลองด่าน)",plannedDate:iso(-2),team:"ทีม C",priority:"สูง",status:"เลื่อน"},
-      {id:uid(),equipmentType:"หม้อแปลงจำหน่าย",equipmentId:"TR-SP-0290",location:"สายป้อน สป.01 (ปากน้ำ)",plannedDate:iso(-5),team:"ทีม D",priority:"กลาง",status:"เสร็จสิ้น"},
+      {id:uid(),equipmentType:"หม้อแปลงจำหน่าย",equipmentId:"TR-SP-0310",location:"สายป้อน สป.03 (บางเมือง)",plannedDate:iso(2),team:"ทีม B",priority:"สูง",status:"วางแผน"},
+      {id:uid(),equipmentType:"LBS",equipmentId:"LBS-SP-0112",location:"สายป้อน สป.11 (แพรกษา)",plannedDate:iso(4),team:"ทีม A",priority:"กลาง",status:"วางแผน"},
+      {id:uid(),equipmentType:"UNIT SUBSTATION",equipmentId:"US-SP-0050",location:"นิคมฯ บางพลี เฟส 2",plannedDate:iso(6),team:"ทีม C",priority:"สูง",status:"วางแผน"},
+      {id:uid(),equipmentType:"รีโคลสเซอร์ (Recloser)",equipmentId:"RC-SP-0030",location:"สายป้อน สป.15 (บางด้วน)",plannedDate:iso(8),team:"ทีม D",priority:"สูง",status:"วางแผน"},
+      {id:uid(),equipmentType:"ดรอปเอาท์ฟิวส์",equipmentId:"DF-SP-0502",location:"สายป้อน สป.06 (บางโปรง)",plannedDate:iso(10),team:"ทีม A",priority:"ต่ำ",status:"วางแผน"},
+      {id:uid(),equipmentType:"หม้อแปลงจำหน่าย",equipmentId:"TR-SP-0322",location:"สายป้อน สป.10 (แบริ่ง-สุขุมวิท)",plannedDate:iso(12),team:"ทีม B",priority:"กลาง",status:"วางแผน"},
     ],
   };
 }
@@ -446,7 +418,7 @@ function field(label, innerHtml){ return `<label class="field"><span class="fiel
 
 function exportToExcel(filename, sheetName, dataArray) {
   if (typeof XLSX === 'undefined') {
-    alert("ระบบกำลังโหลดโมดูล Excel กรุณาลองใหม่อีกครั้ง");
+    alert("ระบบกำลังโหลดโมดูล Excel");
     return;
   }
   const ws = XLSX.utils.aoa_to_sheet(dataArray);
@@ -476,10 +448,7 @@ function handleFileImport(e) {
       const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
 
-      if (rows.length < 2) {
-        alert("ไม่พบข้อมูลในไฟล์");
-        return;
-      }
+      if (rows.length < 2) return;
 
       if (IMPORT_TARGET === "pm") {
         const importedPMs = [];
@@ -506,26 +475,6 @@ function handleFileImport(e) {
         if(importedPMs.length > 0){
           persist({ ...STATE, pmRecords: [...importedPMs, ...STATE.pmRecords] });
           alert(`นำเข้าข้อมูลงาน PM สำเร็จ จำนวน ${importedPMs.length} รายการ`);
-        }
-      } else if (IMPORT_TARGET === "plan") {
-        const importedPlans = [];
-        for (let i = 1; i < rows.length; i++) {
-          const r = rows[i];
-          if (!r || !r[1] || !r[2]) continue;
-          importedPlans.push({
-            id: uid(),
-            plannedDate: r[0] ? String(r[0]).slice(0,10) : new Date().toISOString().slice(0,10),
-            equipmentType: r[1] || EQUIPMENT_TYPES[0],
-            equipmentId: String(r[2]),
-            location: r[3] || "",
-            team: r[4] || "ทีม A",
-            priority: r[5] || "กลาง",
-            status: r[6] || "วางแผน"
-          });
-        }
-        if(importedPlans.length > 0){
-          persist({ ...STATE, planRecords: [...importedPlans, ...STATE.planRecords] });
-          alert(`นำเข้าแผนงานบำรุงรักษาสำเร็จ จำนวน ${importedPlans.length} รายการ`);
         }
       }
     } catch(err) {
@@ -702,9 +651,7 @@ function attachModalListeners(){
 
   if(closeBtn) closeBtn.onclick = closeModal;
   if(cancelBtn) cancelBtn.onclick = closeModal;
-  if(backdrop) {
-    backdrop.onclick = (e) => { if(e.target === backdrop) closeModal(); };
-  }
+  if(backdrop) backdrop.onclick = (e) => { if(e.target === backdrop) closeModal(); };
 
   const editPmForm = document.getElementById("edit-pm-form");
   if(editPmForm){
@@ -809,6 +756,7 @@ function render(){
     {id:"routes", label:"เส้นทางตรวจ", icon:"mapPin", roles:['admin','tech']},
     {id:"entry", label:"บันทึก PM", icon:"clipboard", roles:['admin','tech']},
     {id:"plan", label:"แผนงาน", icon:"calendar", roles:['admin','tech']},
+    {id:"guide", label:"คู่มือเกณฑ์กรอก", icon:"book", roles:['admin','tech']},
     {id:"cost", label:"ต้นทุน WCM", icon:"coins", roles:['admin']},
     {id:"kpi", label:"Productivity", icon:"trophy", roles:['admin']},
   ].filter(n => n.roles.includes(CURRENT_USER.role));
@@ -864,12 +812,10 @@ function render(){
             <span>${n.label}</span>
           </button>
         `).join("")}
-        ${navItems.length > 4 ? `
-          <button class="b-nav-item ${['cost','kpi'].includes(TAB)?"active":""}" id="m-more-btn">
-            ${ICONS.more}
-            <span>เพิ่มเติม</span>
-          </button>
-        ` : ''}
+        <button class="b-nav-item ${['guide','cost','kpi'].includes(TAB)?"active":""}" id="m-more-btn">
+          ${ICONS.more}
+          <span>เพิ่มเติม</span>
+        </button>
       </nav>
     </div>
   `;
@@ -884,9 +830,63 @@ function renderTab(){
   if(TAB==="routes") return renderRoutes();
   if(TAB==="entry") return renderEntry();
   if(TAB==="plan") return renderPlan();
+  if(TAB==="guide") return renderGuide();
   if(TAB==="cost" && CURRENT_USER.role === 'admin') return renderCost();
   if(TAB==="kpi" && CURRENT_USER.role === 'admin') return renderKpi();
   return renderDashboard();
+}
+
+/* -------------------------------------------------------------------
+   Tab: Guide (คู่มือเกณฑ์มาตรฐานในการกรอกข้อมูล)
+------------------------------------------------------------------- */
+function renderGuide(){
+  return `
+    ${sectionHeader("คู่มือเกณฑ์มาตรฐานการกรอกข้อมูล", "แนวทางการบันทึกข้อมูลเพื่อความเป็นระเบียบและคำนวณเกณฑ์ WCM ได้ถูกต้อง", `
+      <button class="btn-secondary" id="print-pdf-btn">${ICONS.filePdf} พิมพ์คู่มือ (PDF)</button>
+    `)}
+
+    <div class="guide-grid">
+      <div class="guide-card">
+        <h3>1. เกณฑ์การตั้งรหัสอุปกรณ์ (Equipment ID)</h3>
+        <p>ให้ใช้ตัวย่อประเภทอุปกรณ์ภาษาอังกฤษ ตามด้วยรหัสเขต <span class="guide-code">SP</span> และเลข 4 หลัก (คั่นด้วย <span class="guide-code">-</span> เสมอ):</p>
+        <ul>
+          <li><strong>หม้อแปลงจำหน่าย:</strong> <span class="guide-code">TR-SP-XXXX</span> (เช่น TR-SP-0142)</li>
+          <li><strong>โหลดเบรกสวิตช์:</strong> <span class="guide-code">LBS-SP-XXXX</span> (เช่น LBS-SP-0087)</li>
+          <li><strong>สถานีย่อยแบบยูนิต:</strong> <span class="guide-code">US-SP-XXXX</span> (เช่น US-SP-0021)</li>
+          <li><strong>รีโคลสเซอร์:</strong> <span class="guide-code">RC-SP-XXXX</span> (เช่น RC-SP-0015)</li>
+          <li><strong>ดรอปเอาท์ฟิวส์:</strong> <span class="guide-code">DF-SP-XXXX</span> (เช่น DF-SP-0304)</li>
+        </ul>
+      </div>
+
+      <div class="guide-card">
+        <h3>2. เกณฑ์การระบุสายป้อน / พื้นที่ (Location)</h3>
+        <p>ให้ระบุรหัสสายป้อนหลักและวงเล็บจุดสังเกต เพื่อให้ระบบ Google Maps นำทางได้แม่นยำ:</p>
+        <ul>
+          <li><strong>รูปแบบมาตรฐาน:</strong> <span class="guide-code">สายป้อน สป.[เลข] ([พื้นที่/ซอย])</span></li>
+          <li><strong>ตัวอย่าง:</strong> สายป้อน สป.12 (แพรกษา ซอย 7)</li>
+          <li><strong>ตัวอย่าง:</strong> นิคมฯ บางปู ซอย 8</li>
+          <li><strong>ตัวอย่าง:</strong> สายป้อน สป.08 (ศรีนครินทร์-ลาซาล)</li>
+        </ul>
+      </div>
+
+      <div class="guide-card">
+        <h3>3. เกณฑ์การกรอกข้อมูลช่างและทีม (Team & Technician)</h3>
+        <ul>
+          <li><strong>ทีมปฏิบัติงาน (Team):</strong> ให้ใช้ <span class="guide-code">ทีม A</span>, <span class="guide-code">ทีม B</span>, <span class="guide-code">ทีม C</span>, <span class="guide-code">ทีม D</span> เสมอ</li>
+          <li><strong>ผู้ปฏิบัติงาน (Technician):</strong> ให้ระบุ <strong>ชื่อจริง - นามสกุล</strong> ของหัวหน้าชุดงานหลัก เช่น <em>สมชาย ใจดี</em> (งดใช้ชื่อเล่น)</li>
+        </ul>
+      </div>
+
+      <div class="guide-card">
+        <h3>4. เกณฑ์การบันทึกต้นทุนและชั่วโมงงาน (WCM Data)</h3>
+        <ul>
+          <li><strong>ชั่วโมงแรงงาน (ชม.):</strong> นับเวลาทำงานจริงหน้างาน คิดทศนิยมทีละ <span class="guide-code">0.5</span> ชม. (เช่น 30 นาที = 0.5, 1 ชม. 30 นาที = 1.5)</li>
+          <li><strong>ค่าพัสดุ/อุปกรณ์:</strong> ค่าอะไหล่ น้ำมันหม้อแปลง ปะเก็น ฟิวส์ลิงค์ ที่เบิกใช้จริง</li>
+          <li><strong>ค่าแรง & อื่นๆ:</strong> ค่าแรงตามรอบงาน และค่าน้ำมันรถกระเช้า/เครื่องมือพิเศษ</li>
+        </ul>
+      </div>
+    </div>
+  `;
 }
 
 function renderRoutes(){
@@ -1144,6 +1144,7 @@ function renderEntry(){
   const f = pmForm;
   return `
     ${sectionHeader("บันทึกข้อมูลงาน PM","กรอกประวัติการเข้าซ่อมบำรุงรักษา พร้อมแจกแจงค่าใช้จ่ายเพื่อวัดเกณฑ์ WCM", `
+      <button class="btn-secondary" id="go-guide-btn">${ICONS.book(C.blue)} ดูคู่มือเกณฑ์กรอก</button>
       <button class="btn-secondary" id="import-pm-btn">${ICONS.upload} นำเข้า</button>
       <button class="btn-success" id="export-pm-excel-btn">${ICONS.fileExcel} ส่งออก Excel</button>
     `)}
@@ -1370,10 +1371,24 @@ function attachGlobalListeners(){
     });
   });
 
+  const goGuideBtn = document.getElementById("go-guide-btn");
+  if(goGuideBtn){
+    goGuideBtn.onclick = () => {
+      TAB = "guide";
+      render();
+    };
+  }
+
   const mMoreBtn = document.getElementById("m-more-btn");
   if(mMoreBtn){
     mMoreBtn.onclick = () => {
-      TAB = TAB === 'cost' ? 'kpi' : 'cost';
+      if(CURRENT_USER?.role === 'admin'){
+        if(TAB === 'guide') TAB = 'cost';
+        else if(TAB === 'cost') TAB = 'kpi';
+        else TAB = 'guide';
+      } else {
+        TAB = 'guide';
+      }
       render();
     };
   }
