@@ -4,7 +4,10 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>MEA PM Planner — เขตสมุทรปราการ</title>
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<!-- SheetJS สำหรับ Export/Import Excel -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
 
@@ -91,6 +94,7 @@
   h2.section-title{ font-family:'Space Grotesk',sans-serif; font-size:22px; font-weight:700; color:var(--navy); margin:0; }
   .section-desc{ font-size:14px; color:var(--muted); margin:4px 0 0; }
   .section-header{ margin-bottom:20px; display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:12px; }
+  .header-actions{ display:flex; gap:8px; flex-wrap:wrap; }
 
   .kpi-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-bottom:24px; }
   @media(min-width:1024px){ .kpi-grid{ grid-template-columns:repeat(4,1fr); } }
@@ -123,11 +127,12 @@
   .field input:focus, .field select:focus, .field textarea:focus{ border-color:var(--blue); box-shadow:0 0 0 3px var(--blue-soft); }
   .span-all{ grid-column:1/-1; }
   .form-actions{ grid-column:1/-1; display:flex; justify-content:flex-end; gap:8px; }
-  .btn-primary{ display:inline-flex; align-items:center; justify-content:center; gap:8px; border:none; border-radius:6px; padding:10px 16px; font-size:13px; font-weight:500; color:#fff; background:var(--blue); cursor:pointer; font-family:inherit; transition:0.2s; width:100%; }
-  @media(min-width:640px){ .form-actions .btn-primary{ width:auto; } }
+  .btn-primary{ display:inline-flex; align-items:center; justify-content:center; gap:8px; border:none; border-radius:6px; padding:8px 16px; font-size:13px; font-weight:500; color:#fff; background:var(--blue); cursor:pointer; font-family:inherit; transition:0.2s; }
   .btn-primary:hover{ background:#2369b3; }
   .btn-secondary{ display:inline-flex; align-items:center; gap:8px; border:1px solid var(--border); border-radius:6px; padding:8px 14px; font-size:13px; font-weight:500; color:var(--text); background:var(--surface); cursor:pointer; font-family:inherit; transition:0.2s; }
   .btn-secondary:hover{ background:var(--bg); }
+  .btn-success{ display:inline-flex; align-items:center; gap:8px; border:none; border-radius:6px; padding:8px 14px; font-size:13px; font-weight:500; color:#fff; background:var(--green); cursor:pointer; font-family:inherit; transition:0.2s; }
+  .btn-success:hover{ background:#237e56; }
 
   table{ width:100%; border-collapse:collapse; font-size:13px; }
   th{ text-align:left; padding:10px 14px 10px 0; font-weight:600; color:var(--muted); border-bottom:1px solid var(--border); white-space:nowrap; }
@@ -150,11 +155,26 @@
 
   .alert-box{ padding:10px 14px; border-radius:6px; background:var(--red-soft); color:var(--red); font-size:13px; margin-bottom:16px; }
 
+  /* Print / PDF Mode Styling */
+  @media print {
+    body { background: #fff !important; color: #000 !important; font-size: 12pt; }
+    .sidebar, .toolbar, .form-actions, form, .icon-btn, .btn-sm, .header-actions, .status-select, button { display: none !important; }
+    .main { padding: 0 !important; }
+    .card { border: none !important; box-shadow: none !important; padding: 0 !important; }
+    .chart-grid { display: none !important; }
+    table { width: 100% !important; border-collapse: collapse !important; margin-top: 15px; }
+    th, td { border: 1px solid #ccc !important; padding: 6px 8px !important; }
+    .section-title::after { content: " (การไฟฟ้านครหลวง เขตสมุทรปราการ)"; font-size: 14pt; font-weight: normal; }
+  }
+
   svg.ic{ display:block; }
 </style>
 </head>
 <body>
 <div id="app"></div>
+
+<!-- Hidden File Input for Excel Import -->
+<input type="file" id="excel-importer" accept=".xlsx, .xls, .csv" style="display:none;" />
 
 <script>
 const ICONS = {
@@ -165,7 +185,9 @@ const ICONS = {
   coins: (c)=>`<svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="6"/><path d="M14.6 4.6A6 6 0 1 1 19.4 14"/></svg>`,
   trophy: (c)=>`<svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h3a2 2 0 0 1-2 4M7 5H4a2 2 0 0 0 2 4"/></svg>`,
   plus: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>`,
-  download: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`,
+  fileExcel: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="17"/><line x1="16" y1="13" x2="8" y2="17"/></svg>`,
+  filePdf: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M10 12h2a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1h-2v-4z"/><path d="M10 18v-2"/></svg>`,
+  upload: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>`,
   trash: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>`,
   check: (c)=>`<svg class="ic" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`,
   circle: (c)=>`<svg class="ic" width="10" height="10" viewBox="0 0 24 24" fill="${c}" stroke="none"><circle cx="12" cy="12" r="8"/></svg>`,
@@ -183,8 +205,8 @@ const EQUIPMENT_TYPES = ["หม้อแปลงจำหน่าย","LBS","
 const PRIORITIES = ["สูง","กลาง","ต่ำ"];
 const PLAN_STATUSES = ["วางแผน","กำลังดำเนินการ","เสร็จสิ้น","เลื่อน"];
 const PM_STATUSES = ["เสร็จสิ้น","ระหว่างดำเนินการ","รอดำเนินการ"];
-const STORAGE_KEY = "mea-pm-app-data-v5";
-const AUTH_KEY = "mea-pm-auth-v1";
+const STORAGE_KEY = "mea-pm-app-data-v6";
+const AUTH_KEY = "mea-pm-auth-v2";
 
 const uid = () => Date.now() + "-" + Math.random().toString(36).slice(2,8);
 const baht = (n) => "฿" + Number(n||0).toLocaleString("th-TH",{maximumFractionDigits:0});
@@ -211,11 +233,12 @@ function seedData(){
 }
 
 let STATE = null;
-let CURRENT_USER = null; // { username, role: 'admin'|'tech', name }
+let CURRENT_USER = null;
 let TAB = "dashboard";
 let CHARTS = {};
 let SEARCH_QUERY = "";
 let LOGIN_ERROR = "";
+let IMPORT_TARGET = "pm"; // "pm" หรือ "plan"
 
 const emptyPm = () => ({ date:new Date().toISOString().slice(0,10), equipmentType:EQUIPMENT_TYPES[0], equipmentId:"", location:"", team:"", technician:"", laborHours:"", materialCost:"", laborCost:"", otherCost:"", maintenanceType:"ป้องกัน", status:"เสร็จสิ้น", notes:"" });
 const emptyPlan = () => ({ equipmentType:EQUIPMENT_TYPES[0], equipmentId:"", location:"", plannedDate:new Date().toISOString().slice(0,10), team:"", priority:"กลาง", status:"วางแผน" });
@@ -270,23 +293,106 @@ function sectionHeader(title, desc, actionHtml=""){
       <h2 class="section-title">${esc(title)}</h2>
       ${desc ? `<p class="section-desc">${esc(desc)}</p>` : ""}
     </div>
-    ${actionHtml ? `<div>${actionHtml}</div>` : ""}
+    ${actionHtml ? `<div class="header-actions">${actionHtml}</div>` : ""}
   </div>`;
 }
 
 function emptyState(text){ return `<div class="empty-state">${esc(text)}</div>`; }
 function field(label, innerHtml){ return `<label class="field"><span class="field-label">${esc(label)}</span>${innerHtml}</label>`; }
 
-function exportToCsv(filename, rows) {
-  const processRow = (row) => row.map(val => `"${String(val ?? "").replace(/"/g, '""')}"`).join(",");
-  const csvContent = "\uFEFF" + rows.map(processRow).join("\r\n");
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.setAttribute("download", filename);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+/* -------------------------------------------------------------------
+   Excel / PDF Export & Import Utilities
+------------------------------------------------------------------- */
+function exportToExcel(filename, sheetName, dataArray) {
+  if (typeof XLSX === 'undefined') {
+    alert("ระบบกำลังโหลดโมดูล Excel กรุณาลองใหม่อีกครั้ง");
+    return;
+  }
+  const ws = XLSX.utils.aoa_to_sheet(dataArray);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, sheetName);
+  XLSX.writeFile(wb, filename + ".xlsx");
+}
+
+function triggerExcelImport(target) {
+  IMPORT_TARGET = target;
+  const fileInput = document.getElementById("excel-importer");
+  if (fileInput) {
+    fileInput.value = "";
+    fileInput.click();
+  }
+}
+
+function handleFileImport(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    try {
+      const data = new Uint8Array(evt.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+      if (rows.length < 2) {
+        alert("ไม่พบข้อมูลในไฟล์ หรือไฟล์ไม่มีแถวข้อมูล");
+        return;
+      }
+
+      if (IMPORT_TARGET === "pm") {
+        const importedPMs = [];
+        for (let i = 1; i < rows.length; i++) {
+          const r = rows[i];
+          if (!r || !r[1] || !r[2]) continue; // ต้องมีประเภทอุปกรณ์ และ รหัสอุปกรณ์
+          importedPMs.push({
+            id: uid(),
+            date: r[0] ? String(r[0]).slice(0,10) : new Date().toISOString().slice(0,10),
+            equipmentType: r[1] || EQUIPMENT_TYPES[0],
+            equipmentId: String(r[2]),
+            location: r[3] || "",
+            team: r[4] || "ทีม A",
+            technician: r[5] || "",
+            laborHours: Number(r[6]) || 0,
+            materialCost: Number(r[7]) || 0,
+            laborCost: Number(r[8]) || 0,
+            otherCost: Number(r[9]) || 0,
+            maintenanceType: r[11] || "ป้องกัน",
+            status: r[12] || "เสร็จสิ้น",
+            notes: r[13] || "นำเข้าจากไฟล์ Excel"
+          });
+        }
+        if(importedPMs.length > 0){
+          persist({ ...STATE, pmRecords: [...importedPMs, ...STATE.pmRecords] });
+          alert(`นำเข้าข้อมูลงาน PM สำเร็จเรียบร้อย จำนวน ${importedPMs.length} รายการ`);
+        }
+      } else if (IMPORT_TARGET === "plan") {
+        const importedPlans = [];
+        for (let i = 1; i < rows.length; i++) {
+          const r = rows[i];
+          if (!r || !r[1] || !r[2]) continue;
+          importedPlans.push({
+            id: uid(),
+            plannedDate: r[0] ? String(r[0]).slice(0,10) : new Date().toISOString().slice(0,10),
+            equipmentType: r[1] || EQUIPMENT_TYPES[0],
+            equipmentId: String(r[2]),
+            location: r[3] || "",
+            team: r[4] || "ทีม A",
+            priority: r[5] || "กลาง",
+            status: r[6] || "วางแผน"
+          });
+        }
+        if(importedPlans.length > 0){
+          persist({ ...STATE, planRecords: [...importedPlans, ...STATE.planRecords] });
+          alert(`นำเข้าแผนงานบำรุงรักษาสำเร็จเรียบร้อย จำนวน ${importedPlans.length} รายการ`);
+        }
+      }
+    } catch(err) {
+      console.error("Import error", err);
+      alert("เกิดข้อผิดพลาดในการอ่านไฟล์ กรุณาตรวจสอบรูปแบบไฟล์ Excel/CSV");
+    }
+  };
+  reader.readAsArrayBuffer(file);
 }
 
 function recordsTable(records, {withDelete, compact} = {}){
@@ -346,7 +452,7 @@ function renderLogin(){
             <span class="field-label">รหัสผ่าน (Password)</span>
             <input type="password" id="l-pass" placeholder="••••••••" required autocomplete="current-password"/>
           </div>
-          <button type="submit" class="btn-primary" style="padding:12px;">เข้าสู่ระบบ</button>
+          <button type="submit" class="btn-primary" style="padding:12px; width:100%;">เข้าสู่ระบบ</button>
         </form>
         <div class="login-hints">
           <p><strong>บัญชีทดสอบระบบ:</strong></p>
@@ -368,7 +474,6 @@ function render(){
     return;
   }
 
-  // Navigation filtering based on Role
   let navItems = [
     {id:"dashboard", label:"แดชบอร์ดภาพรวม", icon:"gauge", roles:['admin','tech']},
     {id:"entry", label:"บันทึกงาน PM", icon:"clipboard", roles:['admin','tech']},
@@ -426,7 +531,9 @@ function renderDashboard(){
   const upcoming = planRecords.filter(p=>p.status!=="เสร็จสิ้น").length;
 
   return `
-    ${sectionHeader("แดชบอร์ดภาพรวม", "สรุปผลการปฏิบัติงานบำรุงรักษาเชิงป้องกันและต้นทุนเทียบมาตรฐาน WCM")}
+    ${sectionHeader("แดชบอร์ดภาพรวม", "สรุปผลการปฏิบัติงานบำรุงรักษาเชิงป้องกันและต้นทุนเทียบมาตรฐาน WCM", `
+      <button class="btn-secondary" id="print-pdf-btn">${ICONS.filePdf} พิมพ์รายงานสรุป (PDF)</button>
+    `)}
     <div class="kpi-grid">
       ${kpiCard("clipboard","งาน PM ทั้งหมด",pmRecords.length,`ปิดงานแล้ว ${completed} งาน`,C.blue)}
       ${kpiCard("gauge","อัตราสำเร็จ", pmRecords.length ? Math.round(completed/pmRecords.length*100)+"%" : "0%","เทียบกับงานที่เปิดทั้งหมด",C.green)}
@@ -456,7 +563,6 @@ function renderDashboard(){
 
 function drawDashboardCharts(){
   const {pmRecords, benchmarks} = STATE;
-  
   if (typeof Chart === 'undefined') return;
 
   if(CHARTS.cost) { CHARTS.cost.destroy(); CHARTS.cost = null; }
@@ -534,7 +640,9 @@ function renderEntry(){
   const f = pmForm;
   return `
     ${sectionHeader("บันทึกข้อมูลงาน PM","กรอกประวัติการเข้าซ่อมบำรุงรักษา พร้อมแจกแจงค่าใช้จ่ายเพื่อวัดเกณฑ์ WCM", `
-      <button class="btn-secondary" id="export-pm-btn">${ICONS.download} ส่งออก CSV</button>
+      <button class="btn-secondary" id="import-pm-btn">${ICONS.upload} นำเข้า Excel</button>
+      <button class="btn-success" id="export-pm-excel-btn">${ICONS.fileExcel} ส่งออก Excel</button>
+      <button class="btn-secondary" id="print-pdf-btn">${ICONS.filePdf} พิมพ์/PDF</button>
     `)}
     <form class="entry-form" id="pm-form">
       ${field("วันที่ปฏิบัติงาน", `<input type="date" required id="f-date" value="${esc(f.date)}"/>`)}
@@ -568,7 +676,11 @@ function renderPlan(){
   const isAdmin = CURRENT_USER?.role === 'admin';
 
   return `
-    ${sectionHeader("แผนงานบำรุงรักษาล่วงหน้า", isAdmin ? "กำหนดตารางงานและส่งต่องานเข้าสู่ขั้นตอนปฏิบัติการได้ในคลิกเดียว" : "ดูตารางแผนงานบำรุงรักษาประจำสายป้อน")}
+    ${sectionHeader("แผนงานบำรุงรักษาล่วงหน้า", isAdmin ? "กำหนดตารางงานและส่งต่องานเข้าสู่ขั้นตอนปฏิบัติการได้ในคลิกเดียว" : "ดูตารางแผนงานบำรุงรักษาประจำสายป้อน", `
+      ${isAdmin ? `<button class="btn-secondary" id="import-plan-btn">${ICONS.upload} นำเข้าแผน Excel</button>` : ''}
+      <button class="btn-success" id="export-plan-excel-btn">${ICONS.fileExcel} ส่งออก Excel</button>
+      <button class="btn-secondary" id="print-pdf-btn">${ICONS.filePdf} พิมพ์/PDF</button>
+    `)}
     ${isAdmin ? `
     <form class="entry-form" id="plan-form">
       ${field("ประเภทอุปกรณ์", `<select id="p-equipmentType">${EQUIPMENT_TYPES.map(t=>`<option ${f.equipmentType===t?"selected":""}>${t}</option>`).join("")}</select>`)}
@@ -617,7 +729,10 @@ function renderCost(){
     return {type:t, count:recs.length, totalCost, avg, bench, variance};
   });
   return `
-    ${sectionHeader("วิเคราะห์ต้นทุนเทียบเกณฑ์ WCM","ปรับตั้งเกณฑ์มาตรฐานค่าใช้จ่ายต่ออุปกรณ์ และเปรียบเทียบผลลัพธ์จริง (เฉพาะวิศวกร/แอดมิน)")}
+    ${sectionHeader("วิเคราะห์ต้นทุนเทียบเกณฑ์ WCM","ปรับตั้งเกณฑ์มาตรฐานค่าใช้จ่ายต่ออุปกรณ์ และเปรียบเทียบผลลัพธ์จริง (เฉพาะวิศวกร/แอดมิน)", `
+      <button class="btn-success" id="export-cost-excel-btn">${ICONS.fileExcel} ส่งออก Excel</button>
+      <button class="btn-secondary" id="print-pdf-btn">${ICONS.filePdf} พิมพ์/PDF</button>
+    `)}
     <div class="bench-grid">
       ${EQUIPMENT_TYPES.map(t=>`<div class="card">
         <div class="bench-label">${esc(t)} (เกณฑ์มาตรฐาน WCM)</div>
@@ -663,7 +778,9 @@ function renderKpi(){
   const avgProd = rows.length ? (rows.reduce((s,r)=>s+r.productivity,0)/rows.length).toFixed(2) : "0.00";
 
   return `
-    ${sectionHeader("ตัวชี้วัดบุคคล & ทีม (Productivity)","วิเคราะห์ประสิทธิภาพการใช้แรงงานและความคุ้มค่าตามแนวทาง WCM")}
+    ${sectionHeader("ตัวชี้วัดบุคคล & ทีม (Productivity)","วิเคราะห์ประสิทธิภาพการใช้แรงงานและความคุ้มค่าตามแนวทาง WCM", `
+      <button class="btn-secondary" id="print-pdf-btn">${ICONS.filePdf} พิมพ์/PDF</button>
+    `)}
     <div class="kpi-grid kpi3">
       ${kpiCard("gauge","อัตราปิดแผนสำเร็จ", planCompletion+"%", "ของแผนงานทั้งหมด", C.green)}
       ${kpiCard("trophy","จำนวนช่างที่บันทึก", rows.length, "ผู้รับผิดชอบงาน", C.blue)}
@@ -739,6 +856,17 @@ function attachGlobalListeners(){
       }
     });
   }
+
+  // Print PDF Trigger
+  document.querySelectorAll("#print-pdf-btn").forEach(btn => {
+    btn.addEventListener("click", () => window.print());
+  });
+
+  // Importer change handler
+  const fileImporter = document.getElementById("excel-importer");
+  if (fileImporter) {
+    fileImporter.onchange = handleFileImport;
+  }
 }
 
 function attachTabListeners(){
@@ -773,9 +901,10 @@ function attachTabListeners(){
       });
     }
 
-    const exportBtn = document.getElementById("export-pm-btn");
-    if(exportBtn){
-      exportBtn.addEventListener("click", ()=>{
+    // Export PM to Excel
+    const exportExcelBtn = document.getElementById("export-pm-excel-btn");
+    if(exportExcelBtn){
+      exportExcelBtn.addEventListener("click", ()=>{
         const headers = ["วันที่", "ประเภทอุปกรณ์", "รหัสอุปกรณ์", "พื้นที่/สายป้อน", "ทีม", "ช่างผู้รับผิดชอบ", "ชม.แรงงาน", "ค่าพัสดุ", "ค่าแรง", "ค่าใช้จ่ายอื่น", "รวมต้นทุน", "ประเภทงาน", "สถานะ", "หมายเหตุ"];
         const rows = STATE.pmRecords.map(r => [
           r.date, r.equipmentType, r.equipmentId, r.location, r.team, r.technician,
@@ -783,8 +912,14 @@ function attachTabListeners(){
           (Number(r.materialCost)+Number(r.laborCost)+Number(r.otherCost)),
           r.maintenanceType, r.status, r.notes
         ]);
-        exportToCsv("MEA_PM_Records_" + new Date().toISOString().slice(0,10) + ".csv", [headers, ...rows]);
+        exportToExcel("MEA_PM_Records_" + new Date().toISOString().slice(0,10), "PM_Records", [headers, ...rows]);
       });
+    }
+
+    // Import PM from Excel
+    const importBtn = document.getElementById("import-pm-btn");
+    if(importBtn){
+      importBtn.addEventListener("click", () => triggerExcelImport("pm"));
     }
 
     document.querySelectorAll("[data-del-pm]").forEach(btn=>{
@@ -808,6 +943,24 @@ function attachTabListeners(){
         planForm = emptyPlan();
         persist({ ...STATE, planRecords: [record, ...STATE.planRecords] });
       });
+    }
+
+    // Export Plan to Excel
+    const exportPlanBtn = document.getElementById("export-plan-excel-btn");
+    if(exportPlanBtn){
+      exportPlanBtn.addEventListener("click", ()=>{
+        const headers = ["วันที่วางแผน", "ประเภทอุปกรณ์", "รหัสอุปกรณ์", "พื้นที่/สายป้อน", "ทีมที่รับผิดชอบ", "ความสำคัญ", "สถานะ"];
+        const rows = STATE.planRecords.map(r => [
+          r.plannedDate, r.equipmentType, r.equipmentId, r.location, r.team, r.priority, r.status
+        ]);
+        exportToExcel("MEA_PM_Plans_" + new Date().toISOString().slice(0,10), "PM_Plans", [headers, ...rows]);
+      });
+    }
+
+    // Import Plan from Excel
+    const importPlanBtn = document.getElementById("import-plan-btn");
+    if(importPlanBtn){
+      importPlanBtn.addEventListener("click", () => triggerExcelImport("plan"));
     }
 
     document.querySelectorAll("[data-convert-plan]").forEach(btn=>{
@@ -851,6 +1004,22 @@ function attachTabListeners(){
         persist({ ...STATE, benchmarks: { ...STATE.benchmarks, [type]: Number(inp.value)||0 } });
       });
     });
+
+    const exportCostBtn = document.getElementById("export-cost-excel-btn");
+    if(exportCostBtn){
+      exportCostBtn.addEventListener("click", ()=>{
+        const headers = ["ประเภทอุปกรณ์", "จำนวนงานที่ทำ", "ต้นทุนจริงรวม (บาท)", "ต้นทุนเฉลี่ย/งาน (บาท)", "เกณฑ์มาตรฐาน WCM (บาท)", "ส่วนต่าง (%)"];
+        const rows = EQUIPMENT_TYPES.map(t=>{
+          const recs = STATE.pmRecords.filter(r=>r.equipmentType===t);
+          const totalCost = recs.reduce((s,r)=>s+Number(r.materialCost)+Number(r.laborCost)+Number(r.otherCost),0);
+          const avg = recs.length ? totalCost/recs.length : 0;
+          const bench = STATE.benchmarks[t]||0;
+          const variance = bench ? (avg-bench)/bench*100 : 0;
+          return [t, recs.length, totalCost, avg, bench, variance.toFixed(2) + "%"];
+        });
+        exportToExcel("MEA_WCM_Cost_Analysis_" + new Date().toISOString().slice(0,10), "Cost_Analysis", [headers, ...rows]);
+      });
+    }
   }
 }
 
