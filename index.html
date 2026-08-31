@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>MEA PM Planner — เขตสมุทรปราการ</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
 
@@ -21,23 +21,14 @@
     background:var(--bg); color:var(--text);
   }
   #app{ width:100%; min-height:100vh; display:flex; }
-  .shell{
-    display:flex; flex-direction:column; min-height:100vh; width:100%;
-  }
+  .shell{ display:flex; flex-direction:column; min-height:100vh; width:100%; }
   @media(min-width:768px){ .shell{ flex-direction:row; } }
 
-  /* Sidebar */
-  .sidebar{
-    background:var(--navy); padding:20px; display:flex; gap:4px;
-    overflow-x:auto; flex-shrink:0;
-  }
+  .sidebar{ background:var(--navy); padding:20px; display:flex; gap:4px; overflow-x:auto; flex-shrink:0; }
   @media(min-width:768px){ .sidebar{ width:260px; flex-direction:column; } }
   .brand{ display:none; align-items:center; gap:10px; margin-bottom:24px; padding:0 4px; }
   @media(min-width:768px){ .brand{ display:flex; } }
-  .brand-icon{
-    width:36px; height:36px; border-radius:8px; background:var(--blue);
-    display:flex; align-items:center; justify-content:center; flex-shrink:0;
-  }
+  .brand-icon{ width:36px; height:36px; border-radius:8px; background:var(--blue); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
   .brand-title{ color:#fff; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px; line-height:1.2; }
   .brand-sub{ color:#8FA5C2; font-size:11px; margin-top:2px; }
   .nav-btn{
@@ -57,17 +48,13 @@
   .clear-btn:hover{ color:#fff; border-color:#8FA5C2; }
   .save-note{ font-size:11px; margin-top:12px; padding:0 4px; color:#5E7699; text-align:center; }
 
-  /* Main */
   .main{ flex:1; padding:24px; overflow-y:auto; }
   @media(min-width:768px){ .main{ padding:32px; } }
 
-  h2.section-title{
-    font-family:'Space Grotesk',sans-serif; font-size:22px; font-weight:700; color:var(--navy); margin:0;
-  }
+  h2.section-title{ font-family:'Space Grotesk',sans-serif; font-size:22px; font-weight:700; color:var(--navy); margin:0; }
   .section-desc{ font-size:14px; color:var(--muted); margin:4px 0 0; }
   .section-header{ margin-bottom:20px; display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:12px; }
 
-  /* Grids */
   .kpi-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-bottom:24px; }
   @media(min-width:1024px){ .kpi-grid{ grid-template-columns:repeat(4,1fr); } }
   .kpi-grid.kpi3{ grid-template-columns:repeat(2,1fr); }
@@ -84,50 +71,26 @@
   .chart-grid{ display:grid; grid-template-columns:1fr; gap:20px; margin-bottom:24px; }
   @media(min-width:1024px){ .chart-grid{ grid-template-columns:1fr 1fr; } }
   .chart-card h3{ font-size:15px; font-weight:600; color:var(--navy); margin:0 0 16px; }
-  .chart-wrap{ height:260px; position:relative; }
+  .chart-wrap{ height:260px; position:relative; width:100%; }
 
-  .empty-state{
-    padding:40px 16px; display:flex; align-items:center; justify-content:center;
-    font-size:14px; color:var(--muted); background:var(--bg); border-radius:8px;
-  }
+  .empty-state{ padding:40px 16px; display:flex; align-items:center; justify-content:center; font-size:14px; color:var(--muted); background:var(--bg); border-radius:8px; }
 
-  /* Forms & Toolbar */
   .toolbar{ display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
-  .toolbar input{
-    padding:8px 12px; border:1px solid var(--border); border-radius:6px; font-size:13px; font-family:inherit; background:var(--surface);
-  }
-  form.entry-form{
-    background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px;
-    display:grid; grid-template-columns:1fr; gap:16px; margin-bottom:24px;
-  }
+  .toolbar input{ padding:8px 12px; border:1px solid var(--border); border-radius:6px; font-size:13px; font-family:inherit; background:var(--surface); }
+  form.entry-form{ background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px; display:grid; grid-template-columns:1fr; gap:16px; margin-bottom:24px; }
   @media(min-width:640px){ form.entry-form{ grid-template-columns:1fr 1fr; } }
   @media(min-width:1024px){ form.entry-form{ grid-template-columns:1fr 1fr 1fr; } }
   .field{ display:flex; flex-direction:column; gap:6px; font-size:13px; }
   .field-label{ color:var(--muted); font-weight:500; }
-  .field input, .field select, .field textarea{
-    width:100%; border:1px solid var(--border); border-radius:6px; padding:8px 12px;
-    font-size:14px; outline:none; background:var(--surface); color:var(--text);
-    font-family:inherit; transition:.15s;
-  }
-  .field input:focus, .field select:focus, .field textarea:focus{
-    border-color:var(--blue); box-shadow:0 0 0 3px var(--blue-soft);
-  }
+  .field input, .field select, .field textarea{ width:100%; border:1px solid var(--border); border-radius:6px; padding:8px 12px; font-size:14px; outline:none; background:var(--surface); color:var(--text); font-family:inherit; transition:.15s; }
+  .field input:focus, .field select:focus, .field textarea:focus{ border-color:var(--blue); box-shadow:0 0 0 3px var(--blue-soft); }
   .span-all{ grid-column:1/-1; }
   .form-actions{ grid-column:1/-1; display:flex; justify-content:flex-end; gap:8px; }
-  .btn-primary{
-    display:inline-flex; align-items:center; gap:8px; border:none; border-radius:6px;
-    padding:8px 16px; font-size:13px; font-weight:500; color:#fff; background:var(--blue);
-    cursor:pointer; font-family:inherit; transition:0.2s;
-  }
+  .btn-primary{ display:inline-flex; align-items:center; gap:8px; border:none; border-radius:6px; padding:8px 16px; font-size:13px; font-weight:500; color:#fff; background:var(--blue); cursor:pointer; font-family:inherit; transition:0.2s; }
   .btn-primary:hover{ background:#2369b3; }
-  .btn-secondary{
-    display:inline-flex; align-items:center; gap:8px; border:1px solid var(--border); border-radius:6px;
-    padding:8px 14px; font-size:13px; font-weight:500; color:var(--text); background:var(--surface);
-    cursor:pointer; font-family:inherit; transition:0.2s;
-  }
+  .btn-secondary{ display:inline-flex; align-items:center; gap:8px; border:1px solid var(--border); border-radius:6px; padding:8px 14px; font-size:13px; font-weight:500; color:var(--text); background:var(--surface); cursor:pointer; font-family:inherit; transition:0.2s; }
   .btn-secondary:hover{ background:var(--bg); }
 
-  /* Tables */
   table{ width:100%; border-collapse:collapse; font-size:13px; }
   th{ text-align:left; padding:10px 14px 10px 0; font-weight:600; color:var(--muted); border-bottom:1px solid var(--border); white-space:nowrap; }
   td{ padding:12px 14px 12px 0; border-bottom:1px solid var(--border); white-space:nowrap; vertical-align:middle; }
@@ -136,10 +99,7 @@
   .muted{ color:var(--muted); }
   .status-select{ font-size:12px; border-radius:6px; border:1px solid var(--border); padding:4px 8px; font-family:inherit; background:var(--surface); }
 
-  .pill{
-    display:inline-flex; align-items:center; gap:4px; border-radius:999px;
-    padding:3px 8px; font-size:12px; font-weight:500;
-  }
+  .pill{ display:inline-flex; align-items:center; gap:4px; border-radius:999px; padding:3px 8px; font-size:12px; font-weight:500; }
   .action-btns{ display:flex; align-items:center; gap:8px; justify-content:flex-end; }
   .icon-btn{ background:none; border:none; cursor:pointer; color:var(--muted); display:flex; padding:4px; border-radius:4px; transition:0.2s; }
   .icon-btn:hover{ color:var(--red); background:var(--red-soft); }
@@ -182,7 +142,7 @@ const EQUIPMENT_TYPES = ["หม้อแปลงจำหน่าย","LBS","
 const PRIORITIES = ["สูง","กลาง","ต่ำ"];
 const PLAN_STATUSES = ["วางแผน","กำลังดำเนินการ","เสร็จสิ้น","เลื่อน"];
 const PM_STATUSES = ["เสร็จสิ้น","ระหว่างดำเนินการ","รอดำเนินการ"];
-const STORAGE_KEY = "mea-pm-app-data-v3";
+const STORAGE_KEY = "mea-pm-app-data-v4";
 
 const uid = () => Date.now() + "-" + Math.random().toString(36).slice(2,8);
 const baht = (n) => "฿" + Number(n||0).toLocaleString("th-TH",{maximumFractionDigits:0});
@@ -223,7 +183,6 @@ function init(){
     const saved = localStorage.getItem(STORAGE_KEY);
     STATE = saved ? JSON.parse(saved) : seedData();
   } catch(e) {
-    console.error("Storage error:", e);
     STATE = seedData();
   }
   render();
@@ -231,9 +190,7 @@ function init(){
 
 function persist(next){
   STATE = next;
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE));
-  } catch(e) { console.error("Save error:", e); }
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE)); } catch(e){}
   render();
 }
 
@@ -353,7 +310,7 @@ function render(){
   `;
   attachGlobalListeners();
   attachTabListeners();
-  if(TAB==="dashboard") setTimeout(drawDashboardCharts, 50);
+  if(TAB==="dashboard") requestAnimationFrame(() => setTimeout(drawDashboardCharts, 50));
 }
 
 function renderTab(){
@@ -383,11 +340,15 @@ function renderDashboard(){
     <div class="chart-grid">
       <div class="card chart-card">
         <h3>ต้นทุนเฉลี่ยจริง เทียบมาตรฐาน WCM (บาท/งาน)</h3>
-        <div class="chart-wrap"><canvas id="costChart"></canvas></div>
+        <div class="chart-wrap">
+          <canvas id="costChart"></canvas>
+        </div>
       </div>
       <div class="card chart-card">
         <h3>Labor Productivity รายทีม (งานเสร็จ / ชั่วโมงแรงงาน)</h3>
-        <div class="chart-wrap" id="prodChartWrap"><canvas id="prodChart"></canvas></div>
+        <div class="chart-wrap" id="prodChartWrap">
+          <canvas id="prodChart"></canvas>
+        </div>
       </div>
     </div>
     <div class="card chart-card">
@@ -399,8 +360,15 @@ function renderDashboard(){
 
 function drawDashboardCharts(){
   const {pmRecords, benchmarks} = STATE;
-  Object.values(CHARTS).forEach(c=>c && typeof c.destroy === 'function' && c.destroy());
-  CHARTS = {};
+  
+  if (typeof Chart === 'undefined') {
+    console.error("Chart.js ยังโหลดไม่เสร็จสมบูรณ์");
+    return;
+  }
+
+  // เคลียร์กราฟเก่า
+  if(CHARTS.cost) { CHARTS.cost.destroy(); CHARTS.cost = null; }
+  if(CHARTS.prod) { CHARTS.prod.destroy(); CHARTS.prod = null; }
 
   const costByType = EQUIPMENT_TYPES.map(t=>{
     const recs = pmRecords.filter(r=>r.equipmentType===t);
@@ -409,7 +377,7 @@ function drawDashboardCharts(){
   });
   
   const costCtx = document.getElementById("costChart");
-  if(costCtx && typeof Chart !== 'undefined'){
+  if(costCtx){
     CHARTS.cost = new Chart(costCtx, {
       type:"bar",
       data:{
@@ -420,9 +388,16 @@ function drawDashboardCharts(){
         ]
       },
       options:{
-        responsive:true, maintainAspectRatio:false,
-        plugins:{ legend:{position:"bottom"}, tooltip:{callbacks:{label:(ctx)=>ctx.dataset.label+": "+baht(ctx.parsed.y)}} },
-        scales:{ y:{ grid:{color:C.border} } }
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{
+          legend:{position:"bottom", labels:{font:{family:"'Noto Sans Thai', sans-serif"}}},
+          tooltip:{callbacks:{label:(ctx)=>ctx.dataset.label+": "+baht(ctx.parsed.y)}}
+        },
+        scales:{
+          y:{ grid:{color:C.border}, ticks:{font:{family:"'IBM Plex Mono', monospace"}} },
+          x:{ ticks:{font:{family:"'Noto Sans Thai', sans-serif", size:11}} }
+        }
       }
     });
   }
@@ -434,18 +409,32 @@ function drawDashboardCharts(){
     teamMap[r.team].hours += Number(r.laborHours)||0;
   });
   const teams = Object.keys(teamMap);
-  const prodWrap = document.getElementById("prodChartWrap");
-  if(!teams.length){
-    if(prodWrap) prodWrap.innerHTML = emptyState("ยังไม่มีข้อมูลงานที่เสร็จสิ้น");
-  } else {
-    const prodCtx = document.getElementById("prodChart");
-    if(prodCtx && typeof Chart !== 'undefined'){
-      CHARTS.prod = new Chart(prodCtx, {
-        type:"bar",
-        data:{ labels: teams, datasets:[{ label:"Productivity (งาน/ชม.)", data: teams.map(t=> teamMap[t].hours ? +(teamMap[t].tasks/teamMap[t].hours).toFixed(2) : 0), backgroundColor:C.green, borderRadius:4 }] },
-        options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ y:{grid:{color:C.border}} } }
-      });
-    }
+  const prodCtx = document.getElementById("prodChart");
+  if(prodCtx){
+    CHARTS.prod = new Chart(prodCtx, {
+      type:"bar",
+      data:{
+        labels: teams.length ? teams : ["ไม่มีข้อมูล"],
+        datasets:[{
+          label:"Productivity (งาน/ชม.)",
+          data: teams.length ? teams.map(t=> teamMap[t].hours ? +(teamMap[t].tasks/teamMap[t].hours).toFixed(2) : 0) : [0],
+          backgroundColor:C.green,
+          borderRadius:4
+        }]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:(ctx)=>"Productivity: "+ctx.parsed.y+" งาน/ชม."}}
+        },
+        scales:{
+          y:{ grid:{color:C.border}, ticks:{font:{family:"'IBM Plex Mono', monospace"}} },
+          x:{ ticks:{font:{family:"'Noto Sans Thai', sans-serif"}} }
+        }
+      }
+    });
   }
 }
 
@@ -730,7 +719,6 @@ function attachTabListeners(){
   }
 }
 
-// เริ่มทำงานเมื่อ DOM พร้อม
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
 } else {
