@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>MEA PM Planner — กฟน. เขตสมุทรปราการ (Smart CMMS & WCM)</title>
+<title>MEA PM Planner — เขตสมุทรปราการ (Smart CMMS & Capacity)</title>
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
@@ -33,7 +33,7 @@
     --purple-soft: #EDE9FE;
     --bg: #F0F4F9;
     --surface: #FFFFFF;
-    --surface-glass: rgba(255, 255, 255, 0.88);
+    --surface-glass: rgba(255, 255, 255, 0.9);
     --border: #E2E8F0;
     --text: #0F172A;
     --muted: #64748B;
@@ -49,15 +49,14 @@
   body{
     font-family:'Noto Sans Thai','Plus Jakarta Sans',sans-serif;
     background:var(--bg); color:var(--text);
-    background-image: radial-gradient(at 0% 0%, rgba(0, 136, 255, 0.04) 0px, transparent 50%),
-                      radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.04) 0px, transparent 50%);
+    background-image: radial-gradient(at 0% 0%, rgba(0, 136, 255, 0.05) 0px, transparent 50%),
+                      radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.05) 0px, transparent 50%);
     background-attachment: fixed;
   }
   #app{ width:100%; min-height:100vh; display:flex; flex-direction:column; }
   .shell{ display:flex; flex-direction:column; min-height:100vh; width:100%; }
   @media(min-width:768px){ .shell{ flex-direction:row; } }
 
-  /* Premium Glass Cards */
   .card{
     background:var(--surface-glass); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
     border:1px solid rgba(255,255,255,0.8); border-radius:var(--radius); padding:20px;
@@ -69,16 +68,11 @@
   .login-container{
     display:flex; align-items:center; justify-content:center; min-height:100vh; width:100%; padding:20px;
     background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy) 50%, #154374 100%);
-    position:relative; overflow:hidden;
-  }
-  .login-container::before{
-    content:""; position:absolute; width:400px; height:400px; background:radial-gradient(circle, var(--electric) 0%, transparent 70%);
-    top:-100px; right:-100px; opacity:0.3; filter:blur(60px);
   }
   .login-card{
     background:rgba(255, 255, 255, 0.95); backdrop-filter:blur(16px);
     border-radius:24px; padding:36px; width:100%; max-width:420px;
-    box-shadow: var(--shadow-lg); border:1px solid rgba(255,255,255,0.6); position:relative; z-index:2;
+    box-shadow: var(--shadow-lg); border:1px solid rgba(255,255,255,0.6);
   }
   .login-logo{
     width:56px; height:56px; border-radius:16px; background:linear-gradient(135deg, var(--electric), #0055AA);
@@ -86,18 +80,16 @@
     box-shadow: 0 8px 20px var(--electric-glow);
   }
 
-  /* Topbar on Mobile */
+  /* Topbar Mobile */
   .mobile-topbar{
     display:flex; align-items:center; justify-content:space-between;
     background:var(--navy); padding:14px 18px; color:#fff;
-    box-shadow:0 2px 10px rgba(0,0,0,0.15);
   }
   @media(min-width:768px){ .mobile-topbar{ display:none; } }
 
   /* Desktop Sidebar */
   .sidebar{
     background:var(--navy); padding:24px 18px; display:none; width:270px; flex-direction:column; flex-shrink:0;
-    box-shadow: 4px 0 20px rgba(0,0,0,0.05);
   }
   @media(min-width:768px){ .sidebar{ display:flex; } }
   .brand{ display:flex; align-items:center; gap:12px; margin-bottom:24px; padding:0 6px; }
@@ -105,7 +97,7 @@
     width:40px; height:40px; border-radius:12px; background:linear-gradient(135deg, var(--electric), #005cb3);
     display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 4px 14px var(--electric-glow);
   }
-  .brand-title{ color:#fff; font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:16px; letter-spacing:-0.2px; }
+  .brand-title{ color:#fff; font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:16px; }
   .brand-sub{ color:#94A3B8; font-size:11px; margin-top:2px; }
 
   .user-badge{
@@ -114,12 +106,12 @@
     border:1px solid rgba(255,255,255,0.08);
   }
   .user-badge-role{ font-size:13px; font-weight:600; color:#fff; }
-  .user-badge-tag{ font-size:10px; font-weight:700; padding:3px 8px; border-radius:6px; background:var(--electric); color:#fff; letter-spacing:0.5px; }
+  .user-badge-tag{ font-size:10px; font-weight:700; padding:3px 8px; border-radius:6px; background:var(--electric); color:#fff; }
 
   .nav-btn{
     display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:10px;
     font-size:14px; font-weight:500; color:#94A3B8; background:transparent;
-    border:none; cursor:pointer; text-align:left; font-family:inherit; transition:0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border:none; cursor:pointer; text-align:left; font-family:inherit; transition:0.2s;
   }
   .nav-btn:hover{ background:rgba(255,255,255,0.06); color:#fff; transform:translateX(3px); }
   .nav-btn.active{
@@ -138,10 +130,10 @@
   .b-nav-item{
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     gap:3px; background:none; border:none; color:#94A3B8; font-size:10px; font-family:inherit;
-    flex:1; height:100%; cursor:pointer; padding:4px 0; transition:0.15s;
+    flex:1; height:100%; cursor:pointer; padding:4px 0;
   }
   .b-nav-item.active{ color:#00D2FF; font-weight:700; }
-  .b-nav-item.active svg{ stroke:#00D2FF; filter:drop-shadow(0 2px 6px rgba(0,210,255,0.4)); }
+  .b-nav-item.active svg{ stroke:#00D2FF; }
 
   /* Main Area */
   .main{
@@ -150,13 +142,13 @@
   }
   @media(min-width:768px){ .main{ padding:36px; padding-bottom:36px; } }
 
-  h2.section-title{ font-family:'Plus Jakarta Sans','Noto Sans Thai',sans-serif; font-size:22px; font-weight:800; color:var(--navy); margin:0; letter-spacing:-0.4px; }
+  h2.section-title{ font-family:'Plus Jakarta Sans','Noto Sans Thai',sans-serif; font-size:22px; font-weight:800; color:var(--navy); margin:0; }
   .section-desc{ font-size:13px; color:var(--muted); margin:4px 0 0; }
   .section-header{ margin-bottom:20px; display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:12px; }
   .header-actions{ display:flex; gap:8px; flex-wrap:wrap; width:100%; }
   @media(min-width:640px){ .header-actions{ width:auto; } }
 
-  /* KPI Cards with Glow */
+  /* KPI Grid */
   .kpi-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-bottom:24px; }
   @media(min-width:1024px){ .kpi-grid{ grid-template-columns:repeat(4,1fr); gap:18px; } }
   .kpi-grid.kpi3{ grid-template-columns:repeat(2,1fr); }
@@ -175,11 +167,7 @@
   @media(min-width:640px){ .kpi-value{ font-size:28px; } }
   .kpi-sub{ font-size:11px; color:var(--muted); }
 
-  /* Interactive Map Container */
-  #map-container{
-    height: 380px; width: 100%; border-radius: 14px; z-index: 1; border: 1px solid var(--border);
-    box-shadow: inset 0 2px 6px rgba(0,0,0,0.05);
-  }
+  #map-container{ height: 380px; width: 100%; border-radius: 14px; z-index: 1; border: 1px solid var(--border); }
 
   /* Charts */
   .chart-grid{ display:grid; grid-template-columns:1fr; gap:18px; margin-bottom:24px; }
@@ -188,13 +176,12 @@
   .chart-wrap{ height:280px; position:relative; width:100%; }
   @media(min-width:640px){ .chart-wrap{ height:320px; } }
 
-  /* Toolbar & Buttons */
+  /* Forms & Toolbar */
   .toolbar{ display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
   .toolbar input, .toolbar select{
     padding:10px 14px; border:1px solid var(--border); border-radius:10px; font-size:13px; font-family:inherit; background:var(--surface); flex:1; min-height:44px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
   }
-  form.entry-form{ background:var(--surface-glass); backdrop-filter:blur(10px); border:1px solid var(--border); border-radius:var(--radius); padding:20px; display:grid; grid-template-columns:1fr; gap:16px; margin-bottom:24px; box-shadow:var(--shadow-sm); }
+  form.entry-form{ background:var(--surface-glass); border:1px solid var(--border); border-radius:var(--radius); padding:20px; display:grid; grid-template-columns:1fr; gap:16px; margin-bottom:24px; box-shadow:var(--shadow-sm); }
   @media(min-width:640px){ form.entry-form{ grid-template-columns:1fr 1fr; } }
   @media(min-width:1024px){ form.entry-form{ grid-template-columns:1fr 1fr 1fr; } }
   .field{ display:flex; flex-direction:column; gap:6px; font-size:13px; }
@@ -209,7 +196,7 @@
   .btn-primary:hover{ transform:translateY(-1px); box-shadow:0 6px 16px var(--electric-glow); }
   .btn-secondary{ display:inline-flex; align-items:center; justify-content:center; gap:6px; border:1px solid var(--border); border-radius:10px; padding:10px 16px; font-size:13px; font-weight:600; color:var(--text); background:var(--surface); cursor:pointer; font-family:inherit; transition:0.2s; min-height:42px; }
   .btn-secondary:hover{ background:var(--bg); }
-  .btn-success{ display:inline-flex; align-items:center; justify-content:center; gap:6px; border:none; border-radius:10px; padding:10px 16px; font-size:13px; font-weight:600; color:#fff; background:linear-gradient(135deg, #10B981, #059669); cursor:pointer; font-family:inherit; transition:0.2s; min-height:42px; box-shadow:0 4px 12px rgba(16,185,129,0.3); }
+  .btn-success{ display:inline-flex; align-items:center; justify-content:center; gap:6px; border:none; border-radius:10px; padding:10px 16px; font-size:13px; font-weight:600; color:#fff; background:linear-gradient(135deg, #10B981, #059669); cursor:pointer; font-family:inherit; transition:0.2s; min-height:42px; }
   .btn-success:hover{ transform:translateY(-1px); }
 
   /* Mobile Record List */
@@ -229,18 +216,20 @@
   .mono{ font-family:'JetBrains Mono',monospace; }
 
   .pill{ display:inline-flex; align-items:center; gap:5px; border-radius:999px; padding:4px 10px; font-size:11px; font-weight:600; }
+  .capacity-pill{ display:inline-flex; align-items:center; border-radius:6px; padding:2px 8px; font-size:11px; font-weight:700; font-family:'JetBrains Mono',monospace; background:var(--purple-soft); color:var(--purple); border:1px solid #DDD6FE; }
+  
   .btn-sm{ padding:6px 12px; font-size:12px; border-radius:8px; border:1px solid var(--electric); background:var(--blue-soft); color:var(--electric); cursor:pointer; font-family:inherit; display:inline-flex; align-items:center; justify-content:center; font-weight:600; min-height:34px; transition:0.15s; }
   .btn-sm:hover{ background:var(--electric); color:#fff; }
 
-  /* Pulse Animation for Live Status */
-  .pulse-dot{ width:8px; height:8px; border-radius:50%; background:var(--green); display:inline-block; box-shadow:0 0 0 0 rgba(16,185,129,0.7); animation:pulse 1.8s infinite; }
-  @keyframes pulse{ 0%{box-shadow:0 0 0 0 rgba(16,185,129,0.7);} 70%{box-shadow:0 0 0 6px rgba(16,185,129,0);} 100%{box-shadow:0 0 0 0 rgba(16,185,129,0);} }
+  .bench-grid{ display:grid; grid-template-columns:1fr; gap:12px; margin-bottom:20px; }
+  @media(min-width:640px){ .bench-grid{ grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px; } }
+  .bench-label{ font-size:12px; font-weight:600; color:var(--muted); margin-bottom:4px; }
 
-  /* Modal */
+  .alert-box{ padding:10px 14px; border-radius:8px; background:var(--red-soft); color:var(--red); font-size:13px; margin-bottom:16px; }
+
   .modal-backdrop{
     position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(9,30,54,0.7);
-    display:flex; align-items:flex-end; justify-content:center; z-index:9999; padding:0;
-    backdrop-filter:blur(4px);
+    display:flex; align-items:flex-end; justify-content:center; z-index:9999; padding:0; backdrop-filter:blur(4px);
   }
   @media(min-width:640px){ .modal-backdrop{ align-items:center; padding:20px; } }
   .modal-card{
@@ -248,6 +237,18 @@
     max-height:88vh; overflow-y:auto; padding:24px; box-shadow:var(--shadow-lg);
   }
   @media(min-width:640px){ .modal-card{ border-radius:20px; } }
+
+  @media print {
+    body { background: #fff !important; color: #000 !important; font-size: 11pt; }
+    .sidebar, .toolbar, .form-actions, form, .btn-sm, .header-actions, .status-select, button, .modal-backdrop, .bottom-nav, .mobile-topbar { display: none !important; }
+    .main { padding: 0 !important; }
+    .card { border: none !important; box-shadow: none !important; padding: 0 !important; }
+    .chart-grid, #map-container { display: none !important; }
+    .desktop-table-wrap { display: block !important; }
+    .mobile-record-list { display: none !important; }
+    table { width: 100% !important; border-collapse: collapse !important; margin-top: 10px; }
+    th, td { border: 1px solid #ccc !important; padding: 6px 8px !important; }
+  }
 
   svg.ic{ display:block; }
 </style>
@@ -278,28 +279,35 @@ const ICONS = {
   rotate: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>`,
   lock: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
   more: `<svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>`,
-  activity: `<svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`
 };
 
 const C = {
   navy:'#091E36', blue:'#0088FF', blueSoft:'#EBF4FE', amber:'#F59E0B', amberSoft:'#FEF3C7',
-  green:'#10B981', greenSoft:'#D1FAE5', red:'#EF4444', redSoft:'#FEE2E2', purple:'#8B5CF6',
+  green:'#10B981', greenSoft:'#D1FAE5', red:'#EF4444', redSoft:'#FEE2E2', purple:'#8B5CF6', purpleSoft:'#EDE9FE',
   border:'#E2E8F0', muted:'#64748B', text:'#0F172A',
 };
 
-const EQUIPMENT_TYPES = ["หม้อแปลงจำหน่าย","LBS","UNIT SUBSTATION","รีโคลสเซอร์ (Recloser)","ดรอปเอาท์ฟิวส์"];
+// รายการขนาดพิกัดมาตรฐานของแต่ละอุปกรณ์ (กฟน. เขตสมุทรปราการ)
+const CAPACITY_OPTIONS = {
+  "หม้อแปลงจำหน่าย": ["50 kVA", "100 kVA", "160 kVA", "250 kVA", "315 kVA", "400 kVA", "500 kVA", "1000 kVA", "1250 kVA", "1500 kVA", "2000 kVA"],
+  "LBS": ["24 kV 630A", "24 kV 1250A", "33 kV 630A"],
+  "UNIT SUBSTATION": ["500 kVA (24kV)", "1000 kVA (24kV)", "1500 kVA (24kV)", "2000 kVA (24kV)"],
+  "รีโคลสเซอร์ (Recloser)": ["24 kV 630A (12.5kA)", "24 kV 800A (16kA)"],
+  "ดรอปเอาท์ฟิวส์": ["24 kV 100A", "24 kV 200A", "33 kV 100A"]
+};
+
+const EQUIPMENT_TYPES = Object.keys(CAPACITY_OPTIONS);
 const PRIORITIES = ["สูง","กลาง","ต่ำ"];
 const PLAN_STATUSES = ["วางแผน","กำลังดำเนินการ","เสร็จสิ้น","เลื่อน"];
 const PM_STATUSES = ["เสร็จสิ้น","ระหว่างดำเนินการ","รอดำเนินการ"];
-const STORAGE_KEY = "mea-pm-v15-smart-app";
-const AUTH_KEY = "mea-pm-auth-v15";
+const STORAGE_KEY = "mea-pm-v16-capacity-app";
+const AUTH_KEY = "mea-pm-auth-v16";
 
 const uid = () => Date.now() + "-" + Math.random().toString(36).slice(2,8);
 const baht = (n) => "฿" + Number(n||0).toLocaleString("th-TH",{maximumFractionDigits:0});
 const thDate = (d) => d ? new Date(d).toLocaleDateString("th-TH",{day:"2-digit",month:"short",year:"2-digit"}) : "-";
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 
-// พิกัดจุดตรวจจริงในสมุทรปราการสำหรับระบบแผนที่ Interactive
 const LOCATIONS_COORDS = {
   "สายป้อน สป.01 (ปากน้ำ-สายลวด)": [13.5991, 100.5968],
   "สายป้อน สป.02 (ท้ายบ้าน)": [13.5780, 100.6010],
@@ -315,11 +323,8 @@ const LOCATIONS_COORDS = {
   "สายป้อน สป.12 (แพรกษา)": [13.5850, 100.6380],
   "นิคมฯ บางปู ซอย 4": [13.5280, 100.6720],
   "นิคมฯ บางปู ซอย 8": [13.5220, 100.6810],
-  "นิคมฯ บางปู ซอย 9": [13.5190, 100.6860],
-  "นิคมฯ บางปู ซอย 12": [13.5130, 100.6950],
   "นิคมฯ บางพลี โครงการ 2": [13.5820, 100.7950],
   "นิคมฯ บางพลี โครงการ 3": [13.5750, 100.8050],
-  "นิคมฯ บางพลี เฟส 2": [13.5890, 100.7850],
   "สายป้อน สป.18 (กิ่งแก้ว)": [13.6780, 100.7180],
 };
 
@@ -329,23 +334,21 @@ function seedData(){
   return {
     benchmarks:{ "หม้อแปลงจำหน่าย": 8500, "LBS": 4200, "UNIT SUBSTATION": 12500, "รีโคลสเซอร์ (Recloser)": 6500, "ดรอปเอาท์ฟิวส์": 2500 },
     pmRecords:[
-      {id:uid(),date:iso(-24),equipmentType:"หม้อแปลงจำหน่าย",equipmentId:"TR-SP-0101",location:"สายป้อน สป.01 (ปากน้ำ-สายลวด)",team:"ทีม A",technician:"สมชาย ใจดี",laborHours:6.0,materialCost:3100,laborCost:2100,otherCost:300,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ตรวจสภาพน้ำมัน เปลี่ยนปะเก็นยางฝาถัง Health Index 94%"},
-      {id:uid(),date:iso(-20),equipmentType:"LBS",equipmentId:"LBS-SP-0045",location:"สายป้อน สป.02 (ท้ายบ้าน)",team:"ทีม B",technician:"วิภา ศรีสุข",laborHours:3.5,materialCost:1400,laborCost:1200,otherCost:100,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"หล่อลื่นกลไกสับปลด ทำความสะอาดลูกถ้วย"},
-      {id:uid(),date:iso(-18),equipmentType:"UNIT SUBSTATION",equipmentId:"US-SP-0012",location:"นิคมฯ บางปู ซอย 4",team:"ทีม A",technician:"สมชาย ใจดี",laborHours:8.0,materialCost:5600,laborCost:2800,otherCost:500,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ตรวจ Thermoscan ขันกวดจุดต่อสายแรงสูง"},
-      {id:uid(),date:iso(-15),equipmentType:"รีโคลสเซอร์ (Recloser)",equipmentId:"RC-SP-0008",location:"สายป้อน สป.05 (บางปูเหนือ)",team:"ทีม C",technician:"อรุณ พงษ์ไทย",laborHours:4.5,materialCost:2300,laborCost:1700,otherCost:200,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ทดสอบระบบควบคุมและแบตเตอรี่สำรองปกติ"},
-      {id:uid(),date:iso(-12),equipmentType:"ดรอปเอาท์ฟิวส์",equipmentId:"DF-SP-0112",location:"สายป้อน สป.03 (บางเมือง)",team:"ทีม D",technician:"กฤษณะ วงศ์ษา",laborHours:2.5,materialCost:750,laborCost:900,otherCost:100,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"เปลี่ยนฟิวส์ลิงค์ขนาดพิกัดมาตรฐาน"},
-      {id:uid(),date:iso(-10),equipmentType:"หม้อแปลงจำหน่าย",equipmentId:"TR-SP-0142",location:"สายป้อน สป.12 (แพรกษา)",team:"ทีม A",technician:"สมชาย ใจดี",laborHours:6.5,materialCost:3300,laborCost:2200,otherCost:300,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"วัดค่าความเป็นฉนวน เติมน้ำมันหม้อแปลง"},
-      {id:uid(),date:iso(-8),equipmentType:"UNIT SUBSTATION",equipmentId:"US-SP-0021",location:"นิคมฯ บางปู ซอย 8",team:"ทีม B",technician:"วิภา ศรีสุข",laborHours:7.5,materialCost:6100,laborCost:2600,otherCost:400,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ตรวจเช็คระบบระบายอากาศและสวิตช์เกียร์"},
-      {id:uid(),date:iso(-2),equipmentType:"หม้อแปลงจำหน่าย",equipmentId:"TR-SP-0198",location:"สายป้อน สป.08 (ศรีนครินทร์)",team:"ทีม C",technician:"อรุณ พงษ์ไทย",laborHours:4.0,materialCost:2200,laborCost:1500,otherCost:200,maintenanceType:"ป้องกัน",status:"ระหว่างดำเนินการ",notes:"กำลังตรวจสอบและถ่ายตัวอย่างน้ำมัน"},
-      {id:uid(),date:iso(-1),equipmentType:"LBS",equipmentId:"LBS-SP-0087",location:"สายป้อน สป.06 (บางโปรง)",team:"ทีม B",technician:"วิภา ศรีสุข",laborHours:3.0,materialCost:1500,laborCost:1100,otherCost:150,maintenanceType:"ป้องกัน",status:"ระหว่างดำเนินการ",notes:"กำลังปรับตั้งระยะหน้าสัมผัส"},
-      {id:uid(),date:iso(0),equipmentType:"UNIT SUBSTATION",equipmentId:"US-SP-0033",location:"นิคมฯ บางพลี โครงการ 3",team:"ทีม D",technician:"กฤษณะ วงศ์ษา",laborHours:2.0,materialCost:1000,laborCost:800,otherCost:100,maintenanceType:"ป้องกัน",status:"รอดำเนินการ",notes:"รออนุมัติตัดกระแสไฟฟ้า"},
+      {id:uid(),date:iso(-24),equipmentType:"หม้อแปลงจำหน่าย",capacity:"250 kVA",equipmentId:"TR-SP-0101",location:"สายป้อน สป.01 (ปากน้ำ-สายลวด)",team:"ทีม A",technician:"สมชาย ใจดี",laborHours:6.0,materialCost:3100,laborCost:2100,otherCost:300,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ตรวจสภาพน้ำมันและเปลี่ยนปะเก็นยาง Health Index 94%"},
+      {id:uid(),date:iso(-20),equipmentType:"LBS",capacity:"24 kV 630A",equipmentId:"LBS-SP-0045",location:"สายป้อน สป.02 (ท้ายบ้าน)",team:"ทีม B",technician:"วิภา ศรีสุข",laborHours:3.5,materialCost:1400,laborCost:1200,otherCost:100,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"หล่อลื่นกลไกสับปลด ทำความสะอาดลูกถ้วย"},
+      {id:uid(),date:iso(-18),equipmentType:"UNIT SUBSTATION",capacity:"1000 kVA (24kV)",equipmentId:"US-SP-0012",location:"นิคมฯ บางปู ซอย 4",team:"ทีม A",technician:"สมชาย ใจดี",laborHours:8.0,materialCost:5600,laborCost:2800,otherCost:500,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ตรวจ Thermoscan ขันกวดจุดต่อสายแรงสูง"},
+      {id:uid(),date:iso(-15),equipmentType:"รีโคลสเซอร์ (Recloser)",capacity:"24 kV 630A (12.5kA)",equipmentId:"RC-SP-0008",location:"สายป้อน สป.05 (บางปูเหนือ)",team:"ทีม C",technician:"อรุณ พงษ์ไทย",laborHours:4.5,materialCost:2300,laborCost:1700,otherCost:200,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ทดสอบระบบควบคุมและแบตเตอรี่สำรองปกติ"},
+      {id:uid(),date:iso(-12),equipmentType:"ดรอปเอาท์ฟิวส์",capacity:"24 kV 100A",equipmentId:"DF-SP-0112",location:"สายป้อน สป.03 (บางเมือง)",team:"ทีม D",technician:"กฤษณะ วงศ์ษา",laborHours:2.5,materialCost:750,laborCost:900,otherCost:100,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"เปลี่ยนฟิวส์ลิงค์ขนาดพิกัดมาตรฐาน"},
+      {id:uid(),date:iso(-10),equipmentType:"หม้อแปลงจำหน่าย",capacity:"500 kVA",equipmentId:"TR-SP-0142",location:"สายป้อน สป.12 (แพรกษา)",team:"ทีม A",technician:"สมชาย ใจดี",laborHours:6.5,materialCost:3300,laborCost:2200,otherCost:300,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"วัดค่าความเป็นฉนวน เติมน้ำมันหม้อแปลง"},
+      {id:uid(),date:iso(-8),equipmentType:"UNIT SUBSTATION",capacity:"1500 kVA (24kV)",equipmentId:"US-SP-0021",location:"นิคมฯ บางปู ซอย 8",team:"ทีม B",technician:"วิภา ศรีสุข",laborHours:7.5,materialCost:6100,laborCost:2600,otherCost:400,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ตรวจเช็คระบบระบายอากาศและสวิตช์เกียร์"},
+      {id:uid(),date:iso(-2),equipmentType:"หม้อแปลงจำหน่าย",capacity:"160 kVA",equipmentId:"TR-SP-0198",location:"สายป้อน สป.08 (ศรีนครินทร์)",team:"ทีม C",technician:"อรุณ พงษ์ไทย",laborHours:4.0,materialCost:2200,laborCost:1500,otherCost:200,maintenanceType:"ป้องกัน",status:"ระหว่างดำเนินการ",notes:"กำลังตรวจสอบและถ่ายตัวอย่างน้ำมัน"},
+      {id:uid(),date:iso(-1),equipmentType:"LBS",capacity:"24 kV 1250A",equipmentId:"LBS-SP-0087",location:"สายป้อน สป.06 (บางโปรง)",team:"ทีม B",technician:"วิภา ศรีสุข",laborHours:3.0,materialCost:1500,laborCost:1100,otherCost:150,maintenanceType:"ป้องกัน",status:"ระหว่างดำเนินการ",notes:"กำลังปรับตั้งระยะหน้าสัมผัส"},
     ],
     planRecords:[
-      {id:uid(),equipmentType:"หม้อแปลงจำหน่าย",equipmentId:"TR-SP-0310",location:"สายป้อน สป.03 (บางเมือง)",plannedDate:iso(1),team:"ทีม B",priority:"สูง",status:"วางแผน"},
-      {id:uid(),equipmentType:"LBS",equipmentId:"LBS-SP-0112",location:"สายป้อน สป.11 (แพรกษาใหม่)",plannedDate:iso(2),team:"ทีม A",priority:"กลาง",status:"วางแผน"},
-      {id:uid(),equipmentType:"UNIT SUBSTATION",equipmentId:"US-SP-0050",location:"นิคมฯ บางพลี เฟส 2",plannedDate:iso(3),team:"ทีม C",priority:"สูง",status:"วางแผน"},
-      {id:uid(),equipmentType:"รีโคลสเซอร์ (Recloser)",equipmentId:"RC-SP-0015",location:"สายป้อน สป.07 (สำโรงเหนือ)",plannedDate:iso(4),team:"ทีม D",priority:"สูง",status:"วางแผน"},
-      {id:uid(),equipmentType:"หม้อแปลงจำหน่าย",equipmentId:"TR-SP-0220",location:"สายป้อน สป.18 (กิ่งแก้ว)",plannedDate:iso(5),team:"ทีม A",priority:"ต่ำ",status:"วางแผน"},
+      {id:uid(),equipmentType:"หม้อแปลงจำหน่าย",capacity:"315 kVA",equipmentId:"TR-SP-0310",location:"สายป้อน สป.03 (บางเมือง)",plannedDate:iso(1),team:"ทีม B",priority:"สูง",status:"วางแผน"},
+      {id:uid(),equipmentType:"LBS",capacity:"24 kV 630A",equipmentId:"LBS-SP-0112",location:"สายป้อน สป.11 (แพรกษาใหม่)",plannedDate:iso(2),team:"ทีม A",priority:"กลาง",status:"วางแผน"},
+      {id:uid(),equipmentType:"UNIT SUBSTATION",capacity:"2000 kVA (24kV)",equipmentId:"US-SP-0050",location:"นิคมฯ บางพลี เฟส 2",plannedDate:iso(3),team:"ทีม C",priority:"สูง",status:"วางแผน"},
+      {id:uid(),equipmentType:"รีโคลสเซอร์ (Recloser)",capacity:"24 kV 800A (16kA)",equipmentId:"RC-SP-0015",location:"สายป้อน สป.07 (สำโรงเหนือ)",plannedDate:iso(4),team:"ทีม D",priority:"สูง",status:"วางแผน"},
     ],
   };
 }
@@ -361,8 +364,8 @@ let IMPORT_TARGET = "pm";
 let EDITING_RECORD = null;
 let LEAFLET_MAP = null;
 
-const emptyPm = () => ({ date:new Date().toISOString().slice(0,10), equipmentType:EQUIPMENT_TYPES[0], equipmentId:"", location:"", team:"", technician:"", laborHours:"", materialCost:"", laborCost:"", otherCost:"", maintenanceType:"ป้องกัน", status:"เสร็จสิ้น", notes:"" });
-const emptyPlan = () => ({ equipmentType:EQUIPMENT_TYPES[0], equipmentId:"", location:"", plannedDate:new Date().toISOString().slice(0,10), team:"", priority:"กลาง", status:"วางแผน" });
+const emptyPm = () => ({ date:new Date().toISOString().slice(0,10), equipmentType:EQUIPMENT_TYPES[0], capacity:CAPACITY_OPTIONS[EQUIPMENT_TYPES[0]][0], equipmentId:"", location:"", team:"", technician:"", laborHours:"", materialCost:"", laborCost:"", otherCost:"", maintenanceType:"ป้องกัน", status:"เสร็จสิ้น", notes:"" });
+const emptyPlan = () => ({ equipmentType:EQUIPMENT_TYPES[0], capacity:CAPACITY_OPTIONS[EQUIPMENT_TYPES[0]][0], equipmentId:"", location:"", plannedDate:new Date().toISOString().slice(0,10), team:"", priority:"กลาง", status:"วางแผน" });
 let pmForm = emptyPm();
 let planForm = emptyPlan();
 
@@ -395,7 +398,7 @@ function statusPill(status){
   };
   const s = map[status] || {bg:C.border,fg:C.muted,icon:'circle'};
   return `<span class="pill" style="background:${s.bg};color:${s.fg}">
-    ${s.icon==='check'?ICONS.check(s.fg):s.icon==='pulse'?'<span class="pulse-dot"></span>':'•'} ${esc(status)}
+    ${s.icon==='check'?ICONS.check(s.fg):'•'} ${esc(status)}
   </span>`;
 }
 
@@ -422,7 +425,7 @@ function sectionHeader(title, desc, actionHtml=""){
   </div>`;
 }
 
-function emptyState(text){ return `<div class="empty-state card">${esc(text)}</div>`; }
+function emptyState(text){ return `<div class="card" style="padding:32px;text-align:center;color:var(--muted);font-size:13px;">${esc(text)}</div>`; }
 function field(label, innerHtml){ return `<label class="field"><span class="field-label">${esc(label)}</span>${innerHtml}</label>`; }
 
 function exportToExcel(filename, sheetName, dataArray) {
@@ -455,22 +458,23 @@ function handleFileImport(e) {
         const imported = [];
         for (let i = 1; i < rows.length; i++) {
           const r = rows[i];
-          if (!r || !r[1] || !r[2]) continue;
+          if (!r || !r[1] || !r[3]) continue;
           imported.push({
             id: uid(),
             date: r[0] ? String(r[0]).slice(0,10) : new Date().toISOString().slice(0,10),
             equipmentType: r[1] || EQUIPMENT_TYPES[0],
-            equipmentId: String(r[2]),
-            location: r[3] || "",
-            team: r[4] || "ทีม A",
-            technician: r[5] || "",
-            laborHours: Number(r[6]) || 0,
-            materialCost: Number(r[7]) || 0,
-            laborCost: Number(r[8]) || 0,
-            otherCost: Number(r[9]) || 0,
-            maintenanceType: r[11] || "ป้องกัน",
-            status: r[12] || "เสร็จสิ้น",
-            notes: r[13] || "นำเข้าจาก Excel"
+            capacity: r[2] || CAPACITY_OPTIONS[r[1]||EQUIPMENT_TYPES[0]][0],
+            equipmentId: String(r[3]),
+            location: r[4] || "",
+            team: r[5] || "ทีม A",
+            technician: r[6] || "",
+            laborHours: Number(r[7]) || 0,
+            materialCost: Number(r[8]) || 0,
+            laborCost: Number(r[9]) || 0,
+            otherCost: Number(r[10]) || 0,
+            maintenanceType: r[12] || "ป้องกัน",
+            status: r[13] || "เสร็จสิ้น",
+            notes: r[14] || "นำเข้าจาก Excel"
           });
         }
         if(imported.length){
@@ -491,6 +495,7 @@ function recordsTable(records, {withDelete, compact} = {}){
            (r.location||"").toLowerCase().includes(q) ||
            (r.team||"").toLowerCase().includes(q) ||
            (r.technician||"").toLowerCase().includes(q) ||
+           (r.capacity||"").toLowerCase().includes(q) ||
            (r.equipmentType||"").toLowerCase().includes(q);
   });
 
@@ -510,7 +515,8 @@ function recordsTable(records, {withDelete, compact} = {}){
           <div class="m-record-card">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;">
               <div>
-                <div class="m-card-id">${esc(r.equipmentId)} <span style="font-size:12px;color:var(--text);font-weight:600;">— ${esc(r.equipmentType)}</span></div>
+                <div class="m-card-id">${esc(r.equipmentId)} <span class="capacity-pill">${esc(r.capacity||"-")}</span></div>
+                <div style="font-size:12px;color:var(--text);font-weight:600;margin-top:2px;">${esc(r.equipmentType)}</div>
                 <div style="font-size:12px;color:var(--muted);margin-top:2px;">${thDate(r.date)} • ${esc(r.team)} ${r.technician ? `• ${esc(r.technician)}` : ""}</div>
               </div>
               <div>${statusPill(r.status)}</div>
@@ -531,7 +537,7 @@ function recordsTable(records, {withDelete, compact} = {}){
     </div>
   `;
 
-  const headers = ["วันที่","อุปกรณ์","รหัส","สายป้อน / พื้นที่","ทีม","ผู้ปฏิบัติงาน","ต้นทุนรวม","WCM Diff","สถานะ",""];
+  const headers = ["วันที่","อุปกรณ์","ขนาดพิกัด","รหัส","สายป้อน / พื้นที่","ทีม","ผู้ปฏิบัติงาน","ต้นทุนรวม","WCM Diff","สถานะ",""];
   const desktopTableHtml = `
     <div class="desktop-table-wrap">
       <table>
@@ -548,6 +554,7 @@ function recordsTable(records, {withDelete, compact} = {}){
             return `<tr>
               <td>${thDate(r.date)}</td>
               <td><strong>${esc(r.equipmentType)}</strong></td>
+              <td><span class="capacity-pill">${esc(r.capacity||"-")}</span></td>
               <td class="mono" style="font-weight:700;color:var(--electric);">${esc(r.equipmentId)}</td>
               <td class="muted">${esc(r.location||"-")}</td>
               <td><span class="pill" style="background:var(--blue-soft);color:var(--navy);">${esc(r.team)}</span></td>
@@ -579,6 +586,9 @@ function renderModal(){
   const { type, data } = EDITING_RECORD;
 
   if (type === "pm") {
+    const curType = data.equipmentType || EQUIPMENT_TYPES[0];
+    const capList = CAPACITY_OPTIONS[curType] || [];
+
     modalRoot.innerHTML = `
       <div class="modal-backdrop" id="modal-backdrop">
         <div class="modal-card">
@@ -589,6 +599,7 @@ function renderModal(){
           <form id="edit-pm-form" class="entry-form" style="padding:0;border:none;box-shadow:none;margin-bottom:0;">
             ${field("วันที่ปฏิบัติงาน", `<input type="date" required id="m-date" value="${esc(data.date)}"/>`)}
             ${field("ประเภทอุปกรณ์", `<select id="m-equipmentType">${EQUIPMENT_TYPES.map(t=>`<option ${data.equipmentType===t?"selected":""}>${t}</option>`).join("")}</select>`)}
+            ${field("ขนาดและพิกัดกำลัง", `<select id="m-capacity">${capList.map(c=>`<option ${data.capacity===c?"selected":""}>${c}</option>`).join("")}</select>`)}
             ${field("รหัสอุปกรณ์", `<input required id="m-equipmentId" value="${esc(data.equipmentId)}"/>`)}
             ${field("สายป้อน / ฟีดเดอร์ / พื้นที่", `<input id="m-location" value="${esc(data.location||"")}"/>`)}
             ${field("ทีมปฏิบัติงาน", `<input required id="m-team" value="${esc(data.team)}"/>`)}
@@ -599,7 +610,7 @@ function renderModal(){
             ${field("ค่าใช้จ่ายอื่น (บาท)", `<input type="number" min="0" id="m-otherCost" value="${esc(data.otherCost)}"/>`)}
             ${field("ประเภทการบำรุงรักษา", `<select id="m-maintenanceType"><option ${data.maintenanceType==="ป้องกัน"?"selected":""}>ป้องกัน</option><option ${data.maintenanceType==="แก้ไข"?"selected":""}>แก้ไข</option></select>`)}
             ${field("สถานะงาน", `<select id="m-status">${PM_STATUSES.map(s=>`<option ${data.status===s?"selected":""}>${s}</option>`).join("")}</select>`)}
-            <div class="span-all">${field("บันทึกการทำงาน / ข้อสังเกต", `<textarea rows="3" id="m-notes">${esc(data.notes||"")}</textarea>`)}</div>
+            <div class="span-all">${field("บันทึกการทำงาน / ข้อสังเกต / Health Index", `<textarea rows="3" id="m-notes">${esc(data.notes||"")}</textarea>`)}</div>
             <div class="form-actions" style="margin-top:14px;">
               <button type="button" class="btn-secondary" id="modal-cancel-btn">ยกเลิก</button>
               <button type="submit" class="btn-primary">${ICONS.check("#fff")} บันทึกการเปลี่ยนแปลง</button>
@@ -622,6 +633,17 @@ function attachModalListeners(){
   if(cancelBtn) cancelBtn.onclick = closeModal;
   if(backdrop) backdrop.onclick = (e) => { if(e.target === backdrop) closeModal(); };
 
+  const editTypeSelect = document.getElementById("m-equipmentType");
+  if(editTypeSelect){
+    editTypeSelect.onchange = () => {
+      const selectedType = editTypeSelect.value;
+      const capSelect = document.getElementById("m-capacity");
+      if(capSelect && CAPACITY_OPTIONS[selectedType]){
+        capSelect.innerHTML = CAPACITY_OPTIONS[selectedType].map(c=>`<option>${c}</option>`).join("");
+      }
+    };
+  }
+
   const editPmForm = document.getElementById("edit-pm-form");
   if(editPmForm){
     editPmForm.onsubmit = (e) => {
@@ -629,8 +651,8 @@ function attachModalListeners(){
       const val = id => document.getElementById(id).value;
       const updated = {
         ...EDITING_RECORD.data,
-        date: val("m-date"), equipmentType: val("m-equipmentType"), equipmentId: val("m-equipmentId"),
-        location: val("m-location"), team: val("m-team"), technician: val("m-technician"),
+        date: val("m-date"), equipmentType: val("m-equipmentType"), capacity: val("m-capacity"),
+        equipmentId: val("m-equipmentId"), location: val("m-location"), team: val("m-team"), technician: val("m-technician"),
         laborHours: Number(val("m-laborHours"))||0, materialCost: Number(val("m-materialCost"))||0,
         laborCost: Number(val("m-laborCost"))||0, otherCost: Number(val("m-otherCost"))||0,
         maintenanceType: val("m-maintenanceType"), status: val("m-status"), notes: val("m-notes"),
@@ -662,8 +684,8 @@ function renderLogin(){
           </div>
           <button type="submit" class="btn-primary" style="padding:14px; width:100%;">เข้าสู่ระบบ Smart CMMS</button>
         </form>
-        <div class="login-hints">
-          <p><strong>🔑 ข้อมูลทดสอบระบบ:</strong></p>
+        <div class="login-hints" style="margin-top:16px;padding:12px;background:var(--bg);border-radius:8px;font-size:12px;color:var(--muted);">
+          <p><strong>🔑 บัญชีทดสอบระบบ:</strong></p>
           <p>• วิศวกร/หัวหน้างาน: <code>admin</code> / <code>admin123</code></p>
           <p>• ช่างปฏิบัติงาน: <code>tech</code> / <code>tech123</code></p>
         </div>
@@ -766,12 +788,12 @@ function renderDashboard(){
   const upcoming = planRecords.filter(p=>p.status!=="เสร็จสิ้น").length;
 
   return `
-    ${sectionHeader("แดชบอร์ดภาพรวม (Smart CMMS)", "ศูนย์ติดตามการบำรุงรักษาเชิงป้องกันและต้นทุน WCM เขตสมุทรปราการ", `
+    ${sectionHeader("แดชบอร์ดภาพรวม (Smart CMMS)", "ศูนย์ติดตามการบำรุงรักษาเชิงป้องกันและขนาดพิกัดอุปกรณ์ เขตสมุทรปราการ", `
       <button class="btn-secondary" id="print-pdf-btn">${ICONS.filePdf} พิมพ์สรุป (PDF)</button>
     `)}
     <div class="kpi-grid">
       ${kpiCard("clipboard","งาน PM ทั้งหมด",pmRecords.length,`ปิดงานแล้ว ${completed} งาน`,"electric")}
-      ${kpiCard("gauge","Health Index เฉลี่ย", "94.2%", "ดัชนีสุขภาพหม้อแปลงและอุปกรณ์", "green")}
+      ${kpiCard("gauge","Health Index เฉลี่ย", "94.2%", "ดัชนีสุขภาพอุปกรณ์หลัก", "green")}
       ${kpiCard("coins","ต้นทุนจริงรวม",baht(totalCost),`เฉลี่ย ${baht(avgCost)}/งาน`,"amber")}
       ${kpiCard("calendar","แผนงานค้าง",upcoming,"รอ / กำลังดำเนินการ","red")}
     </div>
@@ -781,8 +803,8 @@ function renderDashboard(){
         <div class="chart-wrap"><canvas id="costChart"></canvas></div>
       </div>
       <div class="card chart-card">
-        <h3>Labor Productivity รายทีม (งานเสร็จ / ชม.แรงงาน)</h3>
-        <div class="chart-wrap"><canvas id="prodChart"></canvas></div>
+        <h3>สัดส่วนงาน PM ตามขนาดพิกัดกำลัง (Equipment Capacity Distribution)</h3>
+        <div class="chart-wrap"><canvas id="capacityChart"></canvas></div>
       </div>
     </div>
     <div class="card chart-card">
@@ -796,7 +818,7 @@ function drawDashboardCharts(){
   const {pmRecords, benchmarks} = STATE;
   if (typeof Chart === 'undefined') return;
   if(CHARTS.cost) { CHARTS.cost.destroy(); CHARTS.cost = null; }
-  if(CHARTS.prod) { CHARTS.prod.destroy(); CHARTS.prod = null; }
+  if(CHARTS.cap) { CHARTS.cap.destroy(); CHARTS.cap = null; }
 
   const costByType = EQUIPMENT_TYPES.map(t=>{
     const recs = pmRecords.filter(r=>r.equipmentType===t);
@@ -827,32 +849,28 @@ function drawDashboardCharts(){
     });
   }
 
-  const teamMap = {};
-  pmRecords.filter(r=>r.status==="เสร็จสิ้น").forEach(r=>{
-    teamMap[r.team] = teamMap[r.team] || {tasks:0,hours:0};
-    teamMap[r.team].tasks += 1;
-    teamMap[r.team].hours += Number(r.laborHours)||0;
+  // กราฟแจกแจงตามขนาดพิกัดกำลัง
+  const capMap = {};
+  pmRecords.forEach(r => {
+    const key = r.capacity || "ไม่ระบุขนาด";
+    capMap[key] = (capMap[key] || 0) + 1;
   });
-  const teams = Object.keys(teamMap);
-  const prodCtx = document.getElementById("prodChart");
-  if(prodCtx){
-    CHARTS.prod = new Chart(prodCtx, {
-      type:"bar",
+  const capLabels = Object.keys(capMap);
+  const capCtx = document.getElementById("capacityChart");
+  if(capCtx){
+    CHARTS.cap = new Chart(capCtx, {
+      type:"doughnut",
       data:{
-        labels: teams.length ? teams : ["ไม่มีข้อมูล"],
+        labels: capLabels,
         datasets:[{
-          label:"Productivity (งาน/ชม.)",
-          data: teams.length ? teams.map(t=> teamMap[t].hours ? +(teamMap[t].tasks/teamMap[t].hours).toFixed(2) : 0) : [0],
-          backgroundColor:C.green, borderRadius:6, barPercentage: 0.6
+          data: Object.values(capMap),
+          backgroundColor: [C.blue, C.green, C.amber, C.purple, C.red, '#06B6D4', '#EC4899', '#84CC16'],
+          borderWidth: 2, borderColor: '#fff'
         }]
       },
       options:{
         responsive:true, maintainAspectRatio:false,
-        plugins:{ legend:{display:false} },
-        scales:{
-          y:{ grid:{color:C.border}, ticks:{font:{family:"'JetBrains Mono', monospace", size:10}} },
-          x:{ grid:{display:false}, ticks:{font:{family:"'Noto Sans Thai', sans-serif", size:11, weight:'600'}, maxRotation: 0, minRotation: 0} }
-        }
+        plugins:{ legend:{position:"right", labels:{font:{family:"'JetBrains Mono', 'Noto Sans Thai', sans-serif", size:11}, boxWidth: 12}} }
       }
     });
   }
@@ -862,7 +880,7 @@ function renderRoutes(){
   const { planRecords, pmRecords } = STATE;
   const activePlans = planRecords.filter(p => p.status !== "เสร็จสิ้น");
   const pendingPMs = pmRecords.filter(p => p.status === "ระหว่างดำเนินการ" || p.status === "รอดำเนินการ").map(p => ({
-    equipmentType: p.equipmentType, equipmentId: p.equipmentId, location: p.location, team: p.team, priority: "สูง", status: p.status, plannedDate: p.date
+    equipmentType: p.equipmentType, capacity: p.capacity, equipmentId: p.equipmentId, location: p.location, team: p.team, priority: "สูง", status: p.status, plannedDate: p.date
   }));
   const combined = [...activePlans, ...pendingPMs];
   const filtered = combined.filter(item => ROUTE_TEAM_FILTER === "ทั้งหมด" ? true : item.team === ROUTE_TEAM_FILTER);
@@ -893,7 +911,10 @@ function renderRoutes(){
               <div style="display:flex;justify-content:space-between;align-items:flex-start;">
                 <div style="display:flex;align-items:center;gap:8px;">
                   <span style="width:24px;height:24px;border-radius:50%;background:var(--electric);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">${idx+1}</span>
-                  <div><div class="m-card-id">${esc(item.equipmentId)}</div><div style="font-size:12px;font-weight:600;">${esc(item.equipmentType)}</div></div>
+                  <div>
+                    <div class="m-card-id">${esc(item.equipmentId)} <span class="capacity-pill">${esc(item.capacity||"-")}</span></div>
+                    <div style="font-size:12px;font-weight:600;margin-top:2px;">${esc(item.equipmentType)}</div>
+                  </div>
                 </div>
                 <div>${statusPill(item.status)}</div>
               </div>
@@ -910,7 +931,7 @@ function renderRoutes(){
       ${filtered.length ? `
       <div class="desktop-table-wrap">
         <table>
-          <thead><tr><th>ลำดับ</th><th>อุปกรณ์</th><th>รหัส</th><th>สายป้อน / พิกัดสถานที่</th><th>ทีม</th><th>สถานะ</th><th style="text-align:right;">นำทาง</th></tr></thead>
+          <thead><tr><th>ลำดับ</th><th>อุปกรณ์</th><th>ขนาดพิกัด</th><th>รหัส</th><th>สายป้อน / พิกัดสถานที่</th><th>ทีม</th><th>สถานะ</th><th style="text-align:right;">นำทาง</th></tr></thead>
           <tbody>
             ${filtered.map((item, idx) => {
               const queryLoc = encodeURIComponent((item.location || "การไฟฟ้านครหลวง เขตสมุทรปราการ") + " สมุทรปราการ");
@@ -918,6 +939,7 @@ function renderRoutes(){
                 <tr>
                   <td><span style="width:24px;height:24px;border-radius:50%;background:var(--electric);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">${idx+1}</span></td>
                   <td><strong>${esc(item.equipmentType)}</strong></td>
+                  <td><span class="capacity-pill">${esc(item.capacity||"-")}</span></td>
                   <td class="mono" style="font-weight:700;color:var(--electric);">${esc(item.equipmentId)}</td>
                   <td>${esc(item.location || "สายป้อน กฟน. สป.")}</td>
                   <td><span class="pill" style="background:var(--blue-soft);color:var(--navy);">${esc(item.team)}</span></td>
@@ -939,27 +961,25 @@ function initMap(){
   if(LEAFLET_MAP) { LEAFLET_MAP.remove(); LEAFLET_MAP = null; }
 
   LEAFLET_MAP = L.map('map-container').setView([13.5850, 100.6380], 11);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 18, attribution: '© OpenStreetMap'
-  }).addTo(LEAFLET_MAP);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '© OpenStreetMap' }).addTo(LEAFLET_MAP);
 
-  // ปักหมุด กฟน. เขตสมุทรปราการ (Headquarters)
   L.marker([13.5991, 100.5968]).addTo(LEAFLET_MAP)
     .bindPopup('<b>กฟน. เขตสมุทรปราการ</b><br>จุดเริ่มต้นศูนย์สั่งการ').openPopup();
 
-  // ปักหมุดจุดตรวจอุปกรณ์
   STATE.pmRecords.slice(0, 8).forEach(r => {
     const coords = LOCATIONS_COORDS[r.location] || [13.58 + (Math.random()-0.5)*0.08, 100.64 + (Math.random()-0.5)*0.08];
     L.circleMarker(coords, { radius: 7, fillColor: C.blue, color: "#fff", weight: 2, fillOpacity: 0.9 })
       .addTo(LEAFLET_MAP)
-      .bindPopup(`<b>${esc(r.equipmentId)}</b> (${esc(r.equipmentType)})<br>${esc(r.location)}<br>ทีม: ${esc(r.team)}`);
+      .bindPopup(`<b>${esc(r.equipmentId)}</b> (${esc(r.capacity||"-")})<br>${esc(r.location)}<br>ทีม: ${esc(r.team)}`);
   });
 }
 
 function renderEntry(){
   const f = pmForm;
+  const capList = CAPACITY_OPTIONS[f.equipmentType] || [];
+
   return `
-    ${sectionHeader("บันทึกข้อมูลงาน PM (Smart Entry)","กรอกประวัติการบำรุงรักษา พร้อมคำนวณต้นทุน WCM อัตโนมัติ", `
+    ${sectionHeader("บันทึกข้อมูลงาน PM (Smart Entry)","กรอกประวัติการบำรุงรักษา พร้อมระบุขนาดพิกัดกำลังอุปกรณ์", `
       <button class="btn-secondary" id="go-guide-btn">${ICONS.book(C.blue)} คู่มือเกณฑ์กรอก</button>
       <button class="btn-secondary" id="import-pm-btn">${ICONS.upload} นำเข้า Excel</button>
       <button class="btn-success" id="export-pm-excel-btn">${ICONS.fileExcel} ส่งออก Excel</button>
@@ -967,6 +987,7 @@ function renderEntry(){
     <form class="entry-form" id="pm-form">
       ${field("วันที่ปฏิบัติงาน", `<input type="date" required id="f-date" value="${esc(f.date)}"/>`)}
       ${field("ประเภทอุปกรณ์", `<select id="f-equipmentType">${EQUIPMENT_TYPES.map(t=>`<option ${f.equipmentType===t?"selected":""}>${t}</option>`).join("")}</select>`)}
+      ${field("ขนาดและพิกัดกำลัง (Rating)", `<select id="f-capacity">${capList.map(c=>`<option ${f.capacity===c?"selected":""}>${c}</option>`).join("")}</select>`)}
       ${field("รหัสอุปกรณ์", `<input required id="f-equipmentId" placeholder="เช่น TR-SP-0142" value="${esc(f.equipmentId)}"/>`)}
       ${field("สายป้อน / ฟีดเดอร์ / พื้นที่", `<input id="f-location" placeholder="เช่น สายป้อน สป.12" value="${esc(f.location)}"/>`)}
       ${field("ทีมปฏิบัติงาน", `<input required id="f-team" placeholder="เช่น ทีม A" value="${esc(f.team)}"/>`)}
@@ -977,11 +998,11 @@ function renderEntry(){
       ${field("ค่าใช้จ่ายอื่น (บาท)", `<input type="number" min="0" id="f-otherCost" placeholder="0" value="${esc(f.otherCost)}"/>`)}
       ${field("ประเภทการบำรุงรักษา", `<select id="f-maintenanceType"><option ${f.maintenanceType==="ป้องกัน"?"selected":""}>ป้องกัน</option><option ${f.maintenanceType==="แก้ไข"?"selected":""}>แก้ไข</option></select>`)}
       ${field("สถานะงาน", `<select id="f-status">${PM_STATUSES.map(s=>`<option ${f.status===s?"selected":""}>${s}</option>`).join("")}</select>`)}
-      <div class="span-all">${field("บันทึกการทำงาน / ข้อสังเกต / Health Index", `<textarea rows="2" id="f-notes" placeholder="ระบุสิ่งที่พบ ค่าที่วัดได้">${esc(f.notes)}</textarea>`)}</div>
+      <div class="span-all">${field("บันทึกการทำงาน / ข้อสังเกต / Health Index", `<textarea rows="2" id="f-notes" placeholder="ระบุสิ่งที่พบ ค่าความเป็นฉนวน">${esc(f.notes)}</textarea>`)}</div>
       <div class="form-actions"><button type="submit" class="btn-primary">${ICONS.plus} บันทึกงาน PM</button></div>
     </form>
     <div class="card chart-card">
-      <div class="toolbar"><input type="text" id="search-input" placeholder="🔍 ค้นหารหัส, ทีม, ช่าง, สายป้อน..." value="${esc(SEARCH_QUERY)}"/></div>
+      <div class="toolbar"><input type="text" id="search-input" placeholder="🔍 ค้นหารหัส, ขนาดพิกัด (kVA/kV), ทีม, ช่าง, สายป้อน..." value="${esc(SEARCH_QUERY)}"/></div>
       <h3>ประวัติงาน PM ทั้งหมด (${STATE.pmRecords.length})</h3>
       ${recordsTable(STATE.pmRecords, {withDelete:true})}
     </div>
@@ -990,28 +1011,24 @@ function renderEntry(){
 
 function renderGuide(){
   return `
-    ${sectionHeader("คู่มือเกณฑ์มาตรฐานการกรอกข้อมูล (WCM Standard)", "แนวทางปฏิบัติการกรอกข้อมูลให้เป็นมาตรฐานเดียวกันทั้งเขตสมุทรปราการ", `
+    ${sectionHeader("คู่มือเกณฑ์มาตรฐานการกรอกข้อมูลและขนาดพิกัด", "แนวทางปฏิบัติการกรอกข้อมูลและขนาดพิกัดอุปกรณ์ กฟน. เขตสมุทรปราการ", `
       <button class="btn-secondary" id="print-pdf-btn">${ICONS.filePdf} พิมพ์คู่มือ (PDF)</button>
     `)}
     <div style="display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:24px;">
       <div class="card">
-        <h3 style="color:var(--navy);font-size:16px;margin:0 0 12px;font-weight:700;">1. เกณฑ์การตั้งรหัสอุปกรณ์ (Equipment ID)</h3>
-        <p style="font-size:13px;line-height:1.6;margin:4px 0;">ให้ใช้ตัวย่อประเภทอุปกรณ์ภาษาอังกฤษ ตามด้วยรหัสเขต <code>SP</code> และเลข 4 หลัก (คั่นด้วยเครื่องหมายขีด <code>-</code> เสมอ):</p>
+        <h3 style="color:var(--navy);font-size:16px;margin:0 0 12px;font-weight:700;">1. เกณฑ์ขนาดและพิกัดกำลังของอุปกรณ์ (Equipment Capacity / Rating)</h3>
+        <p style="font-size:13px;line-height:1.6;margin:4px 0;">ระบบได้กำหนดขนาดพิกัดมาตรฐานของ กฟน. ไว้ให้เลือกดังนี้:</p>
         <ul style="font-size:13px;line-height:1.8;padding-left:20px;margin:6px 0;">
-          <li><strong>หม้อแปลงจำหน่าย:</strong> <code>TR-SP-XXXX</code> (เช่น TR-SP-0142)</li>
-          <li><strong>โหลดเบรกสวิตช์:</strong> <code>LBS-SP-XXXX</code> (เช่น LBS-SP-0087)</li>
-          <li><strong>สถานีย่อยแบบยูนิต:</strong> <code>US-SP-XXXX</code> (เช่น US-SP-0021)</li>
-          <li><strong>รีโคลสเซอร์:</strong> <code>RC-SP-XXXX</code> (เช่น RC-SP-0015)</li>
-          <li><strong>ดรอปเอาท์ฟิวส์:</strong> <code>DF-SP-XXXX</code> (เช่น DF-SP-0304)</li>
+          <li><strong>หม้อแปลงจำหน่าย:</strong> <code>50 kVA</code>, <code>100 kVA</code>, <code>160 kVA</code>, <code>250 kVA</code>, <code>315 kVA</code>, <code>400 kVA</code>, <code>500 kVA</code>, <code>1000 kVA</code>, <code>1250 kVA</code>, <code>1500 kVA</code>, <code>2000 kVA</code></li>
+          <li><strong>โหลดเบรกสวิตช์ (LBS):</strong> <code>24 kV 630A</code>, <code>24 kV 1250A</code>, <code>33 kV 630A</code></li>
+          <li><strong>สถานีย่อยแบบยูนิต (Unit Substation):</strong> <code>500 kVA (24kV)</code>, <code>1000 kVA (24kV)</code>, <code>1500 kVA (24kV)</code>, <code>2000 kVA (24kV)</code></li>
+          <li><strong>รีโคลสเซอร์ (Recloser):</strong> <code>24 kV 630A (12.5kA)</code>, <code>24 kV 800A (16kA)</code></li>
+          <li><strong>ดรอปเอาท์ฟิวส์:</strong> <code>24 kV 100A</code>, <code>24 kV 200A</code>, <code>33 kV 100A</code></li>
         </ul>
       </div>
       <div class="card">
-        <h3 style="color:var(--navy);font-size:16px;margin:0 0 12px;font-weight:700;">2. เกณฑ์การระบุสายป้อน / พิกัดสถานที่ (Location)</h3>
-        <p style="font-size:13px;line-height:1.6;">ระบุรหัสสายป้อนหลักและวงเล็บจุดสังเกตเพื่อให้นำทางผ่านระบบ GPS ได้แม่นยำ เช่น <code>สายป้อน สป.12 (แพรกษา ซอย 7)</code> หรือ <code>นิคมฯ บางปู ซอย 8</code></p>
-      </div>
-      <div class="card">
-        <h3 style="color:var(--navy);font-size:16px;margin:0 0 12px;font-weight:700;">3. เกณฑ์ต้นทุนและชั่วโมงงาน (WCM Benchmark)</h3>
-        <p style="font-size:13px;line-height:1.6;">บันทึกชั่วโมงแรงงานจริงโดยคิดเป็นทศนิยมทีละ <code>0.5</code> ชม. (เช่น 1 ชม. 30 นาที = 1.5) และแยกบันทึกค่าพัสดุ ค่าแรง เพื่อให้ระบบนำไปเปรียบเทียบกับค่ามาตรฐาน WCM ประจำปี</p>
+        <h3 style="color:var(--navy);font-size:16px;margin:0 0 12px;font-weight:700;">2. เกณฑ์การตั้งรหัสอุปกรณ์ (Equipment ID)</h3>
+        <p style="font-size:13px;line-height:1.6;">ใช้ตัวย่อภาษาอังกฤษ + <code>SP</code> + เลข 4 หลัก เช่น <code>TR-SP-0142</code>, <code>LBS-SP-0087</code>, <code>US-SP-0021</code>, <code>RC-SP-0015</code>, <code>DF-SP-0304</code></p>
       </div>
     </div>
   `;
@@ -1021,6 +1038,7 @@ function renderPlan(){
   const f = planForm;
   const sorted = [...STATE.planRecords].sort((a,b)=>new Date(a.plannedDate)-new Date(b.plannedDate));
   const isAdmin = CURRENT_USER?.role === 'admin';
+  const capList = CAPACITY_OPTIONS[f.equipmentType] || [];
 
   return `
     ${sectionHeader("แผนงานบำรุงรักษาล่วงหน้า", isAdmin ? "กำหนดตารางงานและส่งต่องานเข้าสู่ขั้นตอนปฏิบัติการ" : "ตารางแผนงานประจำสายป้อน", `
@@ -1029,6 +1047,7 @@ function renderPlan(){
     ${isAdmin ? `
     <form class="entry-form" id="plan-form">
       ${field("ประเภทอุปกรณ์", `<select id="p-equipmentType">${EQUIPMENT_TYPES.map(t=>`<option ${f.equipmentType===t?"selected":""}>${t}</option>`).join("")}</select>`)}
+      ${field("ขนาดและพิกัดกำลัง", `<select id="p-capacity">${capList.map(c=>`<option ${f.capacity===c?"selected":""}>${c}</option>`).join("")}</select>`)}
       ${field("รหัสอุปกรณ์", `<input required id="p-equipmentId" placeholder="เช่น TR-SP-0210" value="${esc(f.equipmentId)}"/>`)}
       ${field("สายป้อน / พื้นที่", `<input id="p-location" placeholder="เช่น สายป้อน สป.03" value="${esc(f.location)}"/>`)}
       ${field("วันที่วางแผนดำเนินการ", `<input type="date" required id="p-plannedDate" value="${esc(f.plannedDate)}"/>`)}
@@ -1042,7 +1061,11 @@ function renderPlan(){
         ${sorted.map(p=>`
           <div class="m-record-card">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-              <div><div class="m-card-id">${esc(p.equipmentId)} <span style="font-size:12px;color:var(--text);font-weight:600;">— ${esc(p.equipmentType)}</span></div><div style="font-size:12px;color:var(--muted);">${thDate(p.plannedDate)} • ${esc(p.team)}</div></div>
+              <div>
+                <div class="m-card-id">${esc(p.equipmentId)} <span class="capacity-pill">${esc(p.capacity||"-")}</span></div>
+                <div style="font-size:12px;color:var(--text);font-weight:600;margin-top:2px;">${esc(p.equipmentType)}</div>
+                <div style="font-size:12px;color:var(--muted);margin-top:2px;">กำหนด: ${thDate(p.plannedDate)} • ${esc(p.team)}</div>
+              </div>
               <div>${statusPill(p.status)}</div>
             </div>
             <div style="font-size:12px;color:var(--muted);">${esc(p.location||"-")} • ความสำคัญ: <strong style="color:${p.priority==="สูง"?C.red:p.priority==="กลาง"?C.amber:C.muted}">${esc(p.priority)}</strong></div>
@@ -1056,11 +1079,12 @@ function renderPlan(){
       ${sorted.length ? `
       <div class="desktop-table-wrap">
         <table>
-          <thead><tr><th>วันที่วางแผน</th><th>อุปกรณ์</th><th>รหัส</th><th>สายป้อน</th><th>ทีม</th><th>ความสำคัญ</th><th>สถานะ</th><th style="text-align:right">จัดการ</th></tr></thead>
+          <thead><tr><th>วันที่วางแผน</th><th>อุปกรณ์</th><th>ขนาดพิกัด</th><th>รหัส</th><th>สายป้อน</th><th>ทีม</th><th>ความสำคัญ</th><th>สถานะ</th><th style="text-align:right">จัดการ</th></tr></thead>
           <tbody>
             ${sorted.map(p=>`<tr>
               <td>${thDate(p.plannedDate)}</td>
               <td><strong>${esc(p.equipmentType)}</strong></td>
+              <td><span class="capacity-pill">${esc(p.capacity||"-")}</span></td>
               <td class="mono" style="font-weight:700;color:var(--electric);">${esc(p.equipmentId)}</td>
               <td class="muted">${esc(p.location||"-")}</td>
               <td><span class="pill" style="background:var(--blue-soft);color:var(--navy);">${esc(p.team)}</span></td>
@@ -1234,13 +1258,24 @@ function attachTabListeners(){
   }
 
   if(TAB==="entry"){
+    const typeSelect = document.getElementById("f-equipmentType");
+    if(typeSelect){
+      typeSelect.onchange = () => {
+        const selectedType = typeSelect.value;
+        const capSelect = document.getElementById("f-capacity");
+        if(capSelect && CAPACITY_OPTIONS[selectedType]){
+          capSelect.innerHTML = CAPACITY_OPTIONS[selectedType].map(c=>`<option>${c}</option>`).join("");
+        }
+      };
+    }
+
     const form = document.getElementById("pm-form");
     if(form){
       form.onsubmit = (e)=>{
         e.preventDefault();
         const val = id => document.getElementById(id).value;
         const record = {
-          date: val("f-date"), equipmentType: val("f-equipmentType"), equipmentId: val("f-equipmentId"), location: val("f-location"),
+          date: val("f-date"), equipmentType: val("f-equipmentType"), capacity: val("f-capacity"), equipmentId: val("f-equipmentId"), location: val("f-location"),
           team: val("f-team"), technician: val("f-technician"), laborHours: Number(val("f-laborHours"))||0,
           materialCost: Number(val("f-materialCost"))||0, laborCost: Number(val("f-laborCost"))||0,
           otherCost: Number(val("f-otherCost"))||0, maintenanceType: val("f-maintenanceType"),
@@ -1256,9 +1291,9 @@ function attachTabListeners(){
     const exportExcelBtn = document.getElementById("export-pm-excel-btn");
     if(exportExcelBtn){
       exportExcelBtn.onclick = ()=>{
-        const headers = ["วันที่", "ประเภทอุปกรณ์", "รหัสอุปกรณ์", "พื้นที่/สายป้อน", "ทีม", "ช่างผู้รับผิดชอบ", "ชม.แรงงาน", "ค่าพัสดุ", "ค่าแรง", "ค่าใช้จ่ายอื่น", "รวมต้นทุน", "ประเภทงาน", "สถานะ", "หมายเหตุ"];
+        const headers = ["วันที่", "ประเภทอุปกรณ์", "ขนาดพิกัด", "รหัสอุปกรณ์", "พื้นที่/สายป้อน", "ทีม", "ช่างผู้รับผิดชอบ", "ชม.แรงงาน", "ค่าพัสดุ", "ค่าแรง", "ค่าใช้จ่ายอื่น", "รวมต้นทุน", "ประเภทงาน", "สถานะ", "หมายเหตุ"];
         const rows = STATE.pmRecords.map(r => [
-          r.date, r.equipmentType, r.equipmentId, r.location, r.team, r.technician,
+          r.date, r.equipmentType, r.capacity||"-", r.equipmentId, r.location, r.team, r.technician,
           r.laborHours, r.materialCost, r.laborCost, r.otherCost,
           (Number(r.materialCost)+Number(r.laborCost)+Number(r.otherCost)),
           r.maintenanceType, r.status, r.notes
@@ -1279,13 +1314,24 @@ function attachTabListeners(){
   }
 
   if(TAB==="plan"){
+    const planTypeSelect = document.getElementById("p-equipmentType");
+    if(planTypeSelect){
+      planTypeSelect.onchange = () => {
+        const selectedType = planTypeSelect.value;
+        const capSelect = document.getElementById("p-capacity");
+        if(capSelect && CAPACITY_OPTIONS[selectedType]){
+          capSelect.innerHTML = CAPACITY_OPTIONS[selectedType].map(c=>`<option>${c}</option>`).join("");
+        }
+      };
+    }
+
     const form = document.getElementById("plan-form");
     if(form){
       form.onsubmit = (e)=>{
         e.preventDefault();
         const val = id => document.getElementById(id).value;
         const record = {
-          equipmentType: val("p-equipmentType"), equipmentId: val("p-equipmentId"), location: val("p-location"),
+          equipmentType: val("p-equipmentType"), capacity: val("p-capacity"), equipmentId: val("p-equipmentId"), location: val("p-location"),
           plannedDate: val("p-plannedDate"), team: val("p-team"), priority: val("p-priority"), status:"วางแผน", id: uid(),
         };
         planForm = emptyPlan(); persist({ ...STATE, planRecords: [record, ...STATE.planRecords] });
@@ -1295,8 +1341,8 @@ function attachTabListeners(){
     const exportPlanBtn = document.getElementById("export-plan-excel-btn");
     if(exportPlanBtn){
       exportPlanBtn.onclick = ()=>{
-        const headers = ["วันที่วางแผน", "ประเภทอุปกรณ์", "รหัสอุปกรณ์", "พื้นที่/สายป้อน", "ทีมที่รับผิดชอบ", "ความสำคัญ", "สถานะ"];
-        const rows = STATE.planRecords.map(r => [r.plannedDate, r.equipmentType, r.equipmentId, r.location, r.team, r.priority, r.status]);
+        const headers = ["วันที่วางแผน", "ประเภทอุปกรณ์", "ขนาดพิกัด", "รหัสอุปกรณ์", "พื้นที่/สายป้อน", "ทีมที่รับผิดชอบ", "ความสำคัญ", "สถานะ"];
+        const rows = STATE.planRecords.map(r => [r.plannedDate, r.equipmentType, r.capacity||"-", r.equipmentId, r.location, r.team, r.priority, r.status]);
         exportToExcel("MEA_PM_Plans_" + new Date().toISOString().slice(0,10), "PM_Plans", [headers, ...rows]);
       };
     }
@@ -1306,7 +1352,7 @@ function attachTabListeners(){
         const id = btn.getAttribute("data-convert-plan");
         const plan = STATE.planRecords.find(p=>p.id===id);
         if(plan){
-          pmForm = { ...emptyPm(), equipmentType: plan.equipmentType, equipmentId: plan.equipmentId, location: plan.location, team: plan.team, date: plan.plannedDate };
+          pmForm = { ...emptyPm(), equipmentType: plan.equipmentType, capacity: plan.capacity, equipmentId: plan.equipmentId, location: plan.location, team: plan.team, date: plan.plannedDate };
           TAB = "entry"; render();
         }
       };
