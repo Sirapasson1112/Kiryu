@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>MEA PM Planner — เขตสมุทรปราการ (Smart CMMS & Capacity)</title>
+<title>MEA PM Planner — เขตสมุทรปราการ (Smart CMMS & GPS/Photo)</title>
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
@@ -227,6 +227,10 @@
 
   .alert-box{ padding:10px 14px; border-radius:8px; background:var(--red-soft); color:var(--red); font-size:13px; margin-bottom:16px; }
 
+  /* Photo Preview */
+  .photo-preview-wrap{ display:flex; align-items:center; gap:12px; margin-top:6px; flex-wrap:wrap; }
+  .photo-thumb{ width:70px; height:70px; border-radius:8px; object-fit:cover; border:2px solid var(--border); box-shadow:var(--shadow-sm); cursor:pointer; }
+
   .modal-backdrop{
     position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(9,30,54,0.7);
     display:flex; align-items:flex-end; justify-content:center; z-index:9999; padding:0; backdrop-filter:blur(4px);
@@ -269,6 +273,8 @@ const ICONS = {
   mapPin: (c)=>`<svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
   book: (c)=>`<svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`,
   navigation: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>`,
+  camera: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>`,
+  gps: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>`,
   plus: `<svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>`,
   fileExcel: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="17"/><line x1="16" y1="13" x2="8" y2="17"/></svg>`,
   filePdf: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M10 12h2a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1h-2v-4z"/><path d="M10 18v-2"/></svg>`,
@@ -287,7 +293,6 @@ const C = {
   border:'#E2E8F0', muted:'#64748B', text:'#0F172A',
 };
 
-// รายการขนาดพิกัดมาตรฐานของแต่ละอุปกรณ์ (กฟน. เขตสมุทรปราการ)
 const CAPACITY_OPTIONS = {
   "หม้อแปลงจำหน่าย": ["50 kVA", "100 kVA", "160 kVA", "250 kVA", "315 kVA", "400 kVA", "500 kVA", "1000 kVA", "1250 kVA", "1500 kVA", "2000 kVA"],
   "LBS": ["24 kV 630A", "24 kV 1250A", "33 kV 630A"],
@@ -300,8 +305,8 @@ const EQUIPMENT_TYPES = Object.keys(CAPACITY_OPTIONS);
 const PRIORITIES = ["สูง","กลาง","ต่ำ"];
 const PLAN_STATUSES = ["วางแผน","กำลังดำเนินการ","เสร็จสิ้น","เลื่อน"];
 const PM_STATUSES = ["เสร็จสิ้น","ระหว่างดำเนินการ","รอดำเนินการ"];
-const STORAGE_KEY = "mea-pm-v16-capacity-app";
-const AUTH_KEY = "mea-pm-auth-v16";
+const STORAGE_KEY = "mea-pm-v17-photo-gps";
+const AUTH_KEY = "mea-pm-auth-v17";
 
 const uid = () => Date.now() + "-" + Math.random().toString(36).slice(2,8);
 const baht = (n) => "฿" + Number(n||0).toLocaleString("th-TH",{maximumFractionDigits:0});
@@ -334,15 +339,15 @@ function seedData(){
   return {
     benchmarks:{ "หม้อแปลงจำหน่าย": 8500, "LBS": 4200, "UNIT SUBSTATION": 12500, "รีโคลสเซอร์ (Recloser)": 6500, "ดรอปเอาท์ฟิวส์": 2500 },
     pmRecords:[
-      {id:uid(),date:iso(-24),equipmentType:"หม้อแปลงจำหน่าย",capacity:"250 kVA",equipmentId:"TR-SP-0101",location:"สายป้อน สป.01 (ปากน้ำ-สายลวด)",team:"ทีม A",technician:"สมชาย ใจดี",laborHours:6.0,materialCost:3100,laborCost:2100,otherCost:300,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ตรวจสภาพน้ำมันและเปลี่ยนปะเก็นยาง Health Index 94%"},
-      {id:uid(),date:iso(-20),equipmentType:"LBS",capacity:"24 kV 630A",equipmentId:"LBS-SP-0045",location:"สายป้อน สป.02 (ท้ายบ้าน)",team:"ทีม B",technician:"วิภา ศรีสุข",laborHours:3.5,materialCost:1400,laborCost:1200,otherCost:100,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"หล่อลื่นกลไกสับปลด ทำความสะอาดลูกถ้วย"},
-      {id:uid(),date:iso(-18),equipmentType:"UNIT SUBSTATION",capacity:"1000 kVA (24kV)",equipmentId:"US-SP-0012",location:"นิคมฯ บางปู ซอย 4",team:"ทีม A",technician:"สมชาย ใจดี",laborHours:8.0,materialCost:5600,laborCost:2800,otherCost:500,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ตรวจ Thermoscan ขันกวดจุดต่อสายแรงสูง"},
-      {id:uid(),date:iso(-15),equipmentType:"รีโคลสเซอร์ (Recloser)",capacity:"24 kV 630A (12.5kA)",equipmentId:"RC-SP-0008",location:"สายป้อน สป.05 (บางปูเหนือ)",team:"ทีม C",technician:"อรุณ พงษ์ไทย",laborHours:4.5,materialCost:2300,laborCost:1700,otherCost:200,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ทดสอบระบบควบคุมและแบตเตอรี่สำรองปกติ"},
-      {id:uid(),date:iso(-12),equipmentType:"ดรอปเอาท์ฟิวส์",capacity:"24 kV 100A",equipmentId:"DF-SP-0112",location:"สายป้อน สป.03 (บางเมือง)",team:"ทีม D",technician:"กฤษณะ วงศ์ษา",laborHours:2.5,materialCost:750,laborCost:900,otherCost:100,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"เปลี่ยนฟิวส์ลิงค์ขนาดพิกัดมาตรฐาน"},
-      {id:uid(),date:iso(-10),equipmentType:"หม้อแปลงจำหน่าย",capacity:"500 kVA",equipmentId:"TR-SP-0142",location:"สายป้อน สป.12 (แพรกษา)",team:"ทีม A",technician:"สมชาย ใจดี",laborHours:6.5,materialCost:3300,laborCost:2200,otherCost:300,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"วัดค่าความเป็นฉนวน เติมน้ำมันหม้อแปลง"},
-      {id:uid(),date:iso(-8),equipmentType:"UNIT SUBSTATION",capacity:"1500 kVA (24kV)",equipmentId:"US-SP-0021",location:"นิคมฯ บางปู ซอย 8",team:"ทีม B",technician:"วิภา ศรีสุข",laborHours:7.5,materialCost:6100,laborCost:2600,otherCost:400,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ตรวจเช็คระบบระบายอากาศและสวิตช์เกียร์"},
-      {id:uid(),date:iso(-2),equipmentType:"หม้อแปลงจำหน่าย",capacity:"160 kVA",equipmentId:"TR-SP-0198",location:"สายป้อน สป.08 (ศรีนครินทร์)",team:"ทีม C",technician:"อรุณ พงษ์ไทย",laborHours:4.0,materialCost:2200,laborCost:1500,otherCost:200,maintenanceType:"ป้องกัน",status:"ระหว่างดำเนินการ",notes:"กำลังตรวจสอบและถ่ายตัวอย่างน้ำมัน"},
-      {id:uid(),date:iso(-1),equipmentType:"LBS",capacity:"24 kV 1250A",equipmentId:"LBS-SP-0087",location:"สายป้อน สป.06 (บางโปรง)",team:"ทีม B",technician:"วิภา ศรีสุข",laborHours:3.0,materialCost:1500,laborCost:1100,otherCost:150,maintenanceType:"ป้องกัน",status:"ระหว่างดำเนินการ",notes:"กำลังปรับตั้งระยะหน้าสัมผัส"},
+      {id:uid(),date:iso(-24),equipmentType:"หม้อแปลงจำหน่าย",capacity:"250 kVA",equipmentId:"TR-SP-0101",location:"สายป้อน สป.01 (ปากน้ำ-สายลวด)",team:"ทีม A",technician:"สมชาย ใจดี",laborHours:6.0,materialCost:3100,laborCost:2100,otherCost:300,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ตรวจสภาพน้ำมันและเปลี่ยนปะเก็นยาง Health Index 94%",photo:""},
+      {id:uid(),date:iso(-20),equipmentType:"LBS",capacity:"24 kV 630A",equipmentId:"LBS-SP-0045",location:"สายป้อน สป.02 (ท้ายบ้าน)",team:"ทีม B",technician:"วิภา ศรีสุข",laborHours:3.5,materialCost:1400,laborCost:1200,otherCost:100,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"หล่อลื่นกลไกสับปลด ทำความสะอาดลูกถ้วย",photo:""},
+      {id:uid(),date:iso(-18),equipmentType:"UNIT SUBSTATION",capacity:"1000 kVA (24kV)",equipmentId:"US-SP-0012",location:"นิคมฯ บางปู ซอย 4",team:"ทีม A",technician:"สมชาย ใจดี",laborHours:8.0,materialCost:5600,laborCost:2800,otherCost:500,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ตรวจ Thermoscan ขันกวดจุดต่อสายแรงสูง",photo:""},
+      {id:uid(),date:iso(-15),equipmentType:"รีโคลสเซอร์ (Recloser)",capacity:"24 kV 630A (12.5kA)",equipmentId:"RC-SP-0008",location:"สายป้อน สป.05 (บางปูเหนือ)",team:"ทีม C",technician:"อรุณ พงษ์ไทย",laborHours:4.5,materialCost:2300,laborCost:1700,otherCost:200,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ทดสอบระบบควบคุมและแบตเตอรี่สำรองปกติ",photo:""},
+      {id:uid(),date:iso(-12),equipmentType:"ดรอปเอาท์ฟิวส์",capacity:"24 kV 100A",equipmentId:"DF-SP-0112",location:"สายป้อน สป.03 (บางเมือง)",team:"ทีม D",technician:"กฤษณะ วงศ์ษา",laborHours:2.5,materialCost:750,laborCost:900,otherCost:100,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"เปลี่ยนฟิวส์ลิงค์ขนาดพิกัดมาตรฐาน",photo:""},
+      {id:uid(),date:iso(-10),equipmentType:"หม้อแปลงจำหน่าย",capacity:"500 kVA",equipmentId:"TR-SP-0142",location:"สายป้อน สป.12 (แพรกษา)",team:"ทีม A",technician:"สมชาย ใจดี",laborHours:6.5,materialCost:3300,laborCost:2200,otherCost:300,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"วัดค่าความเป็นฉนวน เติมน้ำมันหม้อแปลง",photo:""},
+      {id:uid(),date:iso(-8),equipmentType:"UNIT SUBSTATION",capacity:"1500 kVA (24kV)",equipmentId:"US-SP-0021",location:"นิคมฯ บางปู ซอย 8",team:"ทีม B",technician:"วิภา ศรีสุข",laborHours:7.5,materialCost:6100,laborCost:2600,otherCost:400,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ตรวจเช็คระบบระบายอากาศและสวิตช์เกียร์",photo:""},
+      {id:uid(),date:iso(-2),equipmentType:"หม้อแปลงจำหน่าย",capacity:"160 kVA",equipmentId:"TR-SP-0198",location:"สายป้อน สป.08 (ศรีนครินทร์)",team:"ทีม C",technician:"อรุณ พงษ์ไทย",laborHours:4.0,materialCost:2200,laborCost:1500,otherCost:200,maintenanceType:"ป้องกัน",status:"ระหว่างดำเนินการ",notes:"กำลังตรวจสอบและถ่ายตัวอย่างน้ำมัน",photo:""},
+      {id:uid(),date:iso(-1),equipmentType:"LBS",capacity:"24 kV 1250A",equipmentId:"LBS-SP-0087",location:"สายป้อน สป.06 (บางโปรง)",team:"ทีม B",technician:"วิภา ศรีสุข",laborHours:3.0,materialCost:1500,laborCost:1100,otherCost:150,maintenanceType:"ป้องกัน",status:"ระหว่างดำเนินการ",notes:"กำลังปรับตั้งระยะหน้าสัมผัส",photo:""},
     ],
     planRecords:[
       {id:uid(),equipmentType:"หม้อแปลงจำหน่าย",capacity:"315 kVA",equipmentId:"TR-SP-0310",location:"สายป้อน สป.03 (บางเมือง)",plannedDate:iso(1),team:"ทีม B",priority:"สูง",status:"วางแผน"},
@@ -364,7 +369,7 @@ let IMPORT_TARGET = "pm";
 let EDITING_RECORD = null;
 let LEAFLET_MAP = null;
 
-const emptyPm = () => ({ date:new Date().toISOString().slice(0,10), equipmentType:EQUIPMENT_TYPES[0], capacity:CAPACITY_OPTIONS[EQUIPMENT_TYPES[0]][0], equipmentId:"", location:"", team:"", technician:"", laborHours:"", materialCost:"", laborCost:"", otherCost:"", maintenanceType:"ป้องกัน", status:"เสร็จสิ้น", notes:"" });
+const emptyPm = () => ({ date:new Date().toISOString().slice(0,10), equipmentType:EQUIPMENT_TYPES[0], capacity:CAPACITY_OPTIONS[EQUIPMENT_TYPES[0]][0], equipmentId:"", location:"", team:"", technician:"", laborHours:"", materialCost:"", laborCost:"", otherCost:"", maintenanceType:"ป้องกัน", status:"เสร็จสิ้น", notes:"", photo:"" });
 const emptyPlan = () => ({ equipmentType:EQUIPMENT_TYPES[0], capacity:CAPACITY_OPTIONS[EQUIPMENT_TYPES[0]][0], equipmentId:"", location:"", plannedDate:new Date().toISOString().slice(0,10), team:"", priority:"กลาง", status:"วางแผน" });
 let pmForm = emptyPm();
 let planForm = emptyPlan();
@@ -474,7 +479,8 @@ function handleFileImport(e) {
             otherCost: Number(r[10]) || 0,
             maintenanceType: r[12] || "ป้องกัน",
             status: r[13] || "เสร็จสิ้น",
-            notes: r[14] || "นำเข้าจาก Excel"
+            notes: r[14] || "นำเข้าจาก Excel",
+            photo: ""
           });
         }
         if(imported.length){
@@ -522,6 +528,7 @@ function recordsTable(records, {withDelete, compact} = {}){
               <div>${statusPill(r.status)}</div>
             </div>
             <div style="font-size:12px;color:var(--muted);">${esc(r.location||"-")}</div>
+            ${r.photo ? `<div style="margin-top:4px;"><img src="${r.photo}" class="photo-thumb" onclick="window.open('${r.photo}')" title="กดดูรูปขนาดเต็ม" /></div>` : ''}
             <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px dashed var(--border);padding-top:10px;margin-top:2px;">
               <div style="font-size:14px;font-weight:700;font-family:'JetBrains Mono',monospace;">
                 ${baht(total)} ${diffHtml}
@@ -537,7 +544,7 @@ function recordsTable(records, {withDelete, compact} = {}){
     </div>
   `;
 
-  const headers = ["วันที่","อุปกรณ์","ขนาดพิกัด","รหัส","สายป้อน / พื้นที่","ทีม","ผู้ปฏิบัติงาน","ต้นทุนรวม","WCM Diff","สถานะ",""];
+  const headers = ["วันที่","อุปกรณ์","ขนาดพิกัด","รหัส","สายป้อน / พื้นที่","รูปถ่าย","ทีม","ผู้ปฏิบัติงาน","ต้นทุนรวม","WCM Diff","สถานะ",""];
   const desktopTableHtml = `
     <div class="desktop-table-wrap">
       <table>
@@ -557,6 +564,7 @@ function recordsTable(records, {withDelete, compact} = {}){
               <td><span class="capacity-pill">${esc(r.capacity||"-")}</span></td>
               <td class="mono" style="font-weight:700;color:var(--electric);">${esc(r.equipmentId)}</td>
               <td class="muted">${esc(r.location||"-")}</td>
+              <td>${r.photo ? `<img src="${r.photo}" style="width:36px;height:36px;border-radius:6px;object-fit:cover;cursor:pointer;border:1px solid var(--border);" onclick="window.open('${r.photo}')" title="คลิกดูรูปใหญ่"/>` : `<span class="muted">-</span>`}</td>
               <td><span class="pill" style="background:var(--blue-soft);color:var(--navy);">${esc(r.team)}</span></td>
               <td style="font-size:12px;">${esc(r.technician||"-")}</td>
               <td class="mono" style="font-weight:700;">${baht(total)}</td>
@@ -601,7 +609,15 @@ function renderModal(){
             ${field("ประเภทอุปกรณ์", `<select id="m-equipmentType">${EQUIPMENT_TYPES.map(t=>`<option ${data.equipmentType===t?"selected":""}>${t}</option>`).join("")}</select>`)}
             ${field("ขนาดและพิกัดกำลัง", `<select id="m-capacity">${capList.map(c=>`<option ${data.capacity===c?"selected":""}>${c}</option>`).join("")}</select>`)}
             ${field("รหัสอุปกรณ์", `<input required id="m-equipmentId" value="${esc(data.equipmentId)}"/>`)}
-            ${field("สายป้อน / ฟีดเดอร์ / พื้นที่", `<input id="m-location" value="${esc(data.location||"")}"/>`)}
+            
+            <div class="field">
+              <span class="field-label">สายป้อน / พิกัดสถานที่</span>
+              <div style="display:flex;gap:6px;">
+                <input id="m-location" value="${esc(data.location||"")}" placeholder="ระบุสายป้อนหรือพิกัด GPS"/>
+                <button type="button" class="btn-secondary" id="m-gps-btn" title="ดึงพิกัด GPS">${ICONS.gps} ดึง GPS</button>
+              </div>
+            </div>
+
             ${field("ทีมปฏิบัติงาน", `<input required id="m-team" value="${esc(data.team)}"/>`)}
             ${field("ผู้ปฏิบัติงานหลัก", `<input id="m-technician" value="${esc(data.technician||"")}"/>`)}
             ${field("ชั่วโมงแรงงานรวม (ชม.)", `<input type="number" min="0" step="0.5" id="m-laborHours" value="${esc(data.laborHours)}"/>`)}
@@ -610,6 +626,15 @@ function renderModal(){
             ${field("ค่าใช้จ่ายอื่น (บาท)", `<input type="number" min="0" id="m-otherCost" value="${esc(data.otherCost)}"/>`)}
             ${field("ประเภทการบำรุงรักษา", `<select id="m-maintenanceType"><option ${data.maintenanceType==="ป้องกัน"?"selected":""}>ป้องกัน</option><option ${data.maintenanceType==="แก้ไข"?"selected":""}>แก้ไข</option></select>`)}
             ${field("สถานะงาน", `<select id="m-status">${PM_STATUSES.map(s=>`<option ${data.status===s?"selected":""}>${s}</option>`).join("")}</select>`)}
+            
+            <div class="field span-all">
+              <span class="field-label">แนบรูปถ่ายหน้างาน / รูปอุปกรณ์</span>
+              <input type="file" id="m-photo-input" accept="image/*" style="font-size:12px;padding:8px;"/>
+              <div id="m-photo-preview" class="photo-preview-wrap">
+                ${data.photo ? `<img src="${data.photo}" class="photo-thumb" id="m-thumb-img"/>` : ''}
+              </div>
+            </div>
+
             <div class="span-all">${field("บันทึกการทำงาน / ข้อสังเกต / Health Index", `<textarea rows="3" id="m-notes">${esc(data.notes||"")}</textarea>`)}</div>
             <div class="form-actions" style="margin-top:14px;">
               <button type="button" class="btn-secondary" id="modal-cancel-btn">ยกเลิก</button>
@@ -632,6 +657,50 @@ function attachModalListeners(){
   if(closeBtn) closeBtn.onclick = closeModal;
   if(cancelBtn) cancelBtn.onclick = closeModal;
   if(backdrop) backdrop.onclick = (e) => { if(e.target === backdrop) closeModal(); };
+
+  // ดึง GPS ใน Modal
+  const mGpsBtn = document.getElementById("m-gps-btn");
+  if(mGpsBtn){
+    mGpsBtn.onclick = () => {
+      if("geolocation" in navigator){
+        mGpsBtn.innerText = "กำลังหาพิกัด...";
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const locInput = document.getElementById("m-location");
+            if(locInput){
+              locInput.value = `พิกัด GPS: ${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
+            }
+            mGpsBtn.innerHTML = `${ICONS.gps} ดึง GPS`;
+          },
+          (err) => {
+            alert("ไม่สามารถเข้าถึงตำแหน่งได้ กรุณาเปิดสิทธิ์ GPS ในเบราว์เซอร์");
+            mGpsBtn.innerHTML = `${ICONS.gps} ดึง GPS`;
+          },
+          { timeout: 10000 }
+        );
+      } else {
+        alert("อุปกรณ์นี้ไม่รองรับระบบระบุตำแหน่ง GPS");
+      }
+    };
+  }
+
+  // อัปโหลดรูปภาพใน Modal
+  let modalPhotoBase64 = EDITING_RECORD?.data?.photo || "";
+  const mPhotoInput = document.getElementById("m-photo-input");
+  if(mPhotoInput){
+    mPhotoInput.onchange = (e) => {
+      const file = e.target.files[0];
+      if(file){
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          modalPhotoBase64 = evt.target.result;
+          const prev = document.getElementById("m-photo-preview");
+          if(prev) prev.innerHTML = `<img src="${modalPhotoBase64}" class="photo-thumb" id="m-thumb-img"/>`;
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+  }
 
   const editTypeSelect = document.getElementById("m-equipmentType");
   if(editTypeSelect){
@@ -656,6 +725,7 @@ function attachModalListeners(){
         laborHours: Number(val("m-laborHours"))||0, materialCost: Number(val("m-materialCost"))||0,
         laborCost: Number(val("m-laborCost"))||0, otherCost: Number(val("m-otherCost"))||0,
         maintenanceType: val("m-maintenanceType"), status: val("m-status"), notes: val("m-notes"),
+        photo: modalPhotoBase64
       };
       persist({ ...STATE, pmRecords: STATE.pmRecords.map(r => r.id === updated.id ? updated : r) });
       EDITING_RECORD = null; renderModal();
@@ -849,7 +919,6 @@ function drawDashboardCharts(){
     });
   }
 
-  // กราฟแจกแจงตามขนาดพิกัดกำลัง
   const capMap = {};
   pmRecords.forEach(r => {
     const key = r.capacity || "ไม่ระบุขนาด";
@@ -974,12 +1043,14 @@ function initMap(){
   });
 }
 
+let pmPhotoBase64 = "";
+
 function renderEntry(){
   const f = pmForm;
   const capList = CAPACITY_OPTIONS[f.equipmentType] || [];
 
   return `
-    ${sectionHeader("บันทึกข้อมูลงาน PM (Smart Entry)","กรอกประวัติการบำรุงรักษา พร้อมระบุขนาดพิกัดกำลังอุปกรณ์", `
+    ${sectionHeader("บันทึกข้อมูลงาน PM (Smart Entry)","กรอกประวัติการบำรุงรักษา พร้อมดึงพิกัด GPS และแนบรูปถ่ายหน้างาน", `
       <button class="btn-secondary" id="go-guide-btn">${ICONS.book(C.blue)} คู่มือเกณฑ์กรอก</button>
       <button class="btn-secondary" id="import-pm-btn">${ICONS.upload} นำเข้า Excel</button>
       <button class="btn-success" id="export-pm-excel-btn">${ICONS.fileExcel} ส่งออก Excel</button>
@@ -989,7 +1060,15 @@ function renderEntry(){
       ${field("ประเภทอุปกรณ์", `<select id="f-equipmentType">${EQUIPMENT_TYPES.map(t=>`<option ${f.equipmentType===t?"selected":""}>${t}</option>`).join("")}</select>`)}
       ${field("ขนาดและพิกัดกำลัง (Rating)", `<select id="f-capacity">${capList.map(c=>`<option ${f.capacity===c?"selected":""}>${c}</option>`).join("")}</select>`)}
       ${field("รหัสอุปกรณ์", `<input required id="f-equipmentId" placeholder="เช่น TR-SP-0142" value="${esc(f.equipmentId)}"/>`)}
-      ${field("สายป้อน / ฟีดเดอร์ / พื้นที่", `<input id="f-location" placeholder="เช่น สายป้อน สป.12" value="${esc(f.location)}"/>`)}
+      
+      <div class="field">
+        <span class="field-label">สายป้อน / พิกัดสถานที่</span>
+        <div style="display:flex;gap:6px;">
+          <input id="f-location" placeholder="เช่น สายป้อน สป.12" value="${esc(f.location)}"/>
+          <button type="button" class="btn-secondary" id="f-gps-btn" title="ดึงพิกัด GPS">${ICONS.gps} ดึง GPS</button>
+        </div>
+      </div>
+
       ${field("ทีมปฏิบัติงาน", `<input required id="f-team" placeholder="เช่น ทีม A" value="${esc(f.team)}"/>`)}
       ${field("ผู้ปฏิบัติงานหลัก", `<input id="f-technician" placeholder="ชื่อ-นามสกุล" value="${esc(f.technician || CURRENT_USER?.name || "")}"/>`)}
       ${field("ชั่วโมงแรงงานรวม (ชม.)", `<input type="number" min="0" step="0.5" id="f-laborHours" placeholder="0.0" value="${esc(f.laborHours)}"/>`)}
@@ -998,6 +1077,15 @@ function renderEntry(){
       ${field("ค่าใช้จ่ายอื่น (บาท)", `<input type="number" min="0" id="f-otherCost" placeholder="0" value="${esc(f.otherCost)}"/>`)}
       ${field("ประเภทการบำรุงรักษา", `<select id="f-maintenanceType"><option ${f.maintenanceType==="ป้องกัน"?"selected":""}>ป้องกัน</option><option ${f.maintenanceType==="แก้ไข"?"selected":""}>แก้ไข</option></select>`)}
       ${field("สถานะงาน", `<select id="f-status">${PM_STATUSES.map(s=>`<option ${f.status===s?"selected":""}>${s}</option>`).join("")}</select>`)}
+      
+      <div class="field span-all">
+        <span class="field-label">แนบรูปถ่ายหน้างาน / อุปกรณ์ (ถ่ายภาพหรือเลือกไฟล์)</span>
+        <input type="file" id="f-photo-input" accept="image/*" style="font-size:12px;padding:8px;"/>
+        <div id="f-photo-preview" class="photo-preview-wrap">
+          ${pmPhotoBase64 ? `<img src="${pmPhotoBase64}" class="photo-thumb"/>` : ''}
+        </div>
+      </div>
+
       <div class="span-all">${field("บันทึกการทำงาน / ข้อสังเกต / Health Index", `<textarea rows="2" id="f-notes" placeholder="ระบุสิ่งที่พบ ค่าความเป็นฉนวน">${esc(f.notes)}</textarea>`)}</div>
       <div class="form-actions"><button type="submit" class="btn-primary">${ICONS.plus} บันทึกงาน PM</button></div>
     </form>
@@ -1258,6 +1346,49 @@ function attachTabListeners(){
   }
 
   if(TAB==="entry"){
+    // ดึงพิกัด GPS
+    const gpsBtn = document.getElementById("f-gps-btn");
+    if(gpsBtn){
+      gpsBtn.onclick = () => {
+        if("geolocation" in navigator){
+          gpsBtn.innerText = "กำลังค้นหา...";
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              const locInput = document.getElementById("f-location");
+              if(locInput){
+                locInput.value = `พิกัด GPS: ${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
+              }
+              gpsBtn.innerHTML = `${ICONS.gps} ดึง GPS`;
+            },
+            (err) => {
+              alert("ไม่สามารถเข้าถึงตำแหน่งได้ กรุณาเปิดสิทธิ์ GPS ในเบราว์เซอร์");
+              gpsBtn.innerHTML = `${ICONS.gps} ดึง GPS`;
+            },
+            { timeout: 10000 }
+          );
+        } else {
+          alert("อุปกรณ์นี้ไม่รองรับระบบระบุตำแหน่ง GPS");
+        }
+      };
+    }
+
+    // อัปโหลดรูปภาพ
+    const photoInput = document.getElementById("f-photo-input");
+    if(photoInput){
+      photoInput.onchange = (e) => {
+        const file = e.target.files[0];
+        if(file){
+          const reader = new FileReader();
+          reader.onload = (evt) => {
+            pmPhotoBase64 = evt.target.result;
+            const prev = document.getElementById("f-photo-preview");
+            if(prev) prev.innerHTML = `<img src="${pmPhotoBase64}" class="photo-thumb"/>`;
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+    }
+
     const typeSelect = document.getElementById("f-equipmentType");
     if(typeSelect){
       typeSelect.onchange = () => {
@@ -1279,9 +1410,11 @@ function attachTabListeners(){
           team: val("f-team"), technician: val("f-technician"), laborHours: Number(val("f-laborHours"))||0,
           materialCost: Number(val("f-materialCost"))||0, laborCost: Number(val("f-laborCost"))||0,
           otherCost: Number(val("f-otherCost"))||0, maintenanceType: val("f-maintenanceType"),
-          status: val("f-status"), notes: val("f-notes"), id: uid(),
+          status: val("f-status"), notes: val("f-notes"), photo: pmPhotoBase64, id: uid(),
         };
-        pmForm = emptyPm(); persist({ ...STATE, pmRecords: [record, ...STATE.pmRecords] });
+        pmForm = emptyPm();
+        pmPhotoBase64 = "";
+        persist({ ...STATE, pmRecords: [record, ...STATE.pmRecords] });
       };
     }
 
