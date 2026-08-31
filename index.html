@@ -143,9 +143,10 @@
   .status-select{ font-size:12px; border-radius:6px; border:1px solid var(--border); padding:4px 8px; font-family:inherit; background:var(--surface); }
 
   .pill{ display:inline-flex; align-items:center; gap:4px; border-radius:999px; padding:3px 8px; font-size:12px; font-weight:500; }
-  .action-btns{ display:flex; align-items:center; gap:8px; justify-content:flex-end; }
-  .icon-btn{ background:none; border:none; cursor:pointer; color:var(--muted); display:flex; padding:4px; border-radius:4px; transition:0.2s; }
-  .icon-btn:hover{ color:var(--red); background:var(--red-soft); }
+  .action-btns{ display:flex; align-items:center; gap:6px; justify-content:flex-end; }
+  .icon-btn{ background:none; border:none; cursor:pointer; color:var(--muted); display:flex; padding:5px; border-radius:4px; transition:0.2s; }
+  .icon-btn:hover{ color:var(--blue); background:var(--blue-soft); }
+  .icon-btn.danger:hover{ color:var(--red); background:var(--red-soft); }
   .btn-sm{ padding:4px 8px; font-size:11px; border-radius:4px; border:1px solid var(--blue); background:var(--blue-soft); color:var(--blue); cursor:pointer; font-family:inherit; }
   .btn-sm:hover{ background:var(--blue); color:#fff; }
 
@@ -155,10 +156,25 @@
 
   .alert-box{ padding:10px 14px; border-radius:6px; background:var(--red-soft); color:var(--red); font-size:13px; margin-bottom:16px; }
 
+  /* Modal Backdrop & Dialog */
+  .modal-backdrop{
+    position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(11,36,64,0.6);
+    display:flex; align-items:center; justify-content:center; z-index:9999; padding:16px;
+    backdrop-filter:blur(2px);
+  }
+  .modal-card{
+    background:var(--surface); border-radius:16px; width:100%; max-width:640px;
+    max-height:90vh; overflow-y:auto; padding:24px; box-shadow:0 20px 40px rgba(0,0,0,0.25);
+  }
+  .modal-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; padding-bottom:12px; border-bottom:1px solid var(--border); }
+  .modal-title{ font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:700; color:var(--navy); margin:0; }
+  .close-modal{ background:none; border:none; cursor:pointer; color:var(--muted); font-size:20px; font-weight:700; padding:4px; }
+  .close-modal:hover{ color:var(--red); }
+
   /* Print / PDF Mode Styling */
   @media print {
     body { background: #fff !important; color: #000 !important; font-size: 12pt; }
-    .sidebar, .toolbar, .form-actions, form, .icon-btn, .btn-sm, .header-actions, .status-select, button { display: none !important; }
+    .sidebar, .toolbar, .form-actions, form, .icon-btn, .btn-sm, .header-actions, .status-select, button, .modal-backdrop { display: none !important; }
     .main { padding: 0 !important; }
     .card { border: none !important; box-shadow: none !important; padding: 0 !important; }
     .chart-grid { display: none !important; }
@@ -172,6 +188,9 @@
 </head>
 <body>
 <div id="app"></div>
+
+<!-- Modal Container -->
+<div id="modal-root"></div>
 
 <!-- Hidden File Input for Excel Import -->
 <input type="file" id="excel-importer" accept=".xlsx, .xls, .csv" style="display:none;" />
@@ -189,6 +208,7 @@ const ICONS = {
   filePdf: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M10 12h2a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1h-2v-4z"/><path d="M10 18v-2"/></svg>`,
   upload: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>`,
   trash: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>`,
+  edit: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
   check: (c)=>`<svg class="ic" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`,
   circle: (c)=>`<svg class="ic" width="10" height="10" viewBox="0 0 24 24" fill="${c}" stroke="none"><circle cx="12" cy="12" r="8"/></svg>`,
   alert: (c)=>`<svg class="ic" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg>`,
@@ -205,8 +225,8 @@ const EQUIPMENT_TYPES = ["หม้อแปลงจำหน่าย","LBS","
 const PRIORITIES = ["สูง","กลาง","ต่ำ"];
 const PLAN_STATUSES = ["วางแผน","กำลังดำเนินการ","เสร็จสิ้น","เลื่อน"];
 const PM_STATUSES = ["เสร็จสิ้น","ระหว่างดำเนินการ","รอดำเนินการ"];
-const STORAGE_KEY = "mea-pm-app-data-v6";
-const AUTH_KEY = "mea-pm-auth-v2";
+const STORAGE_KEY = "mea-pm-app-data-v7";
+const AUTH_KEY = "mea-pm-auth-v3";
 
 const uid = () => Date.now() + "-" + Math.random().toString(36).slice(2,8);
 const baht = (n) => "฿" + Number(n||0).toLocaleString("th-TH",{maximumFractionDigits:0});
@@ -238,7 +258,8 @@ let TAB = "dashboard";
 let CHARTS = {};
 let SEARCH_QUERY = "";
 let LOGIN_ERROR = "";
-let IMPORT_TARGET = "pm"; // "pm" หรือ "plan"
+let IMPORT_TARGET = "pm";
+let EDITING_RECORD = null; // เก็บ object ของแถวที่กำลังเปิดดู/แก้ไข
 
 const emptyPm = () => ({ date:new Date().toISOString().slice(0,10), equipmentType:EQUIPMENT_TYPES[0], equipmentId:"", location:"", team:"", technician:"", laborHours:"", materialCost:"", laborCost:"", otherCost:"", maintenanceType:"ป้องกัน", status:"เสร็จสิ้น", notes:"" });
 const emptyPlan = () => ({ equipmentType:EQUIPMENT_TYPES[0], equipmentId:"", location:"", plannedDate:new Date().toISOString().slice(0,10), team:"", priority:"กลาง", status:"วางแผน" });
@@ -344,7 +365,7 @@ function handleFileImport(e) {
         const importedPMs = [];
         for (let i = 1; i < rows.length; i++) {
           const r = rows[i];
-          if (!r || !r[1] || !r[2]) continue; // ต้องมีประเภทอุปกรณ์ และ รหัสอุปกรณ์
+          if (!r || !r[1] || !r[2]) continue;
           importedPMs.push({
             id: uid(),
             date: r[0] ? String(r[0]).slice(0,10) : new Date().toISOString().slice(0,10),
@@ -406,8 +427,7 @@ function recordsTable(records, {withDelete, compact} = {}){
   });
 
   if(!filtered.length) return emptyState("ไม่พบข้อมูลที่ตรงกับเงื่อนไข");
-  const headers = ["วันที่","อุปกรณ์","รหัส","สายป้อน / พื้นที่","ทีม","ต้นทุนรวม","WCM Diff","สถานะ"];
-  if(withDelete && !compact && CURRENT_USER?.role === 'admin') headers.push("");
+  const headers = ["วันที่","อุปกรณ์","รหัส","สายป้อน / พื้นที่","ทีม","ต้นทุนรวม","WCM Diff","สถานะ",""];
 
   return `<div class="table-wrap"><table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>
     ${filtered.map(r=>{
@@ -427,10 +447,159 @@ function recordsTable(records, {withDelete, compact} = {}){
         <td class="mono">${baht(total)}</td>
         <td>${diffHtml}</td>
         <td>${statusPill(r.status)}</td>
-        ${withDelete && !compact && CURRENT_USER?.role === 'admin' ? `<td style="text-align:right"><button class="icon-btn" data-del-pm="${r.id}">${ICONS.trash}</button></td>` : ""}
+        <td style="text-align:right">
+          <div class="action-btns">
+            <button class="icon-btn" title="ดูรายละเอียด / แก้ไข" data-edit-pm="${r.id}">${ICONS.edit}</button>
+            ${withDelete && !compact && CURRENT_USER?.role === 'admin' ? `<button class="icon-btn danger" title="ลบ" data-del-pm="${r.id}">${ICONS.trash}</button>` : ""}
+          </div>
+        </td>
       </tr>`;
     }).join("")}
   </tbody></table></div>`;
+}
+
+/* -------------------------------------------------------------------
+   Modal View & Edit Renderer
+------------------------------------------------------------------- */
+function renderModal(){
+  const modalRoot = document.getElementById("modal-root");
+  if(!modalRoot) return;
+
+  if(!EDITING_RECORD){
+    modalRoot.innerHTML = "";
+    return;
+  }
+
+  const { type, data } = EDITING_RECORD;
+  const isAdmin = CURRENT_USER?.role === 'admin';
+
+  if (type === "pm") {
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" id="modal-backdrop">
+        <div class="modal-card">
+          <div class="modal-header">
+            <h3 class="modal-title">รายละเอียดและแก้ไขงาน PM (${esc(data.equipmentId)})</h3>
+            <button class="close-modal" id="modal-close-btn">&times;</button>
+          </div>
+          <form id="edit-pm-form" class="entry-form" style="padding:0;border:none;box-shadow:none;margin-bottom:0;">
+            ${field("วันที่ปฏิบัติงาน", `<input type="date" required id="m-date" value="${esc(data.date)}"/>`)}
+            ${field("ประเภทอุปกรณ์", `<select id="m-equipmentType">${EQUIPMENT_TYPES.map(t=>`<option ${data.equipmentType===t?"selected":""}>${t}</option>`).join("")}</select>`)}
+            ${field("รหัสอุปกรณ์", `<input required id="m-equipmentId" value="${esc(data.equipmentId)}"/>`)}
+            ${field("สายป้อน / ฟีดเดอร์ / พื้นที่", `<input id="m-location" value="${esc(data.location||"")}"/>`)}
+            ${field("ทีมปฏิบัติงาน", `<input required id="m-team" value="${esc(data.team)}"/>`)}
+            ${field("ผู้ปฏิบัติงานหลัก", `<input id="m-technician" value="${esc(data.technician||"")}"/>`)}
+            ${field("ชั่วโมงแรงงานรวม (ชม.)", `<input type="number" min="0" step="0.5" id="m-laborHours" value="${esc(data.laborHours)}"/>`)}
+            ${field("ค่าพัสดุ/อุปกรณ์ (บาท)", `<input type="number" min="0" id="m-materialCost" value="${esc(data.materialCost)}"/>`)}
+            ${field("ค่าแรง (บาท)", `<input type="number" min="0" id="m-laborCost" value="${esc(data.laborCost)}"/>`)}
+            ${field("ค่าใช้จ่ายอื่น (บาท)", `<input type="number" min="0" id="m-otherCost" value="${esc(data.otherCost)}"/>`)}
+            ${field("ประเภทการบำรุงรักษา", `<select id="m-maintenanceType"><option ${data.maintenanceType==="ป้องกัน"?"selected":""}>ป้องกัน</option><option ${data.maintenanceType==="แก้ไข"?"selected":""}>แก้ไข</option></select>`)}
+            ${field("สถานะงาน", `<select id="m-status">${PM_STATUSES.map(s=>`<option ${data.status===s?"selected":""}>${s}</option>`).join("")}</select>`)}
+            <div class="span-all">${field("บันทึกการทำงาน / ข้อสังเกต", `<textarea rows="3" id="m-notes">${esc(data.notes||"")}</textarea>`)}</div>
+            <div class="form-actions" style="margin-top:10px;">
+              <button type="button" class="btn-secondary" id="modal-cancel-btn">ยกเลิก</button>
+              <button type="submit" class="btn-primary">${ICONS.check("#fff")} บันทึกการเปลี่ยนแปลง</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    `;
+  } else if (type === "plan") {
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" id="modal-backdrop">
+        <div class="modal-card">
+          <div class="modal-header">
+            <h3 class="modal-title">รายละเอียดและแก้ไขแผนงาน (${esc(data.equipmentId)})</h3>
+            <button class="close-modal" id="modal-close-btn">&times;</button>
+          </div>
+          <form id="edit-plan-form" class="entry-form" style="padding:0;border:none;box-shadow:none;margin-bottom:0;">
+            ${field("ประเภทอุปกรณ์", `<select id="mp-equipmentType">${EQUIPMENT_TYPES.map(t=>`<option ${data.equipmentType===t?"selected":""}>${t}</option>`).join("")}</select>`)}
+            ${field("รหัสอุปกรณ์", `<input required id="mp-equipmentId" value="${esc(data.equipmentId)}"/>`)}
+            ${field("สายป้อน / พื้นที่", `<input id="mp-location" value="${esc(data.location||"")}"/>`)}
+            ${field("วันที่วางแผนดำเนินการ", `<input type="date" required id="mp-plannedDate" value="${esc(data.plannedDate)}"/>`)}
+            ${field("ทีมที่มอบหมาย", `<input required id="mp-team" value="${esc(data.team)}"/>`)}
+            ${field("ระดับความสำคัญ", `<select id="mp-priority">${PRIORITIES.map(p=>`<option ${data.priority===p?"selected":""}>${p}</option>`).join("")}</select>`)}
+            ${field("สถานะแผน", `<select id="mp-status">${PLAN_STATUSES.map(s=>`<option ${data.status===s?"selected":""}>${s}</option>`).join("")}</select>`)}
+            <div class="form-actions" style="margin-top:10px;">
+              <button type="button" class="btn-secondary" id="modal-cancel-btn">ยกเลิก</button>
+              <button type="submit" class="btn-primary">${ICONS.check("#fff")} บันทึกแผนงาน</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    `;
+  }
+
+  attachModalListeners();
+}
+
+function attachModalListeners(){
+  const closeBtn = document.getElementById("modal-close-btn");
+  const cancelBtn = document.getElementById("modal-cancel-btn");
+  const backdrop = document.getElementById("modal-backdrop");
+
+  const closeModal = () => { EDITING_RECORD = null; renderModal(); };
+
+  if(closeBtn) closeBtn.onclick = closeModal;
+  if(cancelBtn) cancelBtn.onclick = closeModal;
+  if(backdrop) {
+    backdrop.onclick = (e) => { if(e.target === backdrop) closeModal(); };
+  }
+
+  const editPmForm = document.getElementById("edit-pm-form");
+  if(editPmForm){
+    editPmForm.onsubmit = (e) => {
+      e.preventDefault();
+      const val = id => document.getElementById(id).value;
+      const updated = {
+        ...EDITING_RECORD.data,
+        date: val("m-date"),
+        equipmentType: val("m-equipmentType"),
+        equipmentId: val("m-equipmentId"),
+        location: val("m-location"),
+        team: val("m-team"),
+        technician: val("m-technician"),
+        laborHours: Number(val("m-laborHours"))||0,
+        materialCost: Number(val("m-materialCost"))||0,
+        laborCost: Number(val("m-laborCost"))||0,
+        otherCost: Number(val("m-otherCost"))||0,
+        maintenanceType: val("m-maintenanceType"),
+        status: val("m-status"),
+        notes: val("m-notes"),
+      };
+
+      persist({
+        ...STATE,
+        pmRecords: STATE.pmRecords.map(r => r.id === updated.id ? updated : r)
+      });
+      EDITING_RECORD = null;
+      renderModal();
+    };
+  }
+
+  const editPlanForm = document.getElementById("edit-plan-form");
+  if(editPlanForm){
+    editPlanForm.onsubmit = (e) => {
+      e.preventDefault();
+      const val = id => document.getElementById(id).value;
+      const updated = {
+        ...EDITING_RECORD.data,
+        equipmentType: val("mp-equipmentType"),
+        equipmentId: val("mp-equipmentId"),
+        location: val("mp-location"),
+        plannedDate: val("mp-plannedDate"),
+        team: val("mp-team"),
+        priority: val("mp-priority"),
+        status: val("mp-status"),
+      };
+
+      persist({
+        ...STATE,
+        planRecords: STATE.planRecords.map(r => r.id === updated.id ? updated : r)
+      });
+      EDITING_RECORD = null;
+      renderModal();
+    };
+  }
 }
 
 function renderLogin(){
@@ -511,6 +680,7 @@ function render(){
   `;
   attachGlobalListeners();
   attachTabListeners();
+  renderModal();
   if(TAB==="dashboard") requestAnimationFrame(() => setTimeout(drawDashboardCharts, 50));
 }
 
@@ -703,13 +873,12 @@ function renderPlan(){
           <td class="muted">${esc(p.location||"-")}</td>
           <td>${esc(p.team)}</td>
           <td><span style="font-weight:600;color:${p.priority==="สูง"?C.red:p.priority==="กลาง"?C.amber:C.muted}">${esc(p.priority)}</span></td>
-          <td>
-            ${isAdmin ? `<select class="status-select" data-plan-status="${p.id}">${PLAN_STATUSES.map(s=>`<option ${p.status===s?"selected":""}>${s}</option>`).join("")}</select>` : statusPill(p.status)}
-          </td>
+          <td>${statusPill(p.status)}</td>
           <td>
             <div class="action-btns">
               <button class="btn-sm" data-convert-plan="${p.id}">เปิดงาน PM</button>
-              ${isAdmin ? `<button class="icon-btn" data-del-plan="${p.id}">${ICONS.trash}</button>` : ''}
+              <button class="icon-btn" title="ดูรายละเอียด / แก้ไข" data-edit-plan="${p.id}">${ICONS.edit}</button>
+              ${isAdmin ? `<button class="icon-btn danger" title="ลบ" data-del-plan="${p.id}">${ICONS.trash}</button>` : ''}
             </div>
           </td>
         </tr>`).join("")}
@@ -857,12 +1026,10 @@ function attachGlobalListeners(){
     });
   }
 
-  // Print PDF Trigger
   document.querySelectorAll("#print-pdf-btn").forEach(btn => {
     btn.addEventListener("click", () => window.print());
   });
 
-  // Importer change handler
   const fileImporter = document.getElementById("excel-importer");
   if (fileImporter) {
     fileImporter.onchange = handleFileImport;
@@ -870,10 +1037,23 @@ function attachGlobalListeners(){
 }
 
 function attachTabListeners(){
+  if(TAB==="entry" || TAB==="dashboard"){
+    document.querySelectorAll("[data-edit-pm]").forEach(btn=>{
+      btn.onclick = () => {
+        const id = btn.getAttribute("data-edit-pm");
+        const item = STATE.pmRecords.find(r => r.id === id);
+        if(item){
+          EDITING_RECORD = { type: "pm", data: { ...item } };
+          renderModal();
+        }
+      };
+    });
+  }
+
   if(TAB==="entry"){
     const form = document.getElementById("pm-form");
     if(form){
-      form.addEventListener("submit", (e)=>{
+      form.onsubmit = (e)=>{
         e.preventDefault();
         const val = id => document.getElementById(id).value;
         const record = {
@@ -885,12 +1065,12 @@ function attachTabListeners(){
         };
         pmForm = emptyPm();
         persist({ ...STATE, pmRecords: [record, ...STATE.pmRecords] });
-      });
+      };
     }
 
     const searchInput = document.getElementById("search-input");
     if(searchInput){
-      searchInput.addEventListener("input", (e)=>{
+      searchInput.oninput = (e)=>{
         SEARCH_QUERY = e.target.value;
         const card = searchInput.closest('.card');
         if(card){
@@ -898,13 +1078,12 @@ function attachTabListeners(){
           if(oldWrap) oldWrap.outerHTML = recordsTable(STATE.pmRecords, {withDelete:true});
           attachTabListeners();
         }
-      });
+      };
     }
 
-    // Export PM to Excel
     const exportExcelBtn = document.getElementById("export-pm-excel-btn");
     if(exportExcelBtn){
-      exportExcelBtn.addEventListener("click", ()=>{
+      exportExcelBtn.onclick = ()=>{
         const headers = ["วันที่", "ประเภทอุปกรณ์", "รหัสอุปกรณ์", "พื้นที่/สายป้อน", "ทีม", "ช่างผู้รับผิดชอบ", "ชม.แรงงาน", "ค่าพัสดุ", "ค่าแรง", "ค่าใช้จ่ายอื่น", "รวมต้นทุน", "ประเภทงาน", "สถานะ", "หมายเหตุ"];
         const rows = STATE.pmRecords.map(r => [
           r.date, r.equipmentType, r.equipmentId, r.location, r.team, r.technician,
@@ -913,27 +1092,39 @@ function attachTabListeners(){
           r.maintenanceType, r.status, r.notes
         ]);
         exportToExcel("MEA_PM_Records_" + new Date().toISOString().slice(0,10), "PM_Records", [headers, ...rows]);
-      });
+      };
     }
 
-    // Import PM from Excel
     const importBtn = document.getElementById("import-pm-btn");
     if(importBtn){
-      importBtn.addEventListener("click", () => triggerExcelImport("pm"));
+      importBtn.onclick = () => triggerExcelImport("pm");
     }
 
     document.querySelectorAll("[data-del-pm]").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
+      btn.onclick = ()=>{
         const id = btn.getAttribute("data-del-pm");
-        persist({ ...STATE, pmRecords: STATE.pmRecords.filter(r=>r.id!==id) });
-      });
+        if(confirm("ยืนยันการลบรายการนี้ใช่หรือไม่?")){
+          persist({ ...STATE, pmRecords: STATE.pmRecords.filter(r=>r.id!==id) });
+        }
+      };
     });
   }
 
   if(TAB==="plan"){
+    document.querySelectorAll("[data-edit-plan]").forEach(btn=>{
+      btn.onclick = () => {
+        const id = btn.getAttribute("data-edit-plan");
+        const item = STATE.planRecords.find(r => r.id === id);
+        if(item){
+          EDITING_RECORD = { type: "plan", data: { ...item } };
+          renderModal();
+        }
+      };
+    });
+
     const form = document.getElementById("plan-form");
     if(form){
-      form.addEventListener("submit", (e)=>{
+      form.onsubmit = (e)=>{
         e.preventDefault();
         const val = id => document.getElementById(id).value;
         const record = {
@@ -942,29 +1133,27 @@ function attachTabListeners(){
         };
         planForm = emptyPlan();
         persist({ ...STATE, planRecords: [record, ...STATE.planRecords] });
-      });
+      };
     }
 
-    // Export Plan to Excel
     const exportPlanBtn = document.getElementById("export-plan-excel-btn");
     if(exportPlanBtn){
-      exportPlanBtn.addEventListener("click", ()=>{
+      exportPlanBtn.onclick = ()=>{
         const headers = ["วันที่วางแผน", "ประเภทอุปกรณ์", "รหัสอุปกรณ์", "พื้นที่/สายป้อน", "ทีมที่รับผิดชอบ", "ความสำคัญ", "สถานะ"];
         const rows = STATE.planRecords.map(r => [
           r.plannedDate, r.equipmentType, r.equipmentId, r.location, r.team, r.priority, r.status
         ]);
         exportToExcel("MEA_PM_Plans_" + new Date().toISOString().slice(0,10), "PM_Plans", [headers, ...rows]);
-      });
+      };
     }
 
-    // Import Plan from Excel
     const importPlanBtn = document.getElementById("import-plan-btn");
     if(importPlanBtn){
-      importPlanBtn.addEventListener("click", () => triggerExcelImport("plan"));
+      importPlanBtn.onclick = () => triggerExcelImport("plan");
     }
 
     document.querySelectorAll("[data-convert-plan]").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
+      btn.onclick = ()=>{
         const id = btn.getAttribute("data-convert-plan");
         const plan = STATE.planRecords.find(p=>p.id===id);
         if(plan){
@@ -979,35 +1168,30 @@ function attachTabListeners(){
           TAB = "entry";
           render();
         }
-      });
-    });
-
-    document.querySelectorAll("[data-plan-status]").forEach(sel=>{
-      sel.addEventListener("change", ()=>{
-        const id = sel.getAttribute("data-plan-status");
-        persist({ ...STATE, planRecords: STATE.planRecords.map(r=> r.id===id ? {...r, status: sel.value} : r) });
-      });
+      };
     });
 
     document.querySelectorAll("[data-del-plan]").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
+      btn.onclick = ()=>{
         const id = btn.getAttribute("data-del-plan");
-        persist({ ...STATE, planRecords: STATE.planRecords.filter(r=>r.id!==id) });
-      });
+        if(confirm("ยืนยันการลบแผนงานนี้ใช่หรือไม่?")){
+          persist({ ...STATE, planRecords: STATE.planRecords.filter(r=>r.id!==id) });
+        }
+      };
     });
   }
 
   if(TAB==="cost"){
     document.querySelectorAll("[data-benchmark]").forEach(inp=>{
-      inp.addEventListener("change", ()=>{
+      inp.onchange = ()=>{
         const type = inp.getAttribute("data-benchmark");
         persist({ ...STATE, benchmarks: { ...STATE.benchmarks, [type]: Number(inp.value)||0 } });
-      });
+      };
     });
 
     const exportCostBtn = document.getElementById("export-cost-excel-btn");
     if(exportCostBtn){
-      exportCostBtn.addEventListener("click", ()=>{
+      exportCostBtn.onclick = ()=>{
         const headers = ["ประเภทอุปกรณ์", "จำนวนงานที่ทำ", "ต้นทุนจริงรวม (บาท)", "ต้นทุนเฉลี่ย/งาน (บาท)", "เกณฑ์มาตรฐาน WCM (บาท)", "ส่วนต่าง (%)"];
         const rows = EQUIPMENT_TYPES.map(t=>{
           const recs = STATE.pmRecords.filter(r=>r.equipmentType===t);
@@ -1018,7 +1202,7 @@ function attachTabListeners(){
           return [t, recs.length, totalCost, avg, bench, variance.toFixed(2) + "%"];
         });
         exportToExcel("MEA_WCM_Cost_Analysis_" + new Date().toISOString().slice(0,10), "Cost_Analysis", [headers, ...rows]);
-      });
+      };
     }
   }
 }
