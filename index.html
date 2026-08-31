@@ -6,7 +6,7 @@
 <title>MEA PM Planner — เขตสมุทรปราการ</title>
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<!-- SheetJS -->
+<!-- SheetJS สำหรับ Export/Import Excel -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
@@ -310,8 +310,8 @@ const EQUIPMENT_TYPES = ["หม้อแปลงจำหน่าย","LBS","
 const PRIORITIES = ["สูง","กลาง","ต่ำ"];
 const PLAN_STATUSES = ["วางแผน","กำลังดำเนินการ","เสร็จสิ้น","เลื่อน"];
 const PM_STATUSES = ["เสร็จสิ้น","ระหว่างดำเนินการ","รอดำเนินการ"];
-const STORAGE_KEY = "mea-pm-app-data-v13-guide";
-const AUTH_KEY = "mea-pm-auth-v9";
+const STORAGE_KEY = "mea-pm-app-data-v14-reorder";
+const AUTH_KEY = "mea-pm-auth-v10";
 
 const uid = () => Date.now() + "-" + Math.random().toString(36).slice(2,8);
 const baht = (n) => "฿" + Number(n||0).toLocaleString("th-TH",{maximumFractionDigits:0});
@@ -751,12 +751,13 @@ function render(){
     return;
   }
 
+  // ปรับเรียงลำดับเมนูใหม่: บันทึก PM และ คู่มือเกณฑ์กรอก อยู่ใกล้กัน
   let navItems = [
     {id:"dashboard", label:"แดชบอร์ด", icon:"gauge", roles:['admin','tech']},
     {id:"routes", label:"เส้นทางตรวจ", icon:"mapPin", roles:['admin','tech']},
     {id:"entry", label:"บันทึก PM", icon:"clipboard", roles:['admin','tech']},
-    {id:"plan", label:"แผนงาน", icon:"calendar", roles:['admin','tech']},
     {id:"guide", label:"คู่มือเกณฑ์กรอก", icon:"book", roles:['admin','tech']},
+    {id:"plan", label:"แผนงาน", icon:"calendar", roles:['admin','tech']},
     {id:"cost", label:"ต้นทุน WCM", icon:"coins", roles:['admin']},
     {id:"kpi", label:"Productivity", icon:"trophy", roles:['admin']},
   ].filter(n => n.roles.includes(CURRENT_USER.role));
@@ -804,7 +805,7 @@ function render(){
       <!-- Main Content Area -->
       <main class="main">${renderTab()}</main>
 
-      <!-- Mobile Bottom Navigation Bar -->
+      <!-- Mobile Bottom Navigation Bar (เรียง แดชบอร์ด, เส้นทางตรวจ, บันทึก PM, คู่มือเกณฑ์กรอก) -->
       <nav class="bottom-nav">
         ${navItems.slice(0, 4).map(n=>`
           <button class="b-nav-item ${TAB===n.id?"active":""}" data-tab="${n.id}">
@@ -812,7 +813,7 @@ function render(){
             <span>${n.label}</span>
           </button>
         `).join("")}
-        <button class="b-nav-item ${['guide','cost','kpi'].includes(TAB)?"active":""}" id="m-more-btn">
+        <button class="b-nav-item ${['plan','cost','kpi'].includes(TAB)?"active":""}" id="m-more-btn">
           ${ICONS.more}
           <span>เพิ่มเติม</span>
         </button>
@@ -829,8 +830,8 @@ function renderTab(){
   if(TAB==="dashboard") return renderDashboard();
   if(TAB==="routes") return renderRoutes();
   if(TAB==="entry") return renderEntry();
-  if(TAB==="plan") return renderPlan();
   if(TAB==="guide") return renderGuide();
+  if(TAB==="plan") return renderPlan();
   if(TAB==="cost" && CURRENT_USER.role === 'admin') return renderCost();
   if(TAB==="kpi" && CURRENT_USER.role === 'admin') return renderKpi();
   return renderDashboard();
@@ -1383,11 +1384,11 @@ function attachGlobalListeners(){
   if(mMoreBtn){
     mMoreBtn.onclick = () => {
       if(CURRENT_USER?.role === 'admin'){
-        if(TAB === 'guide') TAB = 'cost';
+        if(TAB === 'plan') TAB = 'cost';
         else if(TAB === 'cost') TAB = 'kpi';
-        else TAB = 'guide';
+        else TAB = 'plan';
       } else {
-        TAB = 'guide';
+        TAB = 'plan';
       }
       render();
     };
