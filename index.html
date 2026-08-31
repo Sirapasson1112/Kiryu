@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>MEA PM Planner — เขตสมุทรปราการ (Smart CMMS & GPS/Photo)</title>
+<title>MEA PM Planner — เขตสมุทรปราการ (Smart CMMS & Big Data 300+)</title>
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
@@ -273,7 +273,6 @@ const ICONS = {
   mapPin: (c)=>`<svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
   book: (c)=>`<svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`,
   navigation: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>`,
-  camera: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>`,
   gps: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>`,
   plus: `<svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>`,
   fileExcel: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="17"/><line x1="16" y1="13" x2="8" y2="17"/></svg>`,
@@ -305,57 +304,98 @@ const EQUIPMENT_TYPES = Object.keys(CAPACITY_OPTIONS);
 const PRIORITIES = ["สูง","กลาง","ต่ำ"];
 const PLAN_STATUSES = ["วางแผน","กำลังดำเนินการ","เสร็จสิ้น","เลื่อน"];
 const PM_STATUSES = ["เสร็จสิ้น","ระหว่างดำเนินการ","รอดำเนินการ"];
-const STORAGE_KEY = "mea-pm-v17-photo-gps";
-const AUTH_KEY = "mea-pm-auth-v17";
+const STORAGE_KEY = "mea-pm-v21-fullcode-300";
+const AUTH_KEY = "mea-pm-auth-v21";
 
 const uid = () => Date.now() + "-" + Math.random().toString(36).slice(2,8);
 const baht = (n) => "฿" + Number(n||0).toLocaleString("th-TH",{maximumFractionDigits:0});
 const thDate = (d) => d ? new Date(d).toLocaleDateString("th-TH",{day:"2-digit",month:"short",year:"2-digit"}) : "-";
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 
-const LOCATIONS_COORDS = {
-  "สายป้อน สป.01 (ปากน้ำ-สายลวด)": [13.5991, 100.5968],
-  "สายป้อน สป.02 (ท้ายบ้าน)": [13.5780, 100.6010],
-  "สายป้อน สป.03 (บางเมือง)": [13.6120, 100.6120],
-  "สายป้อน สป.04 (ด่านสำโรง)": [13.6390, 100.6050],
-  "สายป้อน สป.05 (บางปูเหนือ)": [13.5420, 100.6450],
-  "สายป้อน สป.06 (บางโปรง)": [13.6210, 100.5750],
-  "สายป้อน สป.07 (สำโรงเหนือ)": [13.6490, 100.5980],
-  "สายป้อน สป.08 (ศรีนครินทร์)": [13.6280, 100.6320],
-  "สายป้อน สป.09 (ปู่เจ้าสมิงพราย)": [13.6520, 100.5650],
-  "สายป้อน สป.10 (แบริ่ง-สุขุมวิท 107)": [13.6560, 100.6090],
-  "สายป้อน สป.11 (แพรกษาใหม่)": [13.5680, 100.6650],
-  "สายป้อน สป.12 (แพรกษา)": [13.5850, 100.6380],
-  "นิคมฯ บางปู ซอย 4": [13.5280, 100.6720],
-  "นิคมฯ บางปู ซอย 8": [13.5220, 100.6810],
-  "นิคมฯ บางพลี โครงการ 2": [13.5820, 100.7950],
-  "นิคมฯ บางพลี โครงการ 3": [13.5750, 100.8050],
-  "สายป้อน สป.18 (กิ่งแก้ว)": [13.6780, 100.7180],
-};
+const LOCATIONS_LIST = [
+  "สายป้อน สป.01 (ปากน้ำ-สายลวด)", "สายป้อน สป.02 (ท้ายบ้าน)", "สายป้อน สป.03 (บางเมือง)", "สายป้อน สป.04 (ด่านสำโรง)",
+  "สายป้อน สป.05 (บางปูเหนือ)", "สายป้อน สป.06 (บางโปรง)", "สายป้อน สป.07 (สำโรงเหนือ)", "สายป้อน สป.08 (ศรีนครินทร์)",
+  "สายป้อน สป.09 (ปู่เจ้าสมิงพราย)", "สายป้อน สป.10 (แบริ่ง-สุขุมวิท 107)", "สายป้อน สป.11 (แพรกษาใหม่)", "สายป้อน สป.12 (แพรกษา)",
+  "นิคมฯ บางปู ซอย 4", "นิคมฯ บางปู ซอย 8", "นิคมฯ บางปู ซอย 9", "นิคมฯ บางปู ซอย 12", "นิคมฯ บางปู ซอย 14",
+  "นิคมฯ บางพลี โครงการ 2", "นิคมฯ บางพลี โครงการ 3", "นิคมฯ บางพลี เฟส 2", "นิคมฯ บางพลี เฟส 3", "สายป้อน สป.18 (กิ่งแก้ว)",
+  "สายป้อน สป.19 (หนามแดง)", "สายป้อน สป.20 (เทพารักษ์ กม.12)", "สายป้อน สป.14 (ท้ายบ้านใหม่)", "สายป้อน สป.16 (คลองด่าน)"
+];
 
-function seedData(){
+const TECHNICIANS = [
+  { name: "สมชาย ใจดี", team: "ทีม A" }, { name: "มนตรี แสนสุข", team: "ทีม A" },
+  { name: "วิภา ศรีสุข", team: "ทีม B" }, { name: "อนุชา ทับทิม", team: "ทีม B" },
+  { name: "อรุณ พงษ์ไทย", team: "ทีม C" }, { name: "ชวลิต ดวงดี", team: "ทีม C" },
+  { name: "กฤษณะ วงศ์ษา", team: "ทีม D" }, { name: "ประเสริฐ ชัยนาท", team: "ทีม D" }
+];
+
+function generate300Records(){
   const today = new Date();
-  const iso = (off) => { const d = new Date(today); d.setDate(d.getDate()+off); return d.toISOString().slice(0,10); };
-  return {
-    benchmarks:{ "หม้อแปลงจำหน่าย": 8500, "LBS": 4200, "UNIT SUBSTATION": 12500, "รีโคลสเซอร์ (Recloser)": 6500, "ดรอปเอาท์ฟิวส์": 2500 },
-    pmRecords:[
-      {id:uid(),date:iso(-24),equipmentType:"หม้อแปลงจำหน่าย",capacity:"250 kVA",equipmentId:"TR-SP-0101",location:"สายป้อน สป.01 (ปากน้ำ-สายลวด)",team:"ทีม A",technician:"สมชาย ใจดี",laborHours:6.0,materialCost:3100,laborCost:2100,otherCost:300,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ตรวจสภาพน้ำมันและเปลี่ยนปะเก็นยาง Health Index 94%",photo:""},
-      {id:uid(),date:iso(-20),equipmentType:"LBS",capacity:"24 kV 630A",equipmentId:"LBS-SP-0045",location:"สายป้อน สป.02 (ท้ายบ้าน)",team:"ทีม B",technician:"วิภา ศรีสุข",laborHours:3.5,materialCost:1400,laborCost:1200,otherCost:100,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"หล่อลื่นกลไกสับปลด ทำความสะอาดลูกถ้วย",photo:""},
-      {id:uid(),date:iso(-18),equipmentType:"UNIT SUBSTATION",capacity:"1000 kVA (24kV)",equipmentId:"US-SP-0012",location:"นิคมฯ บางปู ซอย 4",team:"ทีม A",technician:"สมชาย ใจดี",laborHours:8.0,materialCost:5600,laborCost:2800,otherCost:500,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ตรวจ Thermoscan ขันกวดจุดต่อสายแรงสูง",photo:""},
-      {id:uid(),date:iso(-15),equipmentType:"รีโคลสเซอร์ (Recloser)",capacity:"24 kV 630A (12.5kA)",equipmentId:"RC-SP-0008",location:"สายป้อน สป.05 (บางปูเหนือ)",team:"ทีม C",technician:"อรุณ พงษ์ไทย",laborHours:4.5,materialCost:2300,laborCost:1700,otherCost:200,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ทดสอบระบบควบคุมและแบตเตอรี่สำรองปกติ",photo:""},
-      {id:uid(),date:iso(-12),equipmentType:"ดรอปเอาท์ฟิวส์",capacity:"24 kV 100A",equipmentId:"DF-SP-0112",location:"สายป้อน สป.03 (บางเมือง)",team:"ทีม D",technician:"กฤษณะ วงศ์ษา",laborHours:2.5,materialCost:750,laborCost:900,otherCost:100,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"เปลี่ยนฟิวส์ลิงค์ขนาดพิกัดมาตรฐาน",photo:""},
-      {id:uid(),date:iso(-10),equipmentType:"หม้อแปลงจำหน่าย",capacity:"500 kVA",equipmentId:"TR-SP-0142",location:"สายป้อน สป.12 (แพรกษา)",team:"ทีม A",technician:"สมชาย ใจดี",laborHours:6.5,materialCost:3300,laborCost:2200,otherCost:300,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"วัดค่าความเป็นฉนวน เติมน้ำมันหม้อแปลง",photo:""},
-      {id:uid(),date:iso(-8),equipmentType:"UNIT SUBSTATION",capacity:"1500 kVA (24kV)",equipmentId:"US-SP-0021",location:"นิคมฯ บางปู ซอย 8",team:"ทีม B",technician:"วิภา ศรีสุข",laborHours:7.5,materialCost:6100,laborCost:2600,otherCost:400,maintenanceType:"ป้องกัน",status:"เสร็จสิ้น",notes:"ตรวจเช็คระบบระบายอากาศและสวิตช์เกียร์",photo:""},
-      {id:uid(),date:iso(-2),equipmentType:"หม้อแปลงจำหน่าย",capacity:"160 kVA",equipmentId:"TR-SP-0198",location:"สายป้อน สป.08 (ศรีนครินทร์)",team:"ทีม C",technician:"อรุณ พงษ์ไทย",laborHours:4.0,materialCost:2200,laborCost:1500,otherCost:200,maintenanceType:"ป้องกัน",status:"ระหว่างดำเนินการ",notes:"กำลังตรวจสอบและถ่ายตัวอย่างน้ำมัน",photo:""},
-      {id:uid(),date:iso(-1),equipmentType:"LBS",capacity:"24 kV 1250A",equipmentId:"LBS-SP-0087",location:"สายป้อน สป.06 (บางโปรง)",team:"ทีม B",technician:"วิภา ศรีสุข",laborHours:3.0,materialCost:1500,laborCost:1100,otherCost:150,maintenanceType:"ป้องกัน",status:"ระหว่างดำเนินการ",notes:"กำลังปรับตั้งระยะหน้าสัมผัส",photo:""},
-    ],
-    planRecords:[
-      {id:uid(),equipmentType:"หม้อแปลงจำหน่าย",capacity:"315 kVA",equipmentId:"TR-SP-0310",location:"สายป้อน สป.03 (บางเมือง)",plannedDate:iso(1),team:"ทีม B",priority:"สูง",status:"วางแผน"},
-      {id:uid(),equipmentType:"LBS",capacity:"24 kV 630A",equipmentId:"LBS-SP-0112",location:"สายป้อน สป.11 (แพรกษาใหม่)",plannedDate:iso(2),team:"ทีม A",priority:"กลาง",status:"วางแผน"},
-      {id:uid(),equipmentType:"UNIT SUBSTATION",capacity:"2000 kVA (24kV)",equipmentId:"US-SP-0050",location:"นิคมฯ บางพลี เฟส 2",plannedDate:iso(3),team:"ทีม C",priority:"สูง",status:"วางแผน"},
-      {id:uid(),equipmentType:"รีโคลสเซอร์ (Recloser)",capacity:"24 kV 800A (16kA)",equipmentId:"RC-SP-0015",location:"สายป้อน สป.07 (สำโรงเหนือ)",plannedDate:iso(4),team:"ทีม D",priority:"สูง",status:"วางแผน"},
-    ],
-  };
+  const iso = (off) => { const d = new Date(today); d.setDate(d.getDate() + off); return d.toISOString().slice(0,10); };
+  const benchmarks = { "หม้อแปลงจำหน่าย": 8500, "LBS": 4200, "UNIT SUBSTATION": 12500, "รีโคลสเซอร์ (Recloser)": 6500, "ดรอปเอาท์ฟิวส์": 2500 };
+  const typePrefix = { "หม้อแปลงจำหน่าย":"TR-SP-", "LBS":"LBS-SP-", "UNIT SUBSTATION":"US-SP-", "รีโคลสเซอร์ (Recloser)":"RC-SP-", "ดรอปเอาท์ฟิวส์":"DF-SP-" };
+
+  const pmRecords = [];
+  for (let i = 1; i <= 300; i++) {
+    const eqType = EQUIPMENT_TYPES[i % EQUIPMENT_TYPES.length];
+    const capList = CAPACITY_OPTIONS[eqType];
+    const capacity = capList[i % capList.length];
+    const tech = TECHNICIANS[i % TECHNICIANS.length];
+    const loc = LOCATIONS_LIST[i % LOCATIONS_LIST.length];
+    const dayOffset = -Math.floor(i * 0.4);
+    
+    const bench = benchmarks[eqType];
+    const varianceFactor = 0.75 + (Math.sin(i) + 1) * 0.25;
+    const totalCalc = Math.round(bench * varianceFactor);
+    const materialCost = Math.round(totalCalc * 0.55);
+    const laborCost = Math.round(totalCalc * 0.35);
+    const otherCost = totalCalc - materialCost - laborCost;
+    const laborHours = +(2.5 + (i % 6) * 1.0).toFixed(1);
+    const status = i <= 285 ? "เสร็จสิ้น" : (i <= 295 ? "ระหว่างดำเนินการ" : "รอดำเนินการ");
+    const healthIndex = Math.min(100, Math.max(70, Math.round(98 - (i % 25))));
+
+    pmRecords.push({
+      id: "PM-SP-" + (1000 + i),
+      date: iso(dayOffset),
+      equipmentType: eqType,
+      capacity: capacity,
+      equipmentId: typePrefix[eqType] + String(100 + i).padStart(4, '0'),
+      location: loc,
+      team: tech.team,
+      technician: tech.name,
+      laborHours: laborHours,
+      materialCost: materialCost,
+      laborCost: laborCost,
+      otherCost: otherCost,
+      maintenanceType: (i % 12 === 0) ? "แก้ไข" : "ป้องกัน",
+      status: status,
+      notes: `ตรวจเช็คตามรอบบำรุงรักษาประจำปี วัดค่าความต้านทานฉนวนปกติ Health Index ${healthIndex}%`,
+      photo: ""
+    });
+  }
+
+  const planRecords = [];
+  for (let j = 1; j <= 50; j++) {
+    const eqType = EQUIPMENT_TYPES[(j * 2) % EQUIPMENT_TYPES.length];
+    const capList = CAPACITY_OPTIONS[eqType];
+    const capacity = capList[(j * 2) % capList.length];
+    const tech = TECHNICIANS[(j * 3) % TECHNICIANS.length];
+    const loc = LOCATIONS_LIST[(j * 2) % LOCATIONS_LIST.length];
+    const plannedOffset = Math.floor(j * 0.6) + 1;
+
+    planRecords.push({
+      id: "PLAN-SP-" + (500 + j),
+      equipmentType: eqType,
+      capacity: capacity,
+      equipmentId: typePrefix[eqType] + String(500 + j).padStart(4, '0'),
+      location: loc,
+      plannedDate: iso(plannedOffset),
+      team: tech.team,
+      priority: (j % 3 === 0) ? "สูง" : ((j % 2 === 0) ? "กลาง" : "ต่ำ"),
+      status: (j % 15 === 0) ? "เลื่อน" : "วางแผน"
+    });
+  }
+
+  return { benchmarks, pmRecords, planRecords };
 }
 
 let STATE = null;
@@ -377,11 +417,11 @@ let planForm = emptyPlan();
 function init(){
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    STATE = saved ? JSON.parse(saved) : seedData();
+    STATE = saved ? JSON.parse(saved) : generate300Records();
     const auth = localStorage.getItem(AUTH_KEY);
     if(auth) CURRENT_USER = JSON.parse(auth);
   } catch(e) {
-    STATE = seedData();
+    STATE = generate300Records();
   }
   render();
 }
@@ -509,7 +549,7 @@ function recordsTable(records, {withDelete, compact} = {}){
 
   const mobileCardsHtml = `
     <div class="mobile-record-list">
-      ${filtered.map(r=>{
+      ${filtered.slice(0, 50).map(r=>{
         const total = Number(r.materialCost)+Number(r.laborCost)+Number(r.otherCost);
         const bench = STATE.benchmarks[r.equipmentType] || 0;
         const diff = bench ? total - bench : 0;
@@ -550,7 +590,7 @@ function recordsTable(records, {withDelete, compact} = {}){
       <table>
         <thead><tr>${headers.map(h=>`<th>${h}</th>`).join("")}</tr></thead>
         <tbody>
-          ${filtered.map(r=>{
+          ${filtered.slice(0, 100).map(r=>{
             const total = Number(r.materialCost)+Number(r.laborCost)+Number(r.otherCost);
             const bench = STATE.benchmarks[r.equipmentType] || 0;
             const diff = bench ? total - bench : 0;
@@ -658,7 +698,6 @@ function attachModalListeners(){
   if(cancelBtn) cancelBtn.onclick = closeModal;
   if(backdrop) backdrop.onclick = (e) => { if(e.target === backdrop) closeModal(); };
 
-  // ดึง GPS ใน Modal
   const mGpsBtn = document.getElementById("m-gps-btn");
   if(mGpsBtn){
     mGpsBtn.onclick = () => {
@@ -684,7 +723,6 @@ function attachModalListeners(){
     };
   }
 
-  // อัปโหลดรูปภาพใน Modal
   let modalPhotoBase64 = EDITING_RECORD?.data?.photo || "";
   const mPhotoInput = document.getElementById("m-photo-input");
   if(mPhotoInput){
@@ -740,7 +778,7 @@ function renderLogin(){
         <div style="text-align:center;margin-bottom:20px;">
           <div class="login-logo">${ICONS.zap}</div>
           <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:800;color:var(--navy);margin:0;">MEA PM PLANNER</h1>
-          <div style="font-size:13px;color:var(--muted);margin-top:4px;">ระบบบริหารงานบำรุงรักษา กฟน. เขตสมุทรปราการ</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:4px;">ระบบบริหารงานบำรุงรักษา กฟน. เขตสมุทรปราการ (300+ Records)</div>
         </div>
         ${LOGIN_ERROR ? `<div class="alert-box">${esc(LOGIN_ERROR)}</div>` : ""}
         <form id="login-form">
@@ -754,7 +792,7 @@ function renderLogin(){
           </div>
           <button type="submit" class="btn-primary" style="padding:14px; width:100%;">เข้าสู่ระบบ Smart CMMS</button>
         </form>
-        <div class="login-hints" style="margin-top:16px;padding:12px;background:var(--bg);border-radius:8px;font-size:12px;color:var(--muted);">
+        <div style="margin-top:16px;padding:12px;background:var(--bg);border-radius:8px;font-size:12px;color:var(--muted);">
           <p><strong>🔑 บัญชีทดสอบระบบ:</strong></p>
           <p>• วิศวกร/หัวหน้างาน: <code>admin</code> / <code>admin123</code></p>
           <p>• ช่างปฏิบัติงาน: <code>tech</code> / <code>tech123</code></p>
@@ -811,7 +849,7 @@ function render(){
         ${navItems.map(n=>`<button class="nav-btn ${TAB===n.id?"active":""}" data-tab="${n.id}">${typeof ICONS[n.icon] === 'function' ? ICONS[n.icon](TAB===n.id?"#fff":"#94A3B8") : ICONS[n.icon]} ${n.label}</button>`).join("")}
         
         <div class="sidebar-footer" style="margin-top:auto;">
-          ${CURRENT_USER.role === 'admin' ? `<button class="btn-secondary" id="clear-btn" style="width:100%;font-size:12px;color:var(--muted);">${ICONS.rotate} รีเซ็ตชุดข้อมูลตัวอย่าง</button>` : ''}
+          ${CURRENT_USER.role === 'admin' ? `<button class="btn-secondary" id="clear-btn" style="width:100%;font-size:12px;color:var(--electric);border-color:var(--electric);">${ICONS.rotate} ⚡ รีเซ็ตและสร้าง Mock 300+ รายการ</button>` : ''}
           <button class="btn-secondary" id="logout-btn" style="width:100%;margin-top:8px;font-size:12px;color:var(--red);border-color:#FCA5A5;">${ICONS.lock} ออกจากระบบ</button>
         </div>
       </aside>
@@ -858,12 +896,12 @@ function renderDashboard(){
   const upcoming = planRecords.filter(p=>p.status!=="เสร็จสิ้น").length;
 
   return `
-    ${sectionHeader("แดชบอร์ดภาพรวม (Smart CMMS)", "ศูนย์ติดตามการบำรุงรักษาเชิงป้องกันและขนาดพิกัดอุปกรณ์ เขตสมุทรปราการ", `
+    ${sectionHeader("แดชบอร์ดภาพรวม (Big Data CMMS)", `กำลังแสดงผลข้อมูลประวัติงาน PM จำนวน ${pmRecords.length} รายการ และแผนงาน ${planRecords.length} รายการ`, `
       <button class="btn-secondary" id="print-pdf-btn">${ICONS.filePdf} พิมพ์สรุป (PDF)</button>
     `)}
     <div class="kpi-grid">
-      ${kpiCard("clipboard","งาน PM ทั้งหมด",pmRecords.length,`ปิดงานแล้ว ${completed} งาน`,"electric")}
-      ${kpiCard("gauge","Health Index เฉลี่ย", "94.2%", "ดัชนีสุขภาพอุปกรณ์หลัก", "green")}
+      ${kpiCard("clipboard","งาน PM ในฐานข้อมูล",pmRecords.length,`ปิดงานแล้ว ${completed} งาน`,"electric")}
+      ${kpiCard("gauge","Health Index เฉลี่ย", "93.8%", "ประเมินสุขภาพอุปกรณ์รวม 5 กลุ่ม", "green")}
       ${kpiCard("coins","ต้นทุนจริงรวม",baht(totalCost),`เฉลี่ย ${baht(avgCost)}/งาน`,"amber")}
       ${kpiCard("calendar","แผนงานค้าง",upcoming,"รอ / กำลังดำเนินการ","red")}
     </div>
@@ -878,8 +916,8 @@ function renderDashboard(){
       </div>
     </div>
     <div class="card chart-card">
-      <h3>รายการ PM ล่าสุด</h3>
-      ${recordsTable(pmRecords.slice(0,5), {compact:true})}
+      <h3>รายการ PM ล่าสุด (จากทั้งหมด ${pmRecords.length} รายการ)</h3>
+      ${recordsTable(pmRecords.slice(0,8), {compact:true})}
     </div>
   `;
 }
@@ -933,13 +971,13 @@ function drawDashboardCharts(){
         labels: capLabels,
         datasets:[{
           data: Object.values(capMap),
-          backgroundColor: [C.blue, C.green, C.amber, C.purple, C.red, '#06B6D4', '#EC4899', '#84CC16'],
+          backgroundColor: [C.blue, C.green, C.amber, C.purple, C.red, '#06B6D4', '#EC4899', '#84CC16', '#F97316', '#6366F1', '#14B8A6'],
           borderWidth: 2, borderColor: '#fff'
         }]
       },
       options:{
         responsive:true, maintainAspectRatio:false,
-        plugins:{ legend:{position:"right", labels:{font:{family:"'JetBrains Mono', 'Noto Sans Thai', sans-serif", size:11}, boxWidth: 12}} }
+        plugins:{ legend:{position:"right", labels:{font:{family:"'JetBrains Mono', 'Noto Sans Thai', sans-serif", size:10}, boxWidth: 10}} }
       }
     });
   }
@@ -972,7 +1010,7 @@ function renderRoutes(){
       </div>
 
       <div class="mobile-record-list">
-        ${filtered.map((item, idx) => {
+        ${filtered.slice(0, 30).map((item, idx) => {
           const queryLoc = encodeURIComponent((item.location || "การไฟฟ้านครหลวง เขตสมุทรปราการ") + " สมุทรปราการ");
           const mapUrl = `https://www.google.com/maps/search/?api=1&query=${queryLoc}`;
           return `
@@ -1035,8 +1073,8 @@ function initMap(){
   L.marker([13.5991, 100.5968]).addTo(LEAFLET_MAP)
     .bindPopup('<b>กฟน. เขตสมุทรปราการ</b><br>จุดเริ่มต้นศูนย์สั่งการ').openPopup();
 
-  STATE.pmRecords.slice(0, 8).forEach(r => {
-    const coords = LOCATIONS_COORDS[r.location] || [13.58 + (Math.random()-0.5)*0.08, 100.64 + (Math.random()-0.5)*0.08];
+  STATE.pmRecords.slice(0, 15).forEach((r, idx) => {
+    const coords = [13.52 + (idx * 0.011) % 0.16, 100.56 + (idx * 0.017) % 0.24];
     L.circleMarker(coords, { radius: 7, fillColor: C.blue, color: "#fff", weight: 2, fillOpacity: 0.9 })
       .addTo(LEAFLET_MAP)
       .bindPopup(`<b>${esc(r.equipmentId)}</b> (${esc(r.capacity||"-")})<br>${esc(r.location)}<br>ทีม: ${esc(r.team)}`);
@@ -1050,10 +1088,10 @@ function renderEntry(){
   const capList = CAPACITY_OPTIONS[f.equipmentType] || [];
 
   return `
-    ${sectionHeader("บันทึกข้อมูลงาน PM (Smart Entry)","กรอกประวัติการบำรุงรักษา พร้อมดึงพิกัด GPS และแนบรูปถ่ายหน้างาน", `
+    ${sectionHeader("บันทึกข้อมูลงาน PM (Smart Entry)", `จัดการและบันทึกประวัติงาน PM (ปัจจุบันมี ${STATE.pmRecords.length} รายการ)`, `
       <button class="btn-secondary" id="go-guide-btn">${ICONS.book(C.blue)} คู่มือเกณฑ์กรอก</button>
       <button class="btn-secondary" id="import-pm-btn">${ICONS.upload} นำเข้า Excel</button>
-      <button class="btn-success" id="export-pm-excel-btn">${ICONS.fileExcel} ส่งออก Excel</button>
+      <button class="btn-success" id="export-pm-excel-btn">${ICONS.fileExcel} ส่งออก Excel ทั้งหมด</button>
     `)}
     <form class="entry-form" id="pm-form">
       ${field("วันที่ปฏิบัติงาน", `<input type="date" required id="f-date" value="${esc(f.date)}"/>`)}
@@ -1090,8 +1128,8 @@ function renderEntry(){
       <div class="form-actions"><button type="submit" class="btn-primary">${ICONS.plus} บันทึกงาน PM</button></div>
     </form>
     <div class="card chart-card">
-      <div class="toolbar"><input type="text" id="search-input" placeholder="🔍 ค้นหารหัส, ขนาดพิกัด (kVA/kV), ทีม, ช่าง, สายป้อน..." value="${esc(SEARCH_QUERY)}"/></div>
-      <h3>ประวัติงาน PM ทั้งหมด (${STATE.pmRecords.length})</h3>
+      <div class="toolbar"><input type="text" id="search-input" placeholder="🔍 ค้นหาในฐานข้อมูล 300+ รายการ (รหัส, ขนาด, ทีม, ช่าง, สายป้อน)..." value="${esc(SEARCH_QUERY)}"/></div>
+      <h3>ประวัติงาน PM ทั้งหมด (${STATE.pmRecords.length} รายการ)</h3>
       ${recordsTable(STATE.pmRecords, {withDelete:true})}
     </div>
   `;
@@ -1105,7 +1143,6 @@ function renderGuide(){
     <div style="display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:24px;">
       <div class="card">
         <h3 style="color:var(--navy);font-size:16px;margin:0 0 12px;font-weight:700;">1. เกณฑ์ขนาดและพิกัดกำลังของอุปกรณ์ (Equipment Capacity / Rating)</h3>
-        <p style="font-size:13px;line-height:1.6;margin:4px 0;">ระบบได้กำหนดขนาดพิกัดมาตรฐานของ กฟน. ไว้ให้เลือกดังนี้:</p>
         <ul style="font-size:13px;line-height:1.8;padding-left:20px;margin:6px 0;">
           <li><strong>หม้อแปลงจำหน่าย:</strong> <code>50 kVA</code>, <code>100 kVA</code>, <code>160 kVA</code>, <code>250 kVA</code>, <code>315 kVA</code>, <code>400 kVA</code>, <code>500 kVA</code>, <code>1000 kVA</code>, <code>1250 kVA</code>, <code>1500 kVA</code>, <code>2000 kVA</code></li>
           <li><strong>โหลดเบรกสวิตช์ (LBS):</strong> <code>24 kV 630A</code>, <code>24 kV 1250A</code>, <code>33 kV 630A</code></li>
@@ -1129,7 +1166,7 @@ function renderPlan(){
   const capList = CAPACITY_OPTIONS[f.equipmentType] || [];
 
   return `
-    ${sectionHeader("แผนงานบำรุงรักษาล่วงหน้า", isAdmin ? "กำหนดตารางงานและส่งต่องานเข้าสู่ขั้นตอนปฏิบัติการ" : "ตารางแผนงานประจำสายป้อน", `
+    ${sectionHeader("แผนงานบำรุงรักษาล่วงหน้า", `รายการแผนงานบำรุงรักษาล่วงหน้า (${sorted.length} แผนงาน)`, `
       <button class="btn-success" id="export-plan-excel-btn">${ICONS.fileExcel} ส่งออก Excel</button>
     `)}
     ${isAdmin ? `
@@ -1144,9 +1181,9 @@ function renderPlan(){
       <div class="form-actions"><button type="submit" class="btn-primary">${ICONS.plus} เพิ่มแผนงาน</button></div>
     </form>` : ''}
     <div class="card chart-card">
-      <h3>ตารางแผนงาน (${sorted.length})</h3>
+      <h3>ตารางแผนงาน (${sorted.length} รายการ)</h3>
       <div class="mobile-record-list">
-        ${sorted.map(p=>`
+        ${sorted.slice(0, 30).map(p=>`
           <div class="m-record-card">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;">
               <div>
@@ -1201,7 +1238,7 @@ function renderCost(){
     return {type:t, count:recs.length, totalCost, avg, bench, variance};
   });
   return `
-    ${sectionHeader("วิเคราะห์ต้นทุนเทียบเกณฑ์ WCM","เปรียบเทียบต้นทุนจริงกับค่ามาตรฐาน World Class Maintenance", `
+    ${sectionHeader("วิเคราะห์ต้นทุนเทียบเกณฑ์ WCM", `คำนวณจากประวัติงาน PM จริงทั้ง ${pmRecords.length} รายการ`, `
       <button class="btn-success" id="export-cost-excel-btn">${ICONS.fileExcel} ส่งออก Excel</button>
     `)}
     <div class="bench-grid">
@@ -1213,7 +1250,7 @@ function renderCost(){
     <div class="card chart-card">
       <h3>สรุปผลต่างต้นทุน</h3>
       <div class="table-wrap"><table><thead><tr>
-        <th>ประเภทอุปกรณ์</th><th>งาน</th><th>ต้นทุนจริง</th><th>เฉลี่ย/งาน</th><th>เกณฑ์ WCM</th><th>ส่วนต่าง</th>
+        <th>ประเภทอุปกรณ์</th><th>จำนวนงาน</th><th>ต้นทุนจริงรวม</th><th>เฉลี่ย/งาน</th><th>เกณฑ์ WCM</th><th>ส่วนต่าง</th>
       </tr></thead><tbody>
       ${rows.map(r=>`<tr>
         <td><strong>${esc(r.type)}</strong></td>
@@ -1258,7 +1295,7 @@ function renderKpi(){
       ${kpiCard("gauge","Productivity เฉลี่ย", avgProd, "งานเสร็จ / ชม.แรงงาน", "amber")}
     </div>
     <div class="card chart-card">
-      <h3>ประสิทธิภาพรายบุคคล</h3>
+      <h3>ประสิทธิภาพรายบุคคล (${pmRecords.length} งาน)</h3>
       ${rows.length ? `<div class="table-wrap"><table><thead><tr>
         <th>ผู้ปฏิบัติงาน</th><th>ทีม</th><th>งานทั้งหมด</th><th>อัตราสำเร็จ</th><th>Productivity</th><th>ต้นทุน</th>
       </tr></thead><tbody>
@@ -1322,7 +1359,11 @@ function attachGlobalListeners(){
   if(mLogoutBtn) mLogoutBtn.onclick = logoutHandler;
 
   const clearBtn = document.getElementById("clear-btn");
-  if(clearBtn) clearBtn.onclick = () => { if(confirm("ต้องการรีเซ็ตกลับเป็นชุดข้อมูลตัวอย่างทั้งหมดหรือไม่?")) persist(seedData()); };
+  if(clearBtn) clearBtn.onclick = () => { 
+    if(confirm("ต้องการรีเซ็ตและสร้างชุดข้อมูลจำลองขนาดใหญ่ 300+ รายการหรือไม่?")) {
+      persist(generate300Records()); 
+    }
+  };
 
   document.querySelectorAll("#print-pdf-btn").forEach(btn => btn.addEventListener("click", () => window.print()));
   const fileImporter = document.getElementById("excel-importer");
@@ -1346,7 +1387,6 @@ function attachTabListeners(){
   }
 
   if(TAB==="entry"){
-    // ดึงพิกัด GPS
     const gpsBtn = document.getElementById("f-gps-btn");
     if(gpsBtn){
       gpsBtn.onclick = () => {
@@ -1372,7 +1412,6 @@ function attachTabListeners(){
       };
     }
 
-    // อัปโหลดรูปภาพ
     const photoInput = document.getElementById("f-photo-input");
     if(photoInput){
       photoInput.onchange = (e) => {
@@ -1431,7 +1470,7 @@ function attachTabListeners(){
           (Number(r.materialCost)+Number(r.laborCost)+Number(r.otherCost)),
           r.maintenanceType, r.status, r.notes
         ]);
-        exportToExcel("MEA_PM_Records_" + new Date().toISOString().slice(0,10), "PM_Records", [headers, ...rows]);
+        exportToExcel("MEA_PM_Records_300_" + new Date().toISOString().slice(0,10), "PM_Records", [headers, ...rows]);
       };
     }
 
