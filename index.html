@@ -112,7 +112,7 @@
   .chart-grid{ display:grid; grid-template-columns:1fr; gap:20px; margin-bottom:24px; }
   @media(min-width:1024px){ .chart-grid{ grid-template-columns:1fr 1fr; } }
   .chart-card h3{ font-size:15px; font-weight:600; color:var(--navy); margin:0 0 16px; }
-  .chart-wrap{ height:260px; position:relative; width:100%; }
+  .chart-wrap{ height:300px; position:relative; width:100%; }
 
   .empty-state{ padding:40px 16px; display:flex; align-items:center; justify-content:center; font-size:14px; color:var(--muted); background:var(--bg); border-radius:8px; }
 
@@ -894,27 +894,47 @@ function drawDashboardCharts(){
     return { type:t, actual: recs.length ? Math.round(cost/recs.length) : 0, bench: benchmarks[t]||0 };
   });
   
+  // จัดข้อความให้อยู่ในแนวนอนและขึ้นบรรทัดใหม่อย่างเป็นระเบียบ
+  const formattedLabels = [
+    "หม้อแปลงจำหน่าย",
+    "LBS",
+    ["UNIT", "SUBSTATION"],
+    ["รีโคลสเซอร์", "(Recloser)"],
+    "ดรอปเอาท์ฟิวส์"
+  ];
+
   const costCtx = document.getElementById("costChart");
   if(costCtx){
     CHARTS.cost = new Chart(costCtx, {
       type:"bar",
       data:{
-        labels: costByType.map(d=>d.type),
+        labels: formattedLabels,
         datasets:[
-          {label:"ต้นทุนจริงเฉลี่ย", data: costByType.map(d=>d.actual), backgroundColor:C.blue, borderRadius:4},
-          {label:"เกณฑ์ WCM", data: costByType.map(d=>d.bench), backgroundColor:C.amber, borderRadius:4},
+          {label:"ต้นทุนจริงเฉลี่ย", data: costByType.map(d=>d.actual), backgroundColor:C.blue, borderRadius:4, barPercentage: 0.7, categoryPercentage: 0.8},
+          {label:"เกณฑ์ WCM", data: costByType.map(d=>d.bench), backgroundColor:C.amber, borderRadius:4, barPercentage: 0.7, categoryPercentage: 0.8},
         ]
       },
       options:{
         responsive:true,
         maintainAspectRatio:false,
         plugins:{
-          legend:{position:"bottom", labels:{font:{family:"'Noto Sans Thai', sans-serif"}}},
+          legend:{position:"bottom", labels:{font:{family:"'Noto Sans Thai', sans-serif", size:12}, padding: 16}},
           tooltip:{callbacks:{label:(ctx)=>ctx.dataset.label+": "+baht(ctx.parsed.y)}}
         },
         scales:{
-          y:{ grid:{color:C.border}, ticks:{font:{family:"'IBM Plex Mono', monospace"}} },
-          x:{ ticks:{font:{family:"'Noto Sans Thai', sans-serif", size:11}} }
+          y:{ 
+            grid:{color:C.border}, 
+            ticks:{font:{family:"'IBM Plex Mono', monospace", size:11}, callback:(v)=>v.toLocaleString()} 
+          },
+          x:{ 
+            grid:{display:false},
+            ticks:{
+              font:{family:"'Noto Sans Thai', sans-serif", size:11, weight:'500'},
+              maxRotation: 0,
+              minRotation: 0,
+              padding: 6
+            } 
+          }
         }
       }
     });
@@ -937,7 +957,8 @@ function drawDashboardCharts(){
           label:"Productivity (งาน/ชม.)",
           data: teams.length ? teams.map(t=> teamMap[t].hours ? +(teamMap[t].tasks/teamMap[t].hours).toFixed(2) : 0) : [0],
           backgroundColor:C.green,
-          borderRadius:4
+          borderRadius:4,
+          barPercentage: 0.6
         }]
       },
       options:{
@@ -948,8 +969,8 @@ function drawDashboardCharts(){
           tooltip:{callbacks:{label:(ctx)=>"Productivity: "+ctx.parsed.y+" งาน/ชม."}}
         },
         scales:{
-          y:{ grid:{color:C.border}, ticks:{font:{family:"'IBM Plex Mono', monospace"}} },
-          x:{ ticks:{font:{family:"'Noto Sans Thai', sans-serif"}} }
+          y:{ grid:{color:C.border}, ticks:{font:{family:"'IBM Plex Mono', monospace", size:11}} },
+          x:{ grid:{display:false}, ticks:{font:{family:"'Noto Sans Thai', sans-serif", size:11, weight:'500'}, maxRotation: 0, minRotation: 0} }
         }
       }
     });
