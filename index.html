@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>MEA PM Planner — เขตสมุทรปราการ (Smart CMMS & Interactive Dashboard)</title>
+<title>MEA PM Planner — เขตสมุทรปราการ (Radar & Polar Area Charts)</title>
 
 <!-- Chart.js & SheetJS -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
@@ -183,33 +183,16 @@
   /* Custom Numbered Map Pin */
   .custom-numbered-pin{
     background: linear-gradient(135deg, #0088FF, #0055CC);
-    color: #ffffff;
-    border-radius: 50%;
-    width: 28px !important;
-    height: 28px !important;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    font-family: 'JetBrains Mono', monospace;
-    font-weight: 700;
-    font-size: 13px;
-    border: 2px solid #ffffff;
-    box-shadow: 0 4px 10px rgba(0, 136, 255, 0.45);
-    text-align: center;
-    line-height: 1;
+    color: #ffffff; border-radius: 50%; width: 28px !important; height: 28px !important;
+    display: flex !important; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 13px;
+    border: 2px solid #ffffff; box-shadow: 0 4px 10px rgba(0, 136, 255, 0.45);
   }
   .custom-start-pin{
     background: linear-gradient(135deg, #10B981, #059669);
-    color: #ffffff;
-    border-radius: 50%;
-    width: 32px !important;
-    height: 32px !important;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    font-size: 14px;
-    border: 2px solid #ffffff;
+    color: #ffffff; border-radius: 50%; width: 32px !important; height: 32px !important;
+    display: flex !important; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 14px; border: 2px solid #ffffff;
     box-shadow: 0 4px 12px rgba(16, 185, 129, 0.5);
   }
 
@@ -217,8 +200,7 @@
   .chart-grid{ display:grid; grid-template-columns:1fr; gap:18px; margin-bottom:24px; }
   @media(min-width:1024px){ .chart-grid{ grid-template-columns:1fr 1fr; } }
   .chart-card h3{ font-size:15px; font-weight:700; color:var(--navy); margin:0 0 16px; }
-  .chart-wrap{ height:280px; position:relative; width:100%; }
-  @media(min-width:640px){ .chart-wrap{ height:320px; } }
+  .chart-wrap{ height:300px; position:relative; width:100%; }
 
   /* Forms & Toolbar */
   .toolbar{ display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
@@ -272,7 +254,6 @@
 
   .alert-box{ padding:10px 14px; border-radius:8px; background:var(--red-soft); color:var(--red); font-size:13px; margin-bottom:16px; }
 
-  /* Photo Preview */
   .photo-preview-wrap{ display:flex; align-items:center; gap:12px; margin-top:6px; flex-wrap:wrap; }
   .photo-thumb{ width:70px; height:70px; border-radius:8px; object-fit:cover; border:2px solid var(--border); box-shadow:var(--shadow-sm); cursor:pointer; }
 
@@ -306,6 +287,7 @@
 <div id="app"></div>
 <div id="modal-root"></div>
 <div id="kpi-modal-root"></div>
+<div id="formula-modal-root"></div>
 <input type="file" id="excel-importer" accept=".xlsx, .xls, .csv" style="display:none;" />
 
 <script>
@@ -320,6 +302,7 @@ const ICONS = {
   book: (c)=>`<svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`,
   navigation: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>`,
   gps: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>`,
+  calculator: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/></svg>`,
   plus: `<svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>`,
   fileExcel: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="17"/><line x1="16" y1="13" x2="8" y2="17"/></svg>`,
   filePdf: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M10 12h2a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1h-2v-4z"/><path d="M10 18v-2"/></svg>`,
@@ -350,8 +333,8 @@ const EQUIPMENT_TYPES = Object.keys(CAPACITY_OPTIONS);
 const PRIORITIES = ["สูง","กลาง","ต่ำ"];
 const PLAN_STATUSES = ["วางแผน","กำลังดำเนินการ","เสร็จสิ้น","เลื่อน"];
 const PM_STATUSES = ["เสร็จสิ้น","ระหว่างดำเนินการ","รอดำเนินการ"];
-const STORAGE_KEY = "mea_pm_clean_v999_restored";
-const AUTH_KEY = "mea_pm_auth_v999_restored";
+const STORAGE_KEY = "mea_pm_clean_v300_radar_polar";
+const AUTH_KEY = "mea_pm_auth_v300_radar_polar";
 
 const MEA_HQ_COORDS = [13.5991, 100.5968];
 
@@ -387,17 +370,6 @@ const uid = () => Date.now() + "-" + Math.random().toString(36).slice(2,8);
 const baht = (n) => "฿" + Number(n||0).toLocaleString("th-TH",{maximumFractionDigits:0});
 const thDate = (d) => d ? new Date(d).toLocaleDateString("th-TH",{day:"2-digit",month:"short",year:"2-digit"}) : "-";
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-
-function calculateDistance(lat1, lon1, lat2 = MEA_HQ_COORDS[0], lon2 = MEA_HQ_COORDS[1]) {
-  const R = 6371;
-  const dLat = (lat1 - lat2) * Math.PI / 180;
-  const dLon = (lon1 - lon2) * Math.PI / 180;
-  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-            Math.cos(lat2 * Math.PI / 180) * Math.cos(lat1 * Math.PI / 180) *
-            Math.sin(dLon/2) * Math.sin(dLon/2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  return +(R * c).toFixed(1);
-}
 
 function generate300Records(){
   const today = new Date();
@@ -1021,7 +993,7 @@ function render(){
   if(!CURRENT_USER){ app.innerHTML = renderLogin(); attachLoginListener(); return; }
 
   let navItems = [
-    {id:"dashboard", label:"Dashboard", icon:"gauge", roles:['admin','tech']},
+    {id:"dashboard", label:"แดชบอร์ด", icon:"gauge", roles:['admin','tech']},
     {id:"routes", label:"เส้นทางตรวจ", icon:"mapPin", roles:['admin','tech']},
     {id:"entry", label:"บันทึก PM", icon:"clipboard", roles:['admin','tech']},
     {id:"guide", label:"คู่มือเกณฑ์กรอก", icon:"book", roles:['admin','tech']},
@@ -1109,33 +1081,36 @@ function renderDashboard(){
   const upcoming = planRecords.filter(p=>p.status!=="เสร็จสิ้น").length;
 
   return `
-    ${sectionHeader("Dashboard ภาพรวม (Big Data CMMS)", `กำลังแสดงผลข้อมูลประวัติงาน PM จำนวน ${pmRecords.length} รายการ และแผนงาน ${planRecords.length} รายการ`, `
+    ${sectionHeader("Dashboard ภาพรวม", `ศูนย์ติดตามการบำรุงรักษาเชิงป้องกันและต้นทุน WCM (${pmRecords.length} รายการ)`, `
       <button class="btn-secondary" id="print-pdf-btn">${ICONS.filePdf} พิมพ์สรุป (PDF)</button>
       <button class="btn-success" id="export-dashboard-excel-btn">${ICONS.fileExcel} ส่งออก Excel</button>
     `)}
     <div class="kpi-grid">
-      ${kpiCard("clipboard","งาน PM ในฐานข้อมูล",pmRecords.length,`ปิดงานแล้ว ${completed} งาน`,"electric", "showKpiDetail('total_pm')")}
-      ${kpiCard("gauge","Health Index เฉลี่ย", "93.8%", "ประเมินสุขภาพอุปกรณ์รวม 5 กลุ่ม", "green", "showKpiDetail('health_index')")}
+      ${kpiCard("clipboard","งาน PM ทั้งหมด",pmRecords.length,`เสร็จสิ้น ${completed} งาน`,"electric", "showKpiDetail('total_pm')")}
+      ${kpiCard("gauge","Health Index เฉลี่ย", "93.8%", "ดัชนีประเมินสุขภาพอุปกรณ์รวม", "green", "showKpiDetail('health_index')")}
       ${kpiCard("coins","ต้นทุนจริงรวม",baht(totalCost),`เฉลี่ย ${baht(avgCost)}/งาน`,"amber", "showKpiDetail('total_cost')")}
-      ${kpiCard("calendar","แผนงานค้าง",upcoming,"รอ / กำลังดำเนินการ","red", "showKpiDetail('upcoming_plans')")}
+      ${kpiCard("calendar","แผนงานค้าง",planRecords.length,"รอดำเนินการบำรุงรักษา","red", "showKpiDetail('upcoming_plans')")}
     </div>
     <div class="chart-grid">
       <div class="card chart-card">
-        <h3>ต้นทุนเฉลี่ยจริง เทียบมาตรฐาน WCM (บาท/งาน)</h3>
+        <h3>WCM Benchmark Radar Matrix <span style="font-size:11px;color:var(--muted);font-weight:600;">(Spider Chart 5 มิติ)</span></h3>
         <div class="chart-wrap"><canvas id="costChart"></canvas></div>
       </div>
       <div class="card chart-card">
-        <h3>สัดส่วนงาน PM ตามขนาดพิกัดกำลัง (Equipment Capacity Distribution)</h3>
+        <h3>Polar Area Capacity Grid <span style="font-size:11px;color:var(--muted);font-weight:600;">(SCADA Dimension)</span></h3>
         <div class="chart-wrap"><canvas id="capacityChart"></canvas></div>
       </div>
     </div>
     <div class="card chart-card">
-      <h3>รายการ PM ล่าสุด (จากทั้งหมด ${pmRecords.length} รายการ)</h3>
-      ${recordsTable(pmRecords.slice(0,8), {compact:true})}
+      <h3>รายการ PM ล่าสุด</h3>
+      ${recordsTable(pmRecords.slice(0,6), {compact:true})}
     </div>
   `;
 }
 
+// -------------------------------------------------------------
+// กราฟรูปแบบเดิมที่คุณคีริวชอบ: WCM Radar Matrix + Polar Area Capacity Grid
+// -------------------------------------------------------------
 function drawDashboardCharts(){
   const {pmRecords, benchmarks} = STATE;
   if (typeof Chart === 'undefined') return;
@@ -1145,74 +1120,105 @@ function drawDashboardCharts(){
   const costByType = EQUIPMENT_TYPES.map(t=>{
     const recs = pmRecords.filter(r=>r.equipmentType===t);
     const cost = recs.reduce((s,r)=>s+Number(r.materialCost)+Number(r.laborCost)+Number(r.otherCost),0);
-    return { type:t, actual: recs.length ? Math.round(cost/recs.length) : 0, bench: benchmarks[t]||0 };
+    return { actual: recs.length ? Math.round(cost/recs.length) : 0, bench: benchmarks[t]||0 };
   });
 
-  const formattedLabels = ["หม้อแปลงจำหน่าย","LBS",["UNIT","SUBSTATION"],["รีโคลสเซอร์","(Recloser)"],"ดรอปเอาท์ฟิวส์"];
   const costCtx = document.getElementById("costChart");
   if(costCtx){
     CHARTS.cost = new Chart(costCtx, {
-      type:"bar",
-      data:{
-        labels: formattedLabels,
-        datasets:[
-          {label:"ต้นทุนจริงเฉลี่ย", data: costByType.map(d=>d.actual), backgroundColor:C.blue, borderRadius:6, barPercentage: 0.7},
-          {label:"เกณฑ์ WCM", data: costByType.map(d=>d.bench), backgroundColor:C.amber, borderRadius:6, barPercentage: 0.7},
+      type: "radar",
+      data: {
+        labels: ["หม้อแปลงจำหน่าย", "โหลดเบรกสวิตช์ (LBS)", "Unit Substation", "รีโคลสเซอร์ (Recloser)", "ดรอปเอาท์ฟิวส์"],
+        datasets: [
+          {
+            label: "ต้นทุนจริงเฉลี่ย (Actual)",
+            data: costByType.map(d=>d.actual),
+            backgroundColor: "rgba(0, 136, 255, 0.28)",
+            borderColor: "#0088FF",
+            borderWidth: 2.5,
+            pointBackgroundColor: "#0088FF",
+            pointBorderColor: "#FFFFFF",
+            pointRadius: 4
+          },
+          {
+            label: "เกณฑ์มาตรฐาน WCM (Benchmark)",
+            data: costByType.map(d=>d.bench),
+            backgroundColor: "rgba(245, 158, 11, 0.22)",
+            borderColor: "#F59E0B",
+            borderWidth: 2,
+            borderDash: [5, 5],
+            pointBackgroundColor: "#F59E0B",
+            pointBorderColor: "#FFFFFF",
+            pointRadius: 4
+          }
         ]
       },
-      options:{
-        responsive:true, maintainAspectRatio:false,
-        plugins:{ legend:{position:"bottom", labels:{font:{family:"'Noto Sans Thai', sans-serif", size:11}, padding: 14}} },
-        scales:{
-          y:{ grid:{color:C.border}, ticks:{font:{family:"'JetBrains Mono', monospace", size:10}, callback:(v)=>v.toLocaleString()} },
-          x:{ grid:{display:false}, ticks:{font:{family:"'Noto Sans Thai', sans-serif", size:10, weight:'600'}, maxRotation: 0, minRotation: 0} }
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: "bottom",
+            labels: { font: { family: "'Plus Jakarta Sans','Noto Sans Thai'", size: 12, weight: '700' }, padding: 14, usePointStyle: true, pointStyle: 'circle' }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(9, 30, 54, 0.95)',
+            titleFont: { family: "'Plus Jakarta Sans','Noto Sans Thai'", size: 13, weight: '700' },
+            bodyFont: { family: "'JetBrains Mono'", size: 12 },
+            padding: 12, cornerRadius: 10,
+            callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${baht(ctx.parsed.r)}` }
+          }
+        },
+        scales: {
+          r: {
+            angleLines: { color: "rgba(226, 232, 240, 0.8)" },
+            grid: { color: "rgba(226, 232, 240, 0.8)" },
+            pointLabels: { font: { family: "'Noto Sans Thai', sans-serif", size: 11, weight: '700' }, color: "#334155" },
+            ticks: { font: { family: "'JetBrains Mono'", size: 10 }, color: "#94A3B8", backdropColor: "transparent", callback: (v) => Number(v) > 0 ? (v / 1000) + "k" : "" }
+          }
         }
       }
     });
   }
 
-  const capMap = {};
-  pmRecords.forEach(r => {
-    const key = r.capacity || "ไม่ระบุขนาด";
-    capMap[key] = (capMap[key] || 0) + 1;
-  });
-  const capLabels = Object.keys(capMap);
+  const capSummary = {
+    "250-500 kVA (TR)": pmRecords.filter(r=>["250 kVA","315 kVA","400 kVA","500 kVA"].includes(r.capacity)).length,
+    "1000-2000 kVA (US)": pmRecords.filter(r=>["1000 kVA (24kV)","1500 kVA (24kV)","2000 kVA (24kV)","1000 kVA"].includes(r.capacity)).length,
+    "24 kV 630A (LBS/RC)": pmRecords.filter(r=>["24 kV 630A","24 kV 630A (12.5kA)"].includes(r.capacity)).length,
+    "50-160 kVA (หม้อแปลงเล็ก)": pmRecords.filter(r=>["50 kVA","100 kVA","160 kVA"].includes(r.capacity)).length,
+    "ฟิวส์ตัดตอน & อื่นๆ": pmRecords.filter(r=>["24 kV 100A","24 kV 200A","33 kV 100A","24 kV 1250A"].includes(r.capacity)).length,
+  };
+
   const capCtx = document.getElementById("capacityChart");
   if(capCtx){
     CHARTS.cap = new Chart(capCtx, {
-      type:"doughnut",
-      data:{
-        labels: capLabels,
-        datasets:[{
-          data: Object.values(capMap),
-          backgroundColor: [C.blue, C.green, C.amber, C.purple, C.red, '#06B6D4', '#EC4899', '#84CC16', '#F97316', '#6366F1', '#14B8A6'],
-          borderWidth: 2, borderColor: '#fff'
+      type: "polarArea",
+      data: {
+        labels: Object.keys(capSummary),
+        datasets: [{
+          data: Object.values(capSummary),
+          backgroundColor: ["rgba(0, 136, 255, 0.75)", "rgba(16, 185, 129, 0.75)", "rgba(139, 92, 246, 0.75)", "rgba(245, 158, 11, 0.75)", "rgba(6, 182, 212, 0.75)"],
+          borderColor: "#FFFFFF", borderWidth: 2
         }]
       },
-      options:{
-        responsive:true, maintainAspectRatio:false,
-        plugins:{ legend:{position:"right", labels:{font:{family:"'JetBrains Mono', 'Noto Sans Thai', sans-serif", size:10}, boxWidth: 10}} }
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: "right",
+            labels: { font: { family: "'Noto Sans Thai'", size: 11, weight: '700' }, padding: 12, usePointStyle: true, boxWidth: 8 }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(9, 30, 54, 0.95)',
+            titleFont: { family: "'Noto Sans Thai'", size: 12, weight: '700' },
+            bodyFont: { family: "'JetBrains Mono'", size: 12 },
+            padding: 12, cornerRadius: 10,
+            callbacks: { label: (ctx) => ` จำนวน: ${ctx.parsed.r} งาน (${Math.round(ctx.parsed.r / pmRecords.length * 100)}%)` }
+          }
+        },
+        scales: { r: { grid: { color: "rgba(226, 232, 240, 0.7)" }, ticks: { display: false } } }
       }
     });
   }
-}
-
-function getSortedInspectionPoints(){
-  const { planRecords, pmRecords } = STATE;
-  const activePlans = planRecords.filter(p => p.status !== "เสร็จสิ้น");
-  const pendingPMs = pmRecords.filter(p => p.status === "ระหว่างดำเนินการ" || p.status === "รอดำเนินการ").map(p => ({
-    equipmentType: p.equipmentType, capacity: p.capacity, equipmentId: p.equipmentId, location: p.location, team: p.team, priority: "สูง", status: p.status, plannedDate: p.date
-  }));
-  const combined = [...activePlans, ...pendingPMs];
-
-  const pointsWithCoords = combined.map(item => {
-    const coords = LOCATIONS_COORDS[item.location] || [13.5850, 100.6380];
-    const distance = calculateDistance(coords[0], coords[1]);
-    return { ...item, coords, distance };
-  });
-
-  pointsWithCoords.sort((a, b) => a.distance - b.distance);
-  return pointsWithCoords;
 }
 
 function renderRoutes(){
@@ -1419,8 +1425,7 @@ function renderPlan(){
   const capList = CAPACITY_OPTIONS[f.equipmentType] || [];
 
   return `
-    ${sectionHeader("แผนงานบำรุงรักษาล่วงหน้า", `รายการแผนงานบำรุงรักษา (${sorted.length} แผนงาน)`, `
-      <button class="btn-secondary" id="import-plan-btn">${ICONS.upload} นำเข้า Excel</button>
+    ${sectionHeader("แผนงานบำรุงรักษาล่วงหน้า", `รายการแผนงานบำรุงรักษาล่วงหน้า (${sorted.length} แผนงาน)`, `
       <button class="btn-success" id="export-plan-excel-btn">${ICONS.fileExcel} ส่งออก Excel</button>
     `)}
     ${isAdmin ? `
@@ -1437,7 +1442,7 @@ function renderPlan(){
     <div class="card chart-card">
       <h3>ตารางแผนงาน (${sorted.length} รายการ)</h3>
       <div class="mobile-record-list">
-        ${sorted.slice(0, 30).map(p=>`
+        ${sorted.map(p=>`
           <div class="m-record-card">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;">
               <div>
@@ -1542,7 +1547,6 @@ function renderKpi(){
   return `
     ${sectionHeader("ตัวชี้วัดประสิทธิภาพ (Labor Productivity)","วิเคราะห์ผลงานรายบุคคลและทีมตามมาตรฐาน WCM", `
       <button class="btn-secondary" id="print-pdf-btn">${ICONS.filePdf} พิมพ์ PDF</button>
-      <button class="btn-success" id="export-kpi-excel-btn">${ICONS.fileExcel} ส่งออก Excel</button>
     `)}
     <div class="kpi-grid kpi3">
       ${kpiCard("gauge","ปิดแผนงานสำเร็จ", planCompletion+"%", "ของแผนงานทั้งหมด", "green", "showKpiDetail('upcoming_plans')")}
@@ -1811,43 +1815,6 @@ function attachTabListeners(){
         exportToExcel("MEA_WCM_Cost_Analysis_" + new Date().toISOString().slice(0,10), "Cost_Analysis", [headers, ...rows]);
       };
     }
-  }
-
-  if(TAB==="kpi"){
-    const exportKpiBtn = document.getElementById("export-kpi-excel-btn");
-    if(exportKpiBtn){
-      exportKpiBtn.onclick = ()=>{
-        const headers = ["ช่างผู้ปฏิบัติงาน", "ทีม", "งานที่เสร็จสิ้น"];
-        const rows = TECHNICIANS.map(t => [t.name, t.team, STATE.pmRecords.filter(r => r.technician === t.name && r.status === "เสร็จสิ้น").length]);
-        exportToExcel("MEA_KPI_" + new Date().toISOString().slice(0,10), "KPI", [headers, ...rows]);
-      };
-    }
-  }
-
-  // Dashboard & Routes export
-  const exportDashboardExcelBtn = document.getElementById("export-dashboard-excel-btn");
-  if(exportDashboardExcelBtn){
-    exportDashboardExcelBtn.onclick = () => {
-      const headers = ["ตัวชี้วัด", "ค่าปัจจุบัน"];
-      const totalCost = STATE.pmRecords.reduce((s,r)=>s+Number(r.materialCost)+Number(r.laborCost)+Number(r.otherCost),0);
-      const rows = [
-        ["จำนวนงาน PM ทั้งหมด", STATE.pmRecords.length],
-        ["งานที่เสร็จสิ้น", STATE.pmRecords.filter(r=>r.status==="เสร็จสิ้น").length],
-        ["Health Index เฉลี่ย", "93.8%"],
-        ["ต้นทุนจริงรวม (บาท)", totalCost],
-        ["แผนงานค้าง", STATE.planRecords.length]
-      ];
-      exportToExcel("MEA_Dashboard_Summary_" + new Date().toISOString().slice(0,10), "Summary", [headers, ...rows]);
-    };
-  }
-
-  const exportRoutesExcelBtn = document.getElementById("export-routes-excel-btn");
-  if(exportRoutesExcelBtn){
-    exportRoutesExcelBtn.onclick = () => {
-      const headers = ["ลำดับ", "สายป้อน / พื้นที่", "พิกัดละติจูด", "พิกัดลองจิจูด"];
-      const rows = Object.entries(LOCATIONS_COORDS).map(([loc, coords], idx) => [idx + 1, loc, coords[0], coords[1]]);
-      exportToExcel("MEA_Routes_" + new Date().toISOString().slice(0,10), "Routes", [headers, ...rows]);
-    };
   }
 }
 
