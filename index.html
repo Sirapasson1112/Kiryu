@@ -982,11 +982,11 @@ function render(){
   let navItems = [
     {id:"dashboard", label:"Dashboard", icon:"gauge"},
     {id:"routes", label:"เส้นทางตรวจ", icon:"mapPin"},
-    {id:"entry", label:"บันทึก PM", icon:"clipboard"},
-    {id:"guide", label:"คู่มือเกณฑ์กรอก", icon:"book"},
+    {id:"entry", label:"บันทึก PM (Smart)", icon:"clipboard"},
     {id:"plan", label:"แผนงาน", icon:"calendar"},
     {id:"cost", label:"ต้นทุน WCM", icon:"coins"},
     {id:"kpi", label:"Productivity", icon:"trophy"},
+    {id:"guide", label:"คู่มือเกณฑ์กรอก", icon:"book"},
   ];
 
   app.innerHTML = `
@@ -1034,10 +1034,6 @@ function render(){
             <span>${n.label}</span>
           </button>
         `).join("")}
-        <button class="b-nav-item ${['plan','cost','kpi'].includes(TAB)?"active":""}" id="m-more-btn">
-          ${ICONS.more}
-          <span>เพิ่มเติม</span>
-        </button>
       </nav>
     </div>
   `;
@@ -1053,10 +1049,10 @@ function renderTab(){
   if(TAB==="dashboard") return renderDashboard();
   if(TAB==="routes") return renderRoutes();
   if(TAB==="entry") return renderEntry();
-  if(TAB==="guide") return renderGuide();
   if(TAB==="plan") return renderPlan();
   if(TAB==="cost") return renderCost();
   if(TAB==="kpi") return renderKpi();
+  if(TAB==="guide") return renderGuide();
   return renderDashboard();
 }
 
