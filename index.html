@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>MEA PM Planner — เขตสมุทรปราการ (Smart CMMS & Live SCADA Stream)</title>
+<title>MEA PM Planner — เขตสมุทรปราการ (Smart CMMS & Interactive Dashboard)</title>
 
 <!-- Chart.js & SheetJS -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
@@ -134,12 +134,22 @@
   /* KPI Grid */
   .kpi-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-bottom:24px; }
   @media(min-width:1024px){ .kpi-grid{ grid-template-columns:repeat(4,1fr); gap:18px; } }
+  .kpi-grid.kpi3{ grid-template-columns:repeat(2,1fr); }
+  @media(min-width:1024px){ .kpi-grid.kpi3{ grid-template-columns:repeat(3,1fr); } }
 
   .kpi-card{
     display:flex; flex-direction:column; gap:8px; border-left:4px solid var(--electric);
     cursor:pointer; position:relative; overflow:hidden;
   }
-  .kpi-card:hover{ transform:translateY(-3px); box-shadow:var(--shadow-md); }
+  .kpi-card:hover{
+    transform:translateY(-3px); box-shadow:var(--shadow-md);
+  }
+  .kpi-card::after{
+    content:"คลิกเพื่อดูรายละเอียด ↗"; position:absolute; bottom:8px; right:12px;
+    font-size:10px; color:var(--muted); opacity:0; transition:0.2s;
+  }
+  .kpi-card:hover::after{ opacity:1; }
+
   .kpi-card.green{ border-left-color: var(--green); }
   .kpi-card.amber{ border-left-color: var(--amber); }
   .kpi-card.purple{ border-left-color: var(--purple); }
@@ -154,32 +164,21 @@
 
   #map-container{ height: 420px; width: 100%; border-radius: 14px; z-index: 1; border: 1px solid var(--border); }
 
-  /* Live Stream & SCADA Feed Styles */
-  .live-grid{ display:grid; grid-template-columns:1fr; gap:20px; }
-  @media(min-width:1024px){ .live-grid{ grid-template-columns:2fr 1fr; } }
-
-  .live-video-box{
-    background:#051324; border-radius:16px; overflow:hidden; position:relative;
-    box-shadow:0 12px 30px rgba(5,19,36,0.3); border:1px solid #133358; min-height:360px;
-    display:flex; align-items:center; justify-content:center;
+  /* Custom Numbered Map Pin */
+  .custom-numbered-pin{
+    background: linear-gradient(135deg, #0088FF, #0055CC);
+    color: #ffffff; border-radius: 50%; width: 28px !important; height: 28px !important;
+    display: flex !important; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 13px;
+    border: 2px solid #ffffff; box-shadow: 0 4px 10px rgba(0, 136, 255, 0.45);
   }
-  .live-badge{
-    position:absolute; top:16px; left:16px; background:rgba(239,68,68,0.9); color:#fff;
-    padding:4px 10px; border-radius:6px; font-size:11px; font-weight:700; display:flex; align-items:center; gap:6px;
-    animation: pulseLive 1.5s infinite; z-index:10;
+  .custom-start-pin{
+    background: linear-gradient(135deg, #10B981, #059669);
+    color: #ffffff; border-radius: 50%; width: 32px !important; height: 32px !important;
+    display: flex !important; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 14px; border: 2px solid #ffffff;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.5);
   }
-  @keyframes pulseLive { 0%{opacity:1;} 50%{opacity:0.5;} 100%{opacity:1;} }
-
-  .stream-overlay-info{
-    position:absolute; bottom:16px; left:16px; right:16px; background:rgba(9,30,54,0.85);
-    backdrop-filter:blur(8px); padding:14px; border-radius:12px; color:#fff; display:flex; justify-content:space-between; align-items:center;
-    border:1px solid rgba(255,255,255,0.1);
-  }
-
-  .sensor-stream-card{
-    background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px; display:flex; flex-direction:column; gap:12px;
-  }
-  .sensor-row{ display:flex; justify-content:space-between; align-items:center; font-size:13px; border-bottom:1px solid var(--border); padding-bottom:8px; }
 
   /* Charts */
   .chart-grid{ display:grid; grid-template-columns:1fr; gap:18px; margin-bottom:24px; }
@@ -208,6 +207,7 @@
   .btn-secondary{ display:inline-flex; align-items:center; justify-content:center; gap:6px; border:1px solid var(--border); border-radius:10px; padding:10px 16px; font-size:13px; font-weight:600; color:var(--text); background:var(--surface); cursor:pointer; font-family:inherit; transition:0.2s; min-height:42px; }
   .btn-secondary:hover{ background:var(--bg); }
   .btn-success{ display:inline-flex; align-items:center; justify-content:center; gap:6px; border:none; border-radius:10px; padding:10px 16px; font-size:13px; font-weight:600; color:#fff; background:linear-gradient(135deg, #10B981, #059669); cursor:pointer; font-family:inherit; transition:0.2s; min-height:42px; }
+  .btn-success:hover{ transform:translateY(-1px); }
 
   /* Mobile Record List */
   .mobile-record-list{ display:flex; flex-direction:column; gap:12px; }
@@ -227,6 +227,7 @@
 
   .pill{ display:inline-flex; align-items:center; gap:5px; border-radius:999px; padding:4px 10px; font-size:11px; font-weight:600; }
   .capacity-pill{ display:inline-flex; align-items:center; border-radius:6px; padding:2px 8px; font-size:11px; font-weight:700; font-family:'JetBrains Mono',monospace; background:var(--purple-soft); color:var(--purple); border:1px solid #DDD6FE; }
+  .dist-badge{ display:inline-flex; align-items:center; border-radius:6px; padding:2px 6px; font-size:11px; font-weight:600; font-family:'JetBrains Mono',monospace; background:#F1F5F9; color:#475569; }
   
   .btn-sm{ padding:6px 12px; font-size:12px; border-radius:8px; border:1px solid var(--electric); background:var(--blue-soft); color:var(--electric); cursor:pointer; font-family:inherit; display:inline-flex; align-items:center; justify-content:center; font-weight:600; min-height:34px; transition:0.15s; }
   .btn-sm:hover{ background:var(--electric); color:#fff; }
@@ -265,7 +266,6 @@ const ICONS = {
   trophy: (c)=>`<svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h3a2 2 0 0 1-2 4M7 5H4a2 2 0 0 0 2 4"/></svg>`,
   mapPin: (c)=>`<svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
   book: (c)=>`<svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`,
-  video: (c)=>`<svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>`,
   navigation: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>`,
   gps: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>`,
   plus: `<svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>`,
@@ -276,6 +276,8 @@ const ICONS = {
   edit: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
   check: (c)=>`<svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`,
   rotate: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>`,
+  lock: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
+  more: `<svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>`,
 };
 
 const C = {
@@ -295,7 +297,7 @@ const CAPACITY_OPTIONS = {
 const EQUIPMENT_TYPES = Object.keys(CAPACITY_OPTIONS);
 const PRIORITIES = ["สูง","กลาง","ต่ำ"];
 const PM_STATUSES = ["เสร็จสิ้น","ระหว่างดำเนินการ","รอดำเนินการ"];
-const STORAGE_KEY = "mea_pm_v500_livestream";
+const STORAGE_KEY = "mea_pm_v500_radar_polar_stable";
 
 const MEA_HQ_COORDS = [13.5991, 100.5968];
 
@@ -316,10 +318,17 @@ const LOCATIONS_COORDS = {
   "นิคมฯ บางปู ซอย 8": [13.5220, 100.6810],
   "นิคมฯ บางพลี โครงการ 2": [13.5820, 100.7950],
   "นิคมฯ บางพลี โครงการ 3": [13.5750, 100.8050],
-  "สายป้อน สป.18 (กิ่งแก้ว)": [13.6780, 100.7180]
+  "นิคมฯ บางพลี เฟส 2": [13.5890, 100.7850],
+  "นิคมฯ บางพลี เฟส 3": [13.5930, 100.7780],
+  "สายป้อน สป.18 (กิ่งแก้ว)": [13.6780, 100.7180],
+  "สายป้อน สป.19 (หนามแดง)": [13.6310, 100.6480],
+  "สายป้อน สป.20 (เทพารักษ์ กม.12)": [13.6050, 100.7250],
+  "สายป้อน สป.14 (ท้ายบ้านใหม่)": [13.5650, 100.6120],
+  "สายป้อน สป.16 (คลองด่าน)": [13.5050, 100.7890]
 };
 
 const LOCATIONS_LIST = Object.keys(LOCATIONS_COORDS);
+
 const TECHNICIANS = [
   { name: "สมชาย ใจดี", team: "ทีม A" }, { name: "มนตรี แสนสุข", team: "ทีม A" },
   { name: "วิภา ศรีสุข", team: "ทีม B" }, { name: "อนุชา ทับทิม", team: "ทีม B" },
@@ -356,29 +365,34 @@ function generate300Records(){
     const capacity = capList[i % capList.length];
     const tech = TECHNICIANS[i % TECHNICIANS.length];
     const loc = LOCATIONS_LIST[i % LOCATIONS_LIST.length];
+    const dayOffset = -Math.floor(i * 0.4);
+    
     const bench = benchmarks[eqType];
-    const varianceFactor = 0.8 + ((i % 7) * 0.05);
+    const varianceFactor = 0.75 + (Math.sin(i) + 1) * 0.25;
     const totalCalc = Math.round(bench * varianceFactor);
     const materialCost = Math.round(totalCalc * 0.55);
     const laborCost = Math.round(totalCalc * 0.35);
     const otherCost = totalCalc - materialCost - laborCost;
+    const laborHours = +(2.5 + (i % 6) * 1.0).toFixed(1);
+    const status = i <= 285 ? "เสร็จสิ้น" : (i <= 295 ? "ระหว่างดำเนินการ" : "รอดำเนินการ");
+    const healthIndex = Math.min(100, Math.max(70, Math.round(98 - (i % 25))));
 
     pmRecords.push({
       id: "PM-SP-" + (1000 + i),
-      date: iso(-Math.floor(i * 0.3)),
+      date: iso(dayOffset),
       equipmentType: eqType,
       capacity: capacity,
       equipmentId: typePrefix[eqType] + String(100 + i).padStart(4, '0'),
       location: loc,
       team: tech.team,
       technician: tech.name,
-      laborHours: +(2.5 + (i % 5) * 1.0).toFixed(1),
+      laborHours: laborHours,
       materialCost: materialCost,
       laborCost: laborCost,
       otherCost: otherCost,
-      maintenanceType: (i % 10 === 0) ? "แก้ไข" : "ป้องกัน",
-      status: i <= 285 ? "เสร็จสิ้น" : (i <= 295 ? "ระหว่างดำเนินการ" : "รอดำเนินการ"),
-      notes: `ตรวจเช็คตามรอบ PM ปกติ Health Index ${Math.round(98 - (i % 20))}%`,
+      maintenanceType: (i % 12 === 0) ? "แก้ไข" : "ป้องกัน",
+      status: status,
+      notes: `ตรวจเช็คตามรอบบำรุงรักษาประจำปี วัดค่าความต้านทานฉนวนปกติ Health Index ${healthIndex}%`,
       photo: ""
     });
   }
@@ -390,6 +404,7 @@ function generate300Records(){
     const capacity = capList[(j * 2) % capList.length];
     const tech = TECHNICIANS[(j * 3) % TECHNICIANS.length];
     const loc = LOCATIONS_LIST[(j * 2) % LOCATIONS_LIST.length];
+    const plannedOffset = Math.floor(j * 0.6) + 1;
 
     planRecords.push({
       id: "PLAN-SP-" + (500 + j),
@@ -397,7 +412,7 @@ function generate300Records(){
       capacity: capacity,
       equipmentId: typePrefix[eqType] + String(500 + j).padStart(4, '0'),
       location: loc,
-      plannedDate: iso(Math.floor(j * 0.5) + 1),
+      plannedDate: iso(plannedOffset),
       team: tech.team,
       priority: (j % 3 === 0) ? "สูง" : ((j % 2 === 0) ? "กลาง" : "ต่ำ"),
       status: (j % 15 === 0) ? "เลื่อน" : "วางแผน"
@@ -413,6 +428,11 @@ let CHARTS = {};
 let SEARCH_QUERY = "";
 let ROUTE_TEAM_FILTER = "ทั้งหมด";
 let LEAFLET_MAP = null;
+
+const emptyPm = () => ({ date:new Date().toISOString().slice(0,10), equipmentType:EQUIPMENT_TYPES[0], capacity:CAPACITY_OPTIONS[EQUIPMENT_TYPES[0]][0], equipmentId:"", location:"", team:"", technician:"", laborHours:"", materialCost:"", laborCost:"", otherCost:"", maintenanceType:"ป้องกัน", status:"เสร็จสิ้น", notes:"", photo:"" });
+const emptyPlan = () => ({ equipmentType:EQUIPMENT_TYPES[0], capacity:CAPACITY_OPTIONS[EQUIPMENT_TYPES[0]][0], equipmentId:"", location:"", plannedDate:new Date().toISOString().slice(0,10), team:"", priority:"กลาง", status:"วางแผน" });
+let pmForm = emptyPm();
+let planForm = emptyPlan();
 
 function init(){
   try {
@@ -441,12 +461,12 @@ function statusPill(status){
   return `<span class="pill" style="background:${s.bg};color:${s.fg}">• ${esc(status)}</span>`;
 }
 
-function kpiCard(iconKey, label, value, sub, accentClass){
-  return `<div class="card kpi-card ${accentClass}">
+function kpiCard(iconKey, label, value, sub, accentClass, clickAction){
+  return `<div class="card kpi-card ${accentClass}" ${clickAction ? `onclick="${clickAction}" title="คลิกเพื่อดูรายละเอียดเชิงลึก"` : ""}>
     <div class="kpi-top">
       <span class="kpi-label">${esc(label)}</span>
-      <span class="kpi-icon" style="background:${accentClass==='green'?C.greenSoft:accentClass==='amber'?C.amberSoft:C.blueSoft}">
-        ${ICONS[iconKey](accentClass==='green'?C.green:accentClass==='amber'?C.amber:C.blue)}
+      <span class="kpi-icon" style="background:${accentClass==='green'?C.greenSoft:accentClass==='amber'?C.amberSoft:accentClass==='purple'?C.purpleSoft:accentClass==='red'?C.redSoft:C.blueSoft}">
+        ${ICONS[iconKey](accentClass==='green'?C.green:accentClass==='amber'?C.amber:accentClass==='purple'?C.purple:accentClass==='red'?C.red:C.blue)}
       </span>
     </div>
     <div class="kpi-value">${esc(value)}</div>
@@ -472,11 +492,12 @@ function render(){
 
   let navItems = [
     {id:"dashboard", label:"Dashboard", icon:"gauge"},
-    {id:"live", label:"Live SCADA Feed", icon:"video"},
     {id:"routes", label:"เส้นทางตรวจ", icon:"mapPin"},
     {id:"entry", label:"บันทึก PM", icon:"clipboard"},
-    {id:"guide", label:"คู่มือเกณฑ์กรอก", icon:"book"},
     {id:"plan", label:"แผนงาน", icon:"calendar"},
+    {id:"cost", label:"ต้นทุน WCM", icon:"coins"},
+    {id:"kpi", label:"Productivity", icon:"trophy"},
+    {id:"guide", label:"คู่มือเกณฑ์กรอก", icon:"book"},
   ];
 
   app.innerHTML = `
@@ -499,10 +520,10 @@ function render(){
         
         <div class="user-badge">
           <div>
-            <div class="user-badge-role">ศูนย์ปฏิบัติการไฟฟ้า</div>
-            <div style="font-size:11px;color:#94A3B8;">Smart Control Center</div>
+            <div class="user-badge-role">วิศวกรหัวหน้างาน</div>
+            <div style="font-size:11px;color:#94A3B8;">ผู้ดูแลระบบ (Admin)</div>
           </div>
-          <span class="user-badge-tag">LIVE</span>
+          <span class="user-badge-tag">ADMIN</span>
         </div>
 
         ${navItems.map(n=>`<button class="nav-btn ${TAB===n.id?"active":""}" data-tab="${n.id}">${typeof ICONS[n.icon] === 'function' ? ICONS[n.icon](TAB===n.id?"#fff":"#94A3B8") : ICONS[n.icon]} ${n.label}</button>`).join("")}
@@ -527,11 +548,12 @@ function render(){
 
 function renderTab(){
   if(TAB==="dashboard") return renderDashboard();
-  if(TAB==="live") return renderLiveStream();
   if(TAB==="routes") return renderRoutes();
   if(TAB==="entry") return renderEntry();
-  if(TAB==="guide") return renderGuide();
   if(TAB==="plan") return renderPlan();
+  if(TAB==="cost") return renderCost();
+  if(TAB==="kpi") return renderKpi();
+  if(TAB==="guide") return renderGuide();
   return renderDashboard();
 }
 
@@ -539,16 +561,18 @@ function renderDashboard(){
   const {pmRecords, planRecords} = STATE;
   const totalCost = pmRecords.reduce((s,r)=>s+Number(r.materialCost)+Number(r.laborCost)+Number(r.otherCost),0);
   const completed = pmRecords.filter(r=>r.status==="เสร็จสิ้น").length;
+  const avgCost = pmRecords.length ? totalCost/pmRecords.length : 0;
+  const upcoming = planRecords.filter(p=>p.status!=="เสร็จสิ้น").length;
 
   return `
     ${sectionHeader("Dashboard ภาพรวม (Big Data CMMS)", `กำลังแสดงผลข้อมูลประวัติงาน PM จำนวน ${pmRecords.length} รายการ`, `
-      <button class="btn-success" onclick="TAB='live'; render();">${ICONS.video("#fff")} เปิด Live SCADA Stream</button>
+      <button class="btn-success" onclick="TAB='routes'; render();">${ICONS.mapPin("#fff")} เปิดแผนที่เส้นทางตรวจ</button>
     `)}
     <div class="kpi-grid">
       ${kpiCard("clipboard","งาน PM ในฐานข้อมูล",pmRecords.length,`ปิดงานแล้ว ${completed} งาน`,"electric")}
       ${kpiCard("gauge","Health Index เฉลี่ย", "93.8%", "ประเมินสุขภาพอุปกรณ์รวม 5 กลุ่ม", "green")}
-      ${kpiCard("coins","ต้นทุนจริงรวม",baht(totalCost),`เฉลี่ย ${baht(totalCost/pmRecords.length)}/งาน`,"amber")}
-      ${kpiCard("calendar","แผนงานค้าง",planRecords.length,"รอดำเนินการ","red")}
+      ${kpiCard("coins","ต้นทุนจริงรวม",baht(totalCost),`เฉลี่ย ${baht(avgCost)}/งาน`,"amber")}
+      ${kpiCard("calendar","แผนงานค้าง",upcoming,"รอ / กำลังดำเนินการ","red")}
     </div>
     <div class="chart-grid">
       <div class="card chart-card">
@@ -558,50 +582,6 @@ function renderDashboard(){
       <div class="card chart-card">
         <h3>Polar Area Capacity Grid</h3>
         <div class="chart-wrap"><canvas id="capacityChart"></canvas></div>
-      </div>
-    </div>
-  `;
-}
-
-// -------------------------------------------------------------
-// Live SCADA & Real-Time Video Feed
-// -------------------------------------------------------------
-function renderLiveStream(){
-  return `
-    ${sectionHeader("Live SCADA Feed & Real-Time Monitoring", "ระบบถ่ายทอดสดสถานะโครงข่ายไฟฟ้าและภาพจากกล้องวงจรปิดสถานีย่อย กฟน. สมุทรปราการ")}
-    
-    <div class="live-grid">
-      <div class="live-video-box">
-        <div class="live-badge">● LIVE FEED (HD 60FPS)</div>
-        <div style="text-align:center;color:#64748B;">
-          <div style="font-size:48px;margin-bottom:8px;">📡</div>
-          <div style="font-size:15px;font-weight:700;color:#E2E8F0;">กำลังเชื่อมต่อสตรีมมิ่งกล้องวงจรปิดสถานีย่อย สป. (Substation Feed)</div>
-          <div style="font-size:12px;color:#94A3B8;margin-top:4px;">สถานะสัญญาณ: เสถียร (Latency: 24ms)</div>
-        </div>
-        <div class="stream-overlay-info">
-          <div>
-            <div style="font-weight:700;font-size:14px;">กล้องจุดตรวจหลัก #01 (Substation Yard A)</div>
-            <div style="font-size:11px;color:#94A3B8;">อุณหภูมิหม้อแปลง: 54.2°C • แรงดันไฟฟ้า: 24.1 kV</div>
-          </div>
-          <span class="pill" style="background:rgba(16,185,129,0.2);color:#10B981;">● ปกติ</span>
-        </div>
-      </div>
-
-      <div style="display:flex;flex-direction:column;gap:14px;">
-        <div class="sensor-stream-card">
-          <div style="font-weight:700;font-size:14px;color:var(--navy);">⚡ สถานะเซนเซอร์โครงข่าย (SCADA Telemetry)</div>
-          <div class="sensor-row"><span>กระแสโหลดรวม (Total Load):</span><strong class="mono" style="color:var(--electric);">342.8 A</strong></div>
-          <div class="sensor-row"><span>แรงดันบัสบาร์ (Busbar Voltage):</span><strong class="mono" style="color:var(--green);">24.2 kV</strong></div>
-          <div class="sensor-row"><span>ค่า Power Factor (PF):</span><strong class="mono">0.96</strong></div>
-          <div class="sensor-row"><span>อุณหภูมิแวดล้อม:</span><strong class="mono" style="color:var(--amber);">32.5 °C</strong></div>
-        </div>
-
-        <div class="sensor-stream-card">
-          <div style="font-weight:700;font-size:14px;color:var(--navy);">📹 เลือกมุมกล้องวงจรปิด (Camera Feeds)</div>
-          <button class="btn-secondary" style="justify-content:space-between;width:100%;"><span>🎥 Substation Yard A (หม้อแปลงหลัก)</span><span class="tag" style="background:#E8F5E9;color:#118D57;">LIVE</span></button>
-          <button class="btn-secondary" style="justify-content:space-between;width:100%;"><span>🎥 Switchgear Room B (ห้องสวิตช์)</span><span class="tag" style="background:#E8F5E9;color:#118D57;">LIVE</span></button>
-          <button class="btn-secondary" style="justify-content:space-between;width:100%;"><span>🎥 Perimeter Security Gate</span><span class="tag" style="background:#E8F5E9;color:#118D57;">LIVE</span></button>
-        </div>
       </div>
     </div>
   `;
@@ -653,10 +633,39 @@ function drawDashboardCharts(){
   }
 }
 
+function getSortedInspectionPoints(){
+  const { planRecords, pmRecords } = STATE;
+  const activePlans = planRecords.filter(p => p.status !== "เสร็จสิ้น");
+  const pointsWithCoords = activePlans.map(item => {
+    const coords = LOCATIONS_COORDS[item.location] || [13.5850, 100.6380];
+    const distance = calculateDistance(coords[0], coords[1]);
+    return { ...item, coords, distance };
+  });
+  pointsWithCoords.sort((a, b) => a.distance - b.distance);
+  return pointsWithCoords;
+}
+
 function renderRoutes(){
+  const allPoints = getSortedInspectionPoints();
   return `
     ${sectionHeader("แผนที่เส้นทางนำตรวจอัจฉริยะ", "จัดลำดับหมุดตัวเลขตามจุดใกล้สุด")}
-    <div class="card"><div id="map-container"></div></div>
+    <div class="card" style="margin-bottom:20px;padding:12px;"><div id="map-container"></div></div>
+    <div class="card">
+      <h3>รายการจุดตรวจเรียงตามระยะทาง</h3>
+      <table>
+        <thead><tr><th>ลำดับ</th><th>อุปกรณ์</th><th>สถานที่</th><th>ระยะทาง</th></tr></thead>
+        <tbody>
+          ${allPoints.slice(0, 10).map((p, idx)=>`
+            <tr>
+              <td><strong>${idx+1}</strong></td>
+              <td>${esc(p.equipmentType)}</td>
+              <td>${esc(p.location)}</td>
+              <td><span class="dist-badge">~${p.distance} กม.</span></td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
   `;
 }
 
@@ -664,9 +673,20 @@ function initMap(){
   const container = document.getElementById("map-container");
   if(!container || typeof L === 'undefined') return;
   if(LEAFLET_MAP) { LEAFLET_MAP.remove(); LEAFLET_MAP = null; }
+
   LEAFLET_MAP = L.map('map-container').setView(MEA_HQ_COORDS, 11);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(LEAFLET_MAP);
   L.marker(MEA_HQ_COORDS).addTo(LEAFLET_MAP).bindPopup('กฟน. เขตสมุทรปราการ').openPopup();
+
+  getSortedInspectionPoints().forEach((r, idx) => {
+    const numIcon = L.divIcon({
+      className: 'custom-numbered-pin',
+      html: `<span>${idx + 1}</span>`,
+      iconSize: [28, 28],
+      iconAnchor: [14, 14]
+    });
+    L.marker(r.coords, { icon: numIcon }).addTo(LEAFLET_MAP).bindPopup(`ลำดับที่ ${idx + 1}: ${esc(r.location)}`);
+  });
 }
 
 function renderEntry(){
@@ -684,12 +704,20 @@ function renderEntry(){
   `;
 }
 
-function renderGuide(){
-  return `${sectionHeader("คู่มือเกณฑ์มาตรฐาน", "เกณฑ์การกรอกข้อมูล")}<div class="card"><p>รหัสอุปกรณ์ TR-SP-XXXX</p></div>`;
-}
-
 function renderPlan(){
   return `${sectionHeader("แผนงานบำรุงรักษา", "รายการแผนงาน")}<div class="card"><p>แผนงานล่วงหน้าในระบบ</p></div>`;
+}
+
+function renderCost(){
+  return `${sectionHeader("วิเคราะห์ต้นทุน WCM", "เปรียบเทียบต้นทุน")}<div class="card"><p>ข้อมูลต้นทุน WCM</p></div>`;
+}
+
+function renderKpi(){
+  return `${sectionHeader("Productivity", "ประสิทธิภาพทีมช่าง")}<div class="card"><p>ข้อมูล Productivity</p></div>`;
+}
+
+function renderGuide(){
+  return `${sectionHeader("คู่มือเกณฑ์มาตรฐาน", "เกณฑ์การกรอกข้อมูล")}<div class="card"><p>รหัสอุปกรณ์ TR-SP-XXXX</p></div>`;
 }
 
 function attachGlobalListeners(){
