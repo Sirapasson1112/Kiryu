@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>MEA PM Planner — เขตสมุทรปราการ (Smart CMMS & Interactive Dashboard)</title>
+<title>MEA PM Planner — เขตสมุทรปราการ (Ultimate Master Edition)</title>
 
 <!-- Chart.js & SheetJS -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
@@ -141,9 +141,7 @@
     display:flex; flex-direction:column; gap:8px; border-left:4px solid var(--electric);
     cursor:pointer; position:relative; overflow:hidden;
   }
-  .kpi-card:hover{
-    transform:translateY(-3px); box-shadow:var(--shadow-md);
-  }
+  .kpi-card:hover{ transform:translateY(-3px); box-shadow:var(--shadow-md); }
   .kpi-card::after{
     content:"คลิกเพื่อดูรายละเอียด ↗"; position:absolute; bottom:8px; right:12px;
     font-size:10px; color:var(--muted); opacity:0; transition:0.2s;
@@ -163,8 +161,8 @@
   .kpi-sub{ font-size:11px; color:var(--muted); }
 
   #map-container{ height: 420px; width: 100%; border-radius: 14px; z-index: 1; border: 1px solid var(--border); }
+  #mini-entry-map{ height: 160px; width: 100%; border-radius: 12px; border: 1px solid var(--border); margin-top: 8px; }
 
-  /* Custom Numbered Map Pin */
   .custom-numbered-pin{
     background: linear-gradient(135deg, #0088FF, #0055CC);
     color: #ffffff; border-radius: 50%; width: 28px !important; height: 28px !important;
@@ -186,7 +184,7 @@
   .chart-card h3{ font-size:15px; font-weight:700; color:var(--navy); margin:0 0 16px; }
   .chart-wrap{ height:300px; position:relative; width:100%; }
 
-  /* Forms & Toolbar */
+  /* Interactive Form & Live Widgets */
   .toolbar{ display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
   .toolbar input, .toolbar select{
     padding:10px 14px; border:1px solid var(--border); border-radius:10px; font-size:13px; font-family:inherit; background:var(--surface); flex:1; min-height:44px;
@@ -199,7 +197,28 @@
   .field input, .field select, .field textarea{ width:100%; border:1px solid var(--border); border-radius:10px; padding:10px 14px; font-size:14px; outline:none; background:var(--surface); color:var(--text); font-family:inherit; transition:.15s; min-height:44px; }
   .field input:focus, .field select:focus, .field textarea:focus{ border-color:var(--electric); box-shadow:0 0 0 3px var(--electric-glow); }
   .span-all{ grid-column:1/-1; }
+  .span-2{ grid-column:span 1; }
+  @media(min-width:1024px){ .span-2{ grid-column:span 2; } }
   .form-actions{ grid-column:1/-1; display:flex; justify-content:flex-end; gap:10px; }
+
+  .live-calc-box{
+    background: linear-gradient(135deg, #091E36 0%, #153D68 100%);
+    border-radius: 14px; padding: 18px; color: #fff; display: flex; flex-direction: column; gap: 10px;
+    box-shadow: 0 8px 20px rgba(9, 30, 54, 0.15); border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .hi-gauge-card{
+    background: #FFFFFF; border: 1px solid var(--border); border-radius: 14px; padding: 16px;
+    display: flex; flex-direction: column; gap: 10px; box-shadow: var(--shadow-sm);
+  }
+  .hi-slider-row{ display: flex; flex-direction: column; gap: 3px; font-size: 12px; font-weight: 600; }
+  .hi-slider-row input[type=range]{ width: 100%; accent-color: var(--electric); cursor: pointer; }
+
+  .photo-dropzone{
+    border: 2px dashed #94A3B8; border-radius: 12px; padding: 16px; text-align: center;
+    background: #F8FAFC; cursor: pointer; transition: 0.2s; position: relative;
+  }
+  .photo-dropzone:hover{ border-color: var(--electric); background: var(--blue-soft); }
+  .photo-thumb{ width:70px; height:70px; border-radius:8px; object-fit:cover; border:2px solid var(--border); box-shadow:var(--shadow-sm); cursor:pointer; }
 
   .btn-primary{ display:inline-flex; align-items:center; justify-content:center; gap:8px; border:none; border-radius:10px; padding:12px 20px; font-size:14px; font-weight:600; color:#fff; background:linear-gradient(135deg, var(--electric), #0066CC); cursor:pointer; font-family:inherit; transition:0.2s; min-height:44px; width:100%; box-shadow:0 4px 12px var(--electric-glow); }
   @media(min-width:640px){ .btn-primary{ width:auto; } }
@@ -207,7 +226,6 @@
   .btn-secondary{ display:inline-flex; align-items:center; justify-content:center; gap:6px; border:1px solid var(--border); border-radius:10px; padding:10px 16px; font-size:13px; font-weight:600; color:var(--text); background:var(--surface); cursor:pointer; font-family:inherit; transition:0.2s; min-height:42px; }
   .btn-secondary:hover{ background:var(--bg); }
   .btn-success{ display:inline-flex; align-items:center; justify-content:center; gap:6px; border:none; border-radius:10px; padding:10px 16px; font-size:13px; font-weight:600; color:#fff; background:linear-gradient(135deg, #10B981, #059669); cursor:pointer; font-family:inherit; transition:0.2s; min-height:42px; }
-  .btn-success:hover{ transform:translateY(-1px); }
 
   /* Mobile Record List */
   .mobile-record-list{ display:flex; flex-direction:column; gap:12px; }
@@ -268,6 +286,7 @@ const ICONS = {
   book: (c)=>`<svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`,
   navigation: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>`,
   gps: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>`,
+  camera: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>`,
   plus: `<svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>`,
   fileExcel: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="17"/><line x1="16" y1="13" x2="8" y2="17"/></svg>`,
   filePdf: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M10 12h2a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1h-2v-4z"/><path d="M10 18v-2"/></svg>`,
@@ -276,7 +295,6 @@ const ICONS = {
   edit: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
   check: (c)=>`<svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`,
   rotate: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>`,
-  lock: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
   more: `<svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>`,
 };
 
@@ -427,7 +445,11 @@ let TAB = "dashboard";
 let CHARTS = {};
 let SEARCH_QUERY = "";
 let ROUTE_TEAM_FILTER = "ทั้งหมด";
+let IMPORT_TARGET = "pm";
+let EDITING_RECORD = null;
 let LEAFLET_MAP = null;
+let ENTRY_MINI_MAP = null;
+let entryPhotoBase64 = "";
 
 const emptyPm = () => ({ date:new Date().toISOString().slice(0,10), equipmentType:EQUIPMENT_TYPES[0], capacity:CAPACITY_OPTIONS[EQUIPMENT_TYPES[0]][0], equipmentId:"", location:"", team:"", technician:"", laborHours:"", materialCost:"", laborCost:"", otherCost:"", maintenanceType:"ป้องกัน", status:"เสร็จสิ้น", notes:"", photo:"" });
 const emptyPlan = () => ({ equipmentType:EQUIPMENT_TYPES[0], capacity:CAPACITY_OPTIONS[EQUIPMENT_TYPES[0]][0], equipmentId:"", location:"", plannedDate:new Date().toISOString().slice(0,10), team:"", priority:"กลาง", status:"วางแผน" });
@@ -453,12 +475,16 @@ function persist(next){
 function statusPill(status){
   const map = {
     "เสร็จสิ้น":{bg:C.greenSoft,fg:C.green,icon:'check'},
+    "กำลังดำเนินการ":{bg:C.blueSoft,fg:C.blue,icon:'pulse'},
     "ระหว่างดำเนินการ":{bg:C.blueSoft,fg:C.blue,icon:'pulse'},
     "รอดำเนินการ":{bg:C.amberSoft,fg:C.amber,icon:'circle'},
     "วางแผน":{bg:C.amberSoft,fg:C.amber,icon:'circle'},
+    "เลื่อน":{bg:C.redSoft,fg:C.red,icon:'alert'},
   };
   const s = map[status] || {bg:C.border,fg:C.muted,icon:'circle'};
-  return `<span class="pill" style="background:${s.bg};color:${s.fg}">• ${esc(status)}</span>`;
+  return `<span class="pill" style="background:${s.bg};color:${s.fg}">
+    ${s.icon==='check'?ICONS.check(s.fg):'•'} ${esc(status)}
+  </span>`;
 }
 
 function kpiCard(iconKey, label, value, sub, accentClass, clickAction){
@@ -485,6 +511,469 @@ function sectionHeader(title, desc, actionHtml=""){
 }
 
 function emptyState(text){ return `<div class="card" style="padding:32px;text-align:center;color:var(--muted);font-size:13px;">${esc(text)}</div>`; }
+function field(label, innerHtml){ return `<label class="field"><span class="field-label">${esc(label)}</span>${innerHtml}</label>`; }
+
+function exportToExcel(filename, sheetName, dataArray) {
+  if (typeof XLSX === 'undefined') return alert("ระบบกำลังโหลดโมดูล Excel");
+  const ws = XLSX.utils.aoa_to_sheet(dataArray);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, sheetName);
+  XLSX.writeFile(wb, filename + ".xlsx");
+}
+
+function triggerExcelImport(target) {
+  IMPORT_TARGET = target;
+  const fileInput = document.getElementById("excel-importer");
+  if (fileInput) { fileInput.value = ""; fileInput.click(); }
+}
+
+function handleFileImport(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    try {
+      const data = new Uint8Array(evt.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+      if (rows.length < 2) return;
+
+      if (IMPORT_TARGET === "pm") {
+        const imported = [];
+        for (let i = 1; i < rows.length; i++) {
+          const r = rows[i];
+          if (!r || !r[1] || !r[3]) continue;
+          imported.push({
+            id: uid(),
+            date: r[0] ? String(r[0]).slice(0,10) : new Date().toISOString().slice(0,10),
+            equipmentType: r[1] || EQUIPMENT_TYPES[0],
+            capacity: r[2] || CAPACITY_OPTIONS[r[1]||EQUIPMENT_TYPES[0]][0],
+            equipmentId: String(r[3]),
+            location: r[4] || "",
+            team: r[5] || "ทีม A",
+            technician: r[6] || "",
+            laborHours: Number(r[7]) || 0,
+            materialCost: Number(r[8]) || 0,
+            laborCost: Number(r[9]) || 0,
+            otherCost: Number(r[10]) || 0,
+            maintenanceType: r[12] || "ป้องกัน",
+            status: r[13] || "เสร็จสิ้น",
+            notes: r[14] || "นำเข้าจาก Excel",
+            photo: ""
+          });
+        }
+        if(imported.length){
+          persist({ ...STATE, pmRecords: [...imported, ...STATE.pmRecords] });
+          alert(`นำเข้าสำเร็จ ${imported.length} รายการ`);
+        }
+      }
+    } catch(err) { alert("เกิดข้อผิดพลาดในการอ่านไฟล์"); }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function showKpiDetail(type) {
+  const root = document.getElementById("kpi-modal-root");
+  if (!root) return;
+
+  const { pmRecords, planRecords } = STATE;
+  let title = "";
+  let contentHtml = "";
+
+  if (type === "total_pm") {
+    const completed = pmRecords.filter(r => r.status === "เสร็จสิ้น").length;
+    const ongoing = pmRecords.filter(r => r.status === "ระหว่างดำเนินการ" || r.status === "กำลังดำเนินการ").length;
+    const pending = pmRecords.filter(r => r.status === "รอดำเนินการ").length;
+
+    title = `รายละเอียดงาน PM ทั้งหมด (${pmRecords.length} งาน)`;
+    contentHtml = `
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
+        <div class="card" style="padding:12px;text-align:center;border-left:3px solid var(--green);">
+          <div style="font-size:11px;color:var(--muted);">เสร็จสิ้นแล้ว</div>
+          <div style="font-size:20px;font-weight:700;color:var(--green);font-family:'JetBrains Mono';">${completed}</div>
+        </div>
+        <div class="card" style="padding:12px;text-align:center;border-left:3px solid var(--electric);">
+          <div style="font-size:11px;color:var(--muted);">ระหว่างดำเนินการ</div>
+          <div style="font-size:20px;font-weight:700;color:var(--electric);font-family:'JetBrains Mono';">${ongoing}</div>
+        </div>
+        <div class="card" style="padding:12px;text-align:center;border-left:3px solid var(--amber);">
+          <div style="font-size:11px;color:var(--muted);">รอดำเนินการ</div>
+          <div style="font-size:20px;font-weight:700;color:var(--amber);font-family:'JetBrains Mono';">${pending}</div>
+        </div>
+      </div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">รายการงาน PM ล่าสุดในระบบ:</p>
+      ${recordsTable(pmRecords.slice(0, 10), { compact: true })}
+      <div style="margin-top:16px;text-align:right;">
+        <button class="btn-primary" onclick="closeKpiModal(); TAB='entry'; render();">ไปยังหน้ารายการ PM ทั้งหมด ➔</button>
+      </div>
+    `;
+  } else if (type === "health_index") {
+    title = `สรุปดัชนีสุขภาพอุปกรณ์ (Health Index Assessment)`;
+    contentHtml = `
+      <div style="background:var(--green-soft);padding:14px;border-radius:12px;margin-bottom:16px;border:1px solid #A7F3D0;">
+        <div style="font-size:14px;font-weight:700;color:var(--navy);">⚡ สุขภาพอุปกรณ์รวม: 93.8% (เกณฑ์ดีเยี่ยม)</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;">วิเคราะห์จากค่าความเป็นฉนวน, คุณสมบัติน้ำมัน และผลการตรวจ Thermoscan ล่าสุด</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+        <div class="card" style="padding:12px;">
+          <div style="font-size:12px;font-weight:600;color:var(--navy);">หม้อแปลงจำหน่าย (TR)</div>
+          <div style="font-size:16px;font-weight:700;color:var(--green);font-family:'JetBrains Mono';">HI = 94.5%</div>
+        </div>
+        <div class="card" style="padding:12px;">
+          <div style="font-size:12px;font-weight:600;color:var(--navy);">Unit Substation (US)</div>
+          <div style="font-size:16px;font-weight:700;color:var(--green);font-family:'JetBrains Mono';">HI = 93.1%</div>
+        </div>
+      </div>
+      <p style="font-size:13px;color:var(--muted);">อุปกรณ์ที่มีค่า Health Index ต่ำกว่า 80% จะถูกแจ้งเตือนให้เข้าบำรุงรักษาเชิงแก้ไขทันที</p>
+    `;
+  } else if (type === "total_cost") {
+    const totalMaterial = pmRecords.reduce((s, r) => s + Number(r.materialCost||0), 0);
+    const totalLabor = pmRecords.reduce((s, r) => s + Number(r.laborCost||0), 0);
+    const totalOther = pmRecords.reduce((s, r) => s + Number(r.otherCost||0), 0);
+    const total = totalMaterial + totalLabor + totalOther;
+
+    title = `โครงสร้างต้นทุนงานบำรุงรักษาจริง (${baht(total)})`;
+    contentHtml = `
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
+        <div class="card" style="padding:12px;text-align:center;">
+          <div style="font-size:11px;color:var(--muted);">ค่าพัสดุ/อุปกรณ์</div>
+          <div style="font-size:16px;font-weight:700;color:var(--navy);font-family:'JetBrains Mono';">${baht(totalMaterial)}</div>
+          <div style="font-size:10px;color:var(--muted);">${Math.round(totalMaterial/total*100)}% ของงบรวม</div>
+        </div>
+        <div class="card" style="padding:12px;text-align:center;">
+          <div style="font-size:11px;color:var(--muted);">ค่าแรงทีมช่าง</div>
+          <div style="font-size:16px;font-weight:700;color:var(--navy);font-family:'JetBrains Mono';">${baht(totalLabor)}</div>
+          <div style="font-size:10px;color:var(--muted);">${Math.round(totalLabor/total*100)}% ของงบรวม</div>
+        </div>
+        <div class="card" style="padding:12px;text-align:center;">
+          <div style="font-size:11px;color:var(--muted);">ค่าใช้จ่ายอื่น</div>
+          <div style="font-size:16px;font-weight:700;color:var(--navy);font-family:'JetBrains Mono';">${baht(totalOther)}</div>
+          <div style="font-size:10px;color:var(--muted);">${Math.round(totalOther/total*100)}% ของงบรวม</div>
+        </div>
+      </div>
+      <div style="text-align:right;margin-top:14px;">
+        <button class="btn-primary" onclick="closeKpiModal(); TAB='cost'; render();">ไปยังหน้าวิเคราะห์ WCM Cost ➔</button>
+      </div>
+    `;
+  } else if (type === "upcoming_plans") {
+    const high = planRecords.filter(p => p.priority === "สูง").length;
+    const med = planRecords.filter(p => p.priority === "กลาง").length;
+    const low = planRecords.filter(p => p.priority === "ต่ำ").length;
+
+    title = `สรุปแผนงานบำรุงรักษาล่วงหน้า (${planRecords.length} แผนงาน)`;
+    contentHtml = `
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
+        <div class="card" style="padding:12px;text-align:center;border-left:3px solid var(--red);">
+          <div style="font-size:11px;color:var(--red);">ความสำคัญสูง</div>
+          <div style="font-size:20px;font-weight:700;color:var(--red);font-family:'JetBrains Mono';">${high}</div>
+        </div>
+        <div class="card" style="padding:12px;text-align:center;border-left:3px solid var(--amber);">
+          <div style="font-size:11px;color:var(--muted);">ความสำคัญกลาง</div>
+          <div style="font-size:20px;font-weight:700;color:var(--amber);font-family:'JetBrains Mono';">${med}</div>
+        </div>
+        <div class="card" style="padding:12px;text-align:center;border-left:3px solid var(--muted);">
+          <div style="font-size:11px;color:var(--muted);">ความสำคัญต่ำ</div>
+          <div style="font-size:20px;font-weight:700;color:var(--muted);font-family:'JetBrains Mono';">${low}</div>
+        </div>
+      </div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">แผนงานที่ใกล้ถึงกำหนดเข้าตรวจ:</p>
+      <div class="desktop-table-wrap">
+        <table>
+          <thead><tr><th>วันที่</th><th>อุปกรณ์</th><th>รหัส</th><th>สายป้อน</th><th>ทีม</th></tr></thead>
+          <tbody>
+            ${planRecords.slice(0, 6).map(p => `
+              <tr>
+                <td>${thDate(p.plannedDate)}</td>
+                <td>${esc(p.equipmentType)}</td>
+                <td class="mono" style="color:var(--electric);font-weight:700;">${esc(p.equipmentId)}</td>
+                <td class="muted">${esc(p.location)}</td>
+                <td><span class="pill" style="background:var(--blue-soft);color:var(--navy);">${esc(p.team)}</span></td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+      <div style="text-align:right;margin-top:16px;">
+        <button class="btn-primary" onclick="closeKpiModal(); TAB='plan'; render();">ไปยังหน้าตารางแผนงาน ➔</button>
+      </div>
+    `;
+  }
+
+  root.innerHTML = `
+    <div class="modal-backdrop" id="kpi-modal-backdrop">
+      <div class="modal-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;border-bottom:1px solid var(--border);padding-bottom:12px;">
+          <h3 style="font-size:17px;font-weight:800;color:var(--navy);margin:0;">${title}</h3>
+          <button class="btn-sm" onclick="closeKpiModal()">&times;</button>
+        </div>
+        <div>${contentHtml}</div>
+      </div>
+    </div>
+  `;
+
+  const backdrop = document.getElementById("kpi-modal-backdrop");
+  if (backdrop) backdrop.onclick = (e) => { if (e.target === backdrop) closeKpiModal(); };
+}
+
+function closeKpiModal() {
+  const root = document.getElementById("kpi-modal-root");
+  if (root) root.innerHTML = "";
+}
+
+function getSortedInspectionPoints(){
+  const { planRecords, pmRecords } = STATE;
+  const activePlans = planRecords.filter(p => p.status !== "เสร็จสิ้น");
+  const pendingPMs = pmRecords.filter(p => p.status === "ระหว่างดำเนินการ" || p.status === "รอดำเนินการ").map(p => ({
+    equipmentType: p.equipmentType, capacity: p.capacity, equipmentId: p.equipmentId, location: p.location, team: p.team, priority: "สูง", status: p.status, plannedDate: p.date
+  }));
+  const combined = [...activePlans, ...pendingPMs];
+
+  const pointsWithCoords = combined.map(item => {
+    const coords = LOCATIONS_COORDS[item.location] || [13.5850, 100.6380];
+    const distance = calculateDistance(coords[0], coords[1]);
+    return { ...item, coords, distance };
+  });
+
+  pointsWithCoords.sort((a, b) => a.distance - b.distance);
+  return pointsWithCoords;
+}
+
+function recordsTable(records, {withDelete, compact} = {}){
+  const filtered = (records || []).filter(r => {
+    if(!SEARCH_QUERY) return true;
+    const q = SEARCH_QUERY.toLowerCase();
+    return (r.equipmentId||"").toLowerCase().includes(q) ||
+           (r.location||"").toLowerCase().includes(q) ||
+           (r.team||"").toLowerCase().includes(q) ||
+           (r.technician||"").toLowerCase().includes(q) ||
+           (r.capacity||"").toLowerCase().includes(q) ||
+           (r.equipmentType||"").toLowerCase().includes(q);
+  });
+
+  if(!filtered.length) return emptyState("ไม่พบข้อมูลที่ตรงกับเงื่อนไข");
+
+  const mobileCardsHtml = `
+    <div class="mobile-record-list">
+      ${filtered.slice(0, 50).map(r=>{
+        const total = Number(r.materialCost)+Number(r.laborCost)+Number(r.otherCost);
+        const bench = STATE.benchmarks[r.equipmentType] || 0;
+        const diff = bench ? total - bench : 0;
+        const diffHtml = bench ? (diff <= 0 
+          ? `<span style="color:${C.green};font-size:11px;font-weight:700;">(ประหยัด ${baht(Math.abs(diff))})</span>` 
+          : `<span style="color:${C.red};font-size:11px;font-weight:700;">(+${baht(diff)})</span>`) : "";
+
+        return `
+          <div class="m-record-card">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <div class="m-card-id">${esc(r.equipmentId)} <span class="capacity-pill">${esc(r.capacity||"-")}</span></div>
+                <div style="font-size:12px;color:var(--text);font-weight:600;margin-top:2px;">${esc(r.equipmentType)}</div>
+                <div style="font-size:12px;color:var(--muted);margin-top:2px;">${thDate(r.date)} • ${esc(r.team)} ${r.technician ? `• ${esc(r.technician)}` : ""}</div>
+              </div>
+              <div>${statusPill(r.status)}</div>
+            </div>
+            <div style="font-size:12px;color:var(--muted);">${esc(r.location||"-")}</div>
+            ${r.photo ? `<div style="margin-top:4px;"><img src="${r.photo}" class="photo-thumb" onclick="window.open('${r.photo}')" title="กดดูรูปขนาดเต็ม" /></div>` : ''}
+            <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px dashed var(--border);padding-top:10px;margin-top:2px;">
+              <div style="font-size:14px;font-weight:700;font-family:'JetBrains Mono',monospace;">
+                ${baht(total)} ${diffHtml}
+              </div>
+              <div style="display:flex;gap:6px;">
+                <button class="btn-sm" data-edit-pm="${r.id}">${ICONS.edit} แก้ไข</button>
+                ${withDelete && !compact ? `<button class="btn-sm" style="border-color:var(--red);background:var(--red-soft);color:var(--red);" data-del-pm="${r.id}">${ICONS.trash}</button>` : ""}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+
+  const headers = ["วันที่","อุปกรณ์","ขนาดพิกัด","รหัส","สายป้อน / พื้นที่","รูปถ่าย","ทีม","ผู้ปฏิบัติงาน","ต้นทุนรวม","WCM Diff","สถานะ",""];
+  const desktopTableHtml = `
+    <div class="desktop-table-wrap">
+      <table>
+        <thead><tr>${headers.map(h=>`<th>${h}</th>`).join("")}</tr></thead>
+        <tbody>
+          ${filtered.slice(0, 100).map(r=>{
+            const total = Number(r.materialCost)+Number(r.laborCost)+Number(r.otherCost);
+            const bench = STATE.benchmarks[r.equipmentType] || 0;
+            const diff = bench ? total - bench : 0;
+            const diffHtml = bench ? (diff <= 0 
+              ? `<span style="color:${C.green};font-size:11px;font-weight:700;">ประหยัด ${baht(Math.abs(diff))}</span>` 
+              : `<span style="color:${C.red};font-size:11px;font-weight:700;">+${baht(diff)}</span>`) : "-";
+
+            return `<tr>
+              <td>${thDate(r.date)}</td>
+              <td><strong>${esc(r.equipmentType)}</strong></td>
+              <td><span class="capacity-pill">${esc(r.capacity||"-")}</span></td>
+              <td class="mono" style="font-weight:700;color:var(--electric);">${esc(r.equipmentId)}</td>
+              <td class="muted">${esc(r.location||"-")}</td>
+              <td>${r.photo ? `<img src="${r.photo}" style="width:36px;height:36px;border-radius:6px;object-fit:cover;cursor:pointer;border:1px solid var(--border);" onclick="window.open('${r.photo}')" title="คลิกดูรูปใหญ่"/>` : `<span class="muted">-</span>`}</td>
+              <td><span class="pill" style="background:var(--blue-soft);color:var(--navy);">${esc(r.team)}</span></td>
+              <td style="font-size:12px;">${esc(r.technician||"-")}</td>
+              <td class="mono" style="font-weight:700;">${baht(total)}</td>
+              <td>${diffHtml}</td>
+              <td>${statusPill(r.status)}</td>
+              <td style="text-align:right">
+                <div style="display:flex;gap:6px;justify-content:flex-end;">
+                  <button class="btn-sm" title="แก้ไข" data-edit-pm="${r.id}">${ICONS.edit}</button>
+                  ${withDelete && !compact ? `<button class="btn-sm" style="border-color:var(--red);background:var(--red-soft);color:var(--red);" title="ลบ" data-del-pm="${r.id}">${ICONS.trash}</button>` : ""}
+                </div>
+              </td>
+            </tr>`;
+          }).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  return mobileCardsHtml + desktopTableHtml;
+}
+
+function renderModal(){
+  const modalRoot = document.getElementById("modal-root");
+  if(!modalRoot) return;
+  if(!EDITING_RECORD){ modalRoot.innerHTML = ""; return; }
+
+  const { type, data } = EDITING_RECORD;
+
+  if (type === "pm") {
+    const curType = data.equipmentType || EQUIPMENT_TYPES[0];
+    const capList = CAPACITY_OPTIONS[curType] || [];
+
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" id="modal-backdrop">
+        <div class="modal-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;border-bottom:1px solid var(--border);padding-bottom:12px;">
+            <h3 style="font-size:17px;font-weight:800;color:var(--navy);margin:0;">แก้ไขงาน PM (${esc(data.equipmentId)})</h3>
+            <button class="btn-sm" id="modal-close-btn">&times;</button>
+          </div>
+          <form id="edit-pm-form" class="entry-form" style="padding:0;border:none;box-shadow:none;margin-bottom:0;">
+            ${field("วันที่ปฏิบัติงาน", `<input type="date" required id="m-date" value="${esc(data.date)}"/>`)}
+            ${field("ประเภทอุปกรณ์", `<select id="m-equipmentType">${EQUIPMENT_TYPES.map(t=>`<option ${data.equipmentType===t?"selected":""}>${t}</option>`).join("")}</select>`)}
+            ${field("ขนาดและพิกัดกำลัง", `<select id="m-capacity">${capList.map(c=>`<option ${data.capacity===c?"selected":""}>${c}</option>`).join("")}</select>`)}
+            ${field("รหัสอุปกรณ์", `<input required id="m-equipmentId" value="${esc(data.equipmentId)}"/>`)}
+            
+            <div class="field">
+              <span class="field-label">สายป้อน / พิกัดสถานที่</span>
+              <div style="display:flex;gap:6px;">
+                <input id="m-location" value="${esc(data.location||"")}" placeholder="ระบุสายป้อนหรือพิกัด GPS"/>
+                <button type="button" class="btn-secondary" id="m-gps-btn" title="ดึงพิกัด GPS">${ICONS.gps} ดึง GPS</button>
+              </div>
+            </div>
+
+            ${field("ทีมปฏิบัติงาน", `<input required id="m-team" value="${esc(data.team)}"/>`)}
+            ${field("ผู้ปฏิบัติงานหลัก", `<input id="m-technician" value="${esc(data.technician||"")}"/>`)}
+            ${field("ชั่วโมงแรงงานรวม (ชม.)", `<input type="number" min="0" step="0.5" id="m-laborHours" value="${esc(data.laborHours)}"/>`)}
+            ${field("ค่าพัสดุ/อุปกรณ์ (บาท)", `<input type="number" min="0" id="m-materialCost" value="${esc(data.materialCost)}"/>`)}
+            ${field("ค่าแรง (บาท)", `<input type="number" min="0" id="m-laborCost" value="${esc(data.laborCost)}"/>`)}
+            ${field("ค่าใช้จ่ายอื่น (บาท)", `<input type="number" min="0" id="m-otherCost" value="${esc(data.otherCost)}"/>`)}
+            ${field("ประเภทการบำรุงรักษา", `<select id="m-maintenanceType"><option ${data.maintenanceType==="ป้องกัน"?"selected":""}>ป้องกัน</option><option ${data.maintenanceType==="แก้ไข"?"selected":""}>แก้ไข</option></select>`)}
+            ${field("สถานะงาน", `<select id="m-status">${PM_STATUSES.map(s=>`<option ${data.status===s?"selected":""}>${s}</option>`).join("")}</select>`)}
+            
+            <div class="field span-all">
+              <span class="field-label">แนบรูปถ่ายหน้างาน / รูปอุปกรณ์</span>
+              <input type="file" id="m-photo-input" accept="image/*" style="font-size:12px;padding:8px;"/>
+              <div id="m-photo-preview" class="photo-preview-wrap">
+                ${data.photo ? `<img src="${data.photo}" class="photo-thumb" id="m-thumb-img"/>` : ''}
+              </div>
+            </div>
+
+            <div class="span-all">${field("บันทึกการทำงาน / ข้อสังเกต / Health Index", `<textarea rows="3" id="m-notes">${esc(data.notes||"")}</textarea>`)}</div>
+            <div class="form-actions" style="margin-top:14px;">
+              <button type="button" class="btn-secondary" id="modal-cancel-btn">ยกเลิก</button>
+              <button type="submit" class="btn-primary">${ICONS.check("#fff")} บันทึกการเปลี่ยนแปลง</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    `;
+  }
+  attachModalListeners();
+}
+
+function attachModalListeners(){
+  const closeBtn = document.getElementById("modal-close-btn");
+  const cancelBtn = document.getElementById("modal-cancel-btn");
+  const backdrop = document.getElementById("modal-backdrop");
+  const closeModal = () => { EDITING_RECORD = null; renderModal(); };
+
+  if(closeBtn) closeBtn.onclick = closeModal;
+  if(cancelBtn) cancelBtn.onclick = closeModal;
+  if(backdrop) backdrop.onclick = (e) => { if(e.target === backdrop) closeModal(); };
+
+  const mGpsBtn = document.getElementById("m-gps-btn");
+  if(mGpsBtn){
+    mGpsBtn.onclick = () => {
+      if("geolocation" in navigator){
+        mGpsBtn.innerText = "กำลังหาพิกัด...";
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const locInput = document.getElementById("m-location");
+            if(locInput){
+              locInput.value = `พิกัด GPS: ${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
+            }
+            mGpsBtn.innerHTML = `${ICONS.gps} ดึง GPS`;
+          },
+          (err) => {
+            alert("ไม่สามารถเข้าถึงตำแหน่งได้");
+            mGpsBtn.innerHTML = `${ICONS.gps} ดึง GPS`;
+          },
+          { timeout: 10000 }
+        );
+      }
+    };
+  }
+
+  let modalPhotoBase64 = EDITING_RECORD?.data?.photo || "";
+  const mPhotoInput = document.getElementById("m-photo-input");
+  if(mPhotoInput){
+    mPhotoInput.onchange = (e) => {
+      const file = e.target.files[0];
+      if(file){
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          modalPhotoBase64 = evt.target.result;
+          const prev = document.getElementById("m-photo-preview");
+          if(prev) prev.innerHTML = `<img src="${modalPhotoBase64}" class="photo-thumb" id="m-thumb-img"/>`;
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+  }
+
+  const editTypeSelect = document.getElementById("m-equipmentType");
+  if(editTypeSelect){
+    editTypeSelect.onchange = () => {
+      const selectedType = editTypeSelect.value;
+      const capSelect = document.getElementById("m-capacity");
+      if(capSelect && CAPACITY_OPTIONS[selectedType]){
+        capSelect.innerHTML = CAPACITY_OPTIONS[selectedType].map(c=>`<option>${c}</option>`).join("");
+      }
+    };
+  }
+
+  const editPmForm = document.getElementById("edit-pm-form");
+  if(editPmForm){
+    editPmForm.onsubmit = (e) => {
+      e.preventDefault();
+      const val = id => document.getElementById(id).value;
+      const updated = {
+        ...EDITING_RECORD.data,
+        date: val("m-date"), equipmentType: val("m-equipmentType"), capacity: val("m-capacity"),
+        equipmentId: val("m-equipmentId"), location: val("m-location"), team: val("m-team"), technician: val("m-technician"),
+        laborHours: Number(val("m-laborHours"))||0, materialCost: Number(val("m-materialCost"))||0,
+        laborCost: Number(val("m-laborCost"))||0, otherCost: Number(val("m-otherCost"))||0,
+        maintenanceType: val("m-maintenanceType"), status: val("m-status"), notes: val("m-notes"),
+        photo: modalPhotoBase64
+      };
+      persist({ ...STATE, pmRecords: STATE.pmRecords.map(r => r.id === updated.id ? updated : r) });
+      EDITING_RECORD = null; renderModal();
+    };
+  }
+}
 
 function render(){
   const app = document.getElementById("app");
@@ -494,10 +983,10 @@ function render(){
     {id:"dashboard", label:"Dashboard", icon:"gauge"},
     {id:"routes", label:"เส้นทางตรวจ", icon:"mapPin"},
     {id:"entry", label:"บันทึก PM", icon:"clipboard"},
+    {id:"guide", label:"คู่มือเกณฑ์กรอก", icon:"book"},
     {id:"plan", label:"แผนงาน", icon:"calendar"},
     {id:"cost", label:"ต้นทุน WCM", icon:"coins"},
     {id:"kpi", label:"Productivity", icon:"trophy"},
-    {id:"guide", label:"คู่มือเกณฑ์กรอก", icon:"book"},
   ];
 
   app.innerHTML = `
@@ -507,9 +996,12 @@ function render(){
           <div class="brand-icon" style="width:32px;height:32px;">⚡</div>
           <div>
             <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:14px;">MEA PM Planner</div>
-            <div style="font-size:11px;color:#94A3B8;">เขตสมุทรปราการ</div>
+            <div style="font-size:11px;color:#94A3B8;">วิศวกรหัวหน้างาน</div>
           </div>
         </div>
+        <button id="m-reset-btn" style="background:none;border:none;color:#93C5FD;cursor:pointer;display:flex;align-items:center;gap:4px;font-size:12px;font-family:inherit;">
+          ${ICONS.rotate} รีเซ็ตข้อมูล
+        </button>
       </header>
 
       <aside class="sidebar">
@@ -527,6 +1019,10 @@ function render(){
         </div>
 
         ${navItems.map(n=>`<button class="nav-btn ${TAB===n.id?"active":""}" data-tab="${n.id}">${typeof ICONS[n.icon] === 'function' ? ICONS[n.icon](TAB===n.id?"#fff":"#94A3B8") : ICONS[n.icon]} ${n.label}</button>`).join("")}
+        
+        <div class="sidebar-footer" style="margin-top:auto;">
+          <button class="btn-secondary" id="clear-btn" style="width:100%;font-size:12px;color:var(--electric);border-color:var(--electric);">${ICONS.rotate} ⚡ รีเซ็ตและสร้าง Mock 300+ รายการ</button>
+        </div>
       </aside>
 
       <main class="main">${renderTab()}</main>
@@ -538,195 +1034,37 @@ function render(){
             <span>${n.label}</span>
           </button>
         `).join("")}
+        <button class="b-nav-item ${['plan','cost','kpi'].includes(TAB)?"active":""}" id="m-more-btn">
+          ${ICONS.more}
+          <span>เพิ่มเติม</span>
+        </button>
       </nav>
     </div>
   `;
   attachGlobalListeners();
+  attachTabListeners();
+  renderModal();
   if(TAB==="dashboard") requestAnimationFrame(() => setTimeout(drawDashboardCharts, 50));
   if(TAB==="routes") requestAnimationFrame(() => setTimeout(initMap, 100));
+  if(TAB==="entry") requestAnimationFrame(() => setTimeout(initEntryMiniMap, 100));
 }
 
 function renderTab(){
   if(TAB==="dashboard") return renderDashboard();
   if(TAB==="routes") return renderRoutes();
   if(TAB==="entry") return renderEntry();
+  if(TAB==="guide") return renderGuide();
   if(TAB==="plan") return renderPlan();
   if(TAB==="cost") return renderCost();
   if(TAB==="kpi") return renderKpi();
-  if(TAB==="guide") return renderGuide();
   return renderDashboard();
 }
 
-function renderDashboard(){
-  const {pmRecords, planRecords} = STATE;
-  const totalCost = pmRecords.reduce((s,r)=>s+Number(r.materialCost)+Number(r.laborCost)+Number(r.otherCost),0);
-  const completed = pmRecords.filter(r=>r.status==="เสร็จสิ้น").length;
-  const avgCost = pmRecords.length ? totalCost/pmRecords.length : 0;
-  const upcoming = planRecords.filter(p=>p.status!=="เสร็จสิ้น").length;
-
-  return `
-    ${sectionHeader("Dashboard ภาพรวม (Big Data CMMS)", `กำลังแสดงผลข้อมูลประวัติงาน PM จำนวน ${pmRecords.length} รายการ`, `
-      <button class="btn-success" onclick="TAB='routes'; render();">${ICONS.mapPin("#fff")} เปิดแผนที่เส้นทางตรวจ</button>
-    `)}
-    <div class="kpi-grid">
-      ${kpiCard("clipboard","งาน PM ในฐานข้อมูล",pmRecords.length,`ปิดงานแล้ว ${completed} งาน`,"electric")}
-      ${kpiCard("gauge","Health Index เฉลี่ย", "93.8%", "ประเมินสุขภาพอุปกรณ์รวม 5 กลุ่ม", "green")}
-      ${kpiCard("coins","ต้นทุนจริงรวม",baht(totalCost),`เฉลี่ย ${baht(avgCost)}/งาน`,"amber")}
-      ${kpiCard("calendar","แผนงานค้าง",upcoming,"รอ / กำลังดำเนินการ","red")}
-    </div>
-    <div class="chart-grid">
-      <div class="card chart-card">
-        <h3>WCM Benchmark Radar Matrix</h3>
-        <div class="chart-wrap"><canvas id="costChart"></canvas></div>
-      </div>
-      <div class="card chart-card">
-        <h3>Polar Area Capacity Grid</h3>
-        <div class="chart-wrap"><canvas id="capacityChart"></canvas></div>
-      </div>
-    </div>
-  `;
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
 }
-
-function drawDashboardCharts(){
-  const {pmRecords, benchmarks} = STATE;
-  if (typeof Chart === 'undefined') return;
-  if(CHARTS.cost) CHARTS.cost.destroy();
-  if(CHARTS.cap) CHARTS.cap.destroy();
-
-  const costByType = EQUIPMENT_TYPES.map(t=>{
-    const recs = pmRecords.filter(r=>r.equipmentType===t);
-    const cost = recs.reduce((s,r)=>s+Number(r.materialCost)+Number(r.laborCost)+Number(r.otherCost),0);
-    return { actual: recs.length ? Math.round(cost/recs.length) : 0, bench: benchmarks[t]||0 };
-  });
-
-  const costCtx = document.getElementById("costChart");
-  if(costCtx){
-    CHARTS.cost = new Chart(costCtx, {
-      type: "radar",
-      data: {
-        labels: ["หม้อแปลงจำหน่าย", "โหลดเบรกสวิตช์ (LBS)", "Unit Substation", "รีโคลสเซอร์ (Recloser)", "ดรอปเอาท์ฟิวส์"],
-        datasets: [
-          { label: "ต้นทุนจริงเฉลี่ย", data: costByType.map(d=>d.actual), backgroundColor: "rgba(0, 136, 255, 0.28)", borderColor: "#0088FF", borderWidth: 2.5, pointRadius: 4 },
-          { label: "เกณฑ์ WCM", data: costByType.map(d=>d.bench), backgroundColor: "rgba(245, 158, 11, 0.22)", borderColor: "#F59E0B", borderWidth: 2, borderDash: [5, 5], pointRadius: 4 }
-        ]
-      },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom" } }, scales: { r: { ticks: { display: false } } } }
-    });
-  }
-
-  const capSummary = {
-    "250-500 kVA": pmRecords.filter(r=>["250 kVA","315 kVA","400 kVA","500 kVA"].includes(r.capacity)).length,
-    "1000-2000 kVA": pmRecords.filter(r=>["1000 kVA (24kV)","1500 kVA (24kV)","2000 kVA (24kV)"].includes(r.capacity)).length,
-    "24 kV 630A": pmRecords.filter(r=>r.capacity && r.capacity.includes("630A")).length,
-  };
-
-  const capCtx = document.getElementById("capacityChart");
-  if(capCtx){
-    CHARTS.cap = new Chart(capCtx, {
-      type: "polarArea",
-      data: {
-        labels: Object.keys(capSummary),
-        datasets: [{ data: Object.values(capSummary), backgroundColor: ["rgba(0, 136, 255, 0.75)", "rgba(16, 185, 129, 0.75)", "rgba(139, 92, 246, 0.75)"] }]
-      },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "right" } }, scales: { r: { ticks: { display: false } } } }
-    });
-  }
-}
-
-function getSortedInspectionPoints(){
-  const { planRecords, pmRecords } = STATE;
-  const activePlans = planRecords.filter(p => p.status !== "เสร็จสิ้น");
-  const pointsWithCoords = activePlans.map(item => {
-    const coords = LOCATIONS_COORDS[item.location] || [13.5850, 100.6380];
-    const distance = calculateDistance(coords[0], coords[1]);
-    return { ...item, coords, distance };
-  });
-  pointsWithCoords.sort((a, b) => a.distance - b.distance);
-  return pointsWithCoords;
-}
-
-function renderRoutes(){
-  const allPoints = getSortedInspectionPoints();
-  return `
-    ${sectionHeader("แผนที่เส้นทางนำตรวจอัจฉริยะ", "จัดลำดับหมุดตัวเลขตามจุดใกล้สุด")}
-    <div class="card" style="margin-bottom:20px;padding:12px;"><div id="map-container"></div></div>
-    <div class="card">
-      <h3>รายการจุดตรวจเรียงตามระยะทาง</h3>
-      <table>
-        <thead><tr><th>ลำดับ</th><th>อุปกรณ์</th><th>สถานที่</th><th>ระยะทาง</th></tr></thead>
-        <tbody>
-          ${allPoints.slice(0, 10).map((p, idx)=>`
-            <tr>
-              <td><strong>${idx+1}</strong></td>
-              <td>${esc(p.equipmentType)}</td>
-              <td>${esc(p.location)}</td>
-              <td><span class="dist-badge">~${p.distance} กม.</span></td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-    </div>
-  `;
-}
-
-function initMap(){
-  const container = document.getElementById("map-container");
-  if(!container || typeof L === 'undefined') return;
-  if(LEAFLET_MAP) { LEAFLET_MAP.remove(); LEAFLET_MAP = null; }
-
-  LEAFLET_MAP = L.map('map-container').setView(MEA_HQ_COORDS, 11);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(LEAFLET_MAP);
-  L.marker(MEA_HQ_COORDS).addTo(LEAFLET_MAP).bindPopup('กฟน. เขตสมุทรปราการ').openPopup();
-
-  getSortedInspectionPoints().forEach((r, idx) => {
-    const numIcon = L.divIcon({
-      className: 'custom-numbered-pin',
-      html: `<span>${idx + 1}</span>`,
-      iconSize: [28, 28],
-      iconAnchor: [14, 14]
-    });
-    L.marker(r.coords, { icon: numIcon }).addTo(LEAFLET_MAP).bindPopup(`ลำดับที่ ${idx + 1}: ${esc(r.location)}`);
-  });
-}
-
-function renderEntry(){
-  return `
-    ${sectionHeader("บันทึกข้อมูลงาน PM", "จัดการประวัติงาน PM")}
-    <div class="card">
-      <p>รายการงาน PM ล่าสุด:</p>
-      <table>
-        <thead><tr><th>รหัส</th><th>อุปกรณ์</th><th>สถานะ</th></tr></thead>
-        <tbody>
-          ${STATE.pmRecords.slice(0,5).map(r=>`<tr><td><strong>${esc(r.equipmentId)}</strong></td><td>${esc(r.equipmentType)}</td><td>${statusPill(r.status)}</td></tr>`).join("")}
-        </tbody>
-      </table>
-    </div>
-  `;
-}
-
-function renderPlan(){
-  return `${sectionHeader("แผนงานบำรุงรักษา", "รายการแผนงาน")}<div class="card"><p>แผนงานล่วงหน้าในระบบ</p></div>`;
-}
-
-function renderCost(){
-  return `${sectionHeader("วิเคราะห์ต้นทุน WCM", "เปรียบเทียบต้นทุน")}<div class="card"><p>ข้อมูลต้นทุน WCM</p></div>`;
-}
-
-function renderKpi(){
-  return `${sectionHeader("Productivity", "ประสิทธิภาพทีมช่าง")}<div class="card"><p>ข้อมูล Productivity</p></div>`;
-}
-
-function renderGuide(){
-  return `${sectionHeader("คู่มือเกณฑ์มาตรฐาน", "เกณฑ์การกรอกข้อมูล")}<div class="card"><p>รหัสอุปกรณ์ TR-SP-XXXX</p></div>`;
-}
-
-function attachGlobalListeners(){
-  document.querySelectorAll("[data-tab]").forEach(btn=>{
-    btn.onclick = () => { TAB = btn.getAttribute("data-tab"); render(); };
-  });
-}
-
-init();
 </script>
 </body>
 </html>
