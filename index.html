@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>MEA PM Planner — Next-Gen Smart CMMS & WCM System</title>
+<title>MEA PM Planner — กฟน. เขตสมุทรปราการ</title>
 
 <!-- Chart.js & SheetJS -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
@@ -155,7 +155,7 @@
   .header-actions{ display:flex; gap:10px; flex-wrap:wrap; width:100%; }
   @media(min-width:640px){ .header-actions{ width:auto; } }
 
-  /* KPI Cards Floating Glow */
+  /* KPI Cards */
   .kpi-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-bottom:26px; }
   @media(min-width:1024px){ .kpi-grid{ grid-template-columns:repeat(4,1fr); gap:20px; } }
 
@@ -180,15 +180,11 @@
   @media(min-width:640px){ .kpi-value{ font-size:30px; } }
   .kpi-sub{ font-size:11px; color:var(--muted); }
 
-  /* Live Health Bar Pill */
-  .hi-progress{
-    width:100%; height:6px; background:#E2E8F0; border-radius:99px; overflow:hidden; margin-top:2px;
-  }
+  .hi-progress{ width:100%; height:6px; background:#E2E8F0; border-radius:99px; overflow:hidden; margin-top:2px; }
   .hi-bar{ height:100%; border-radius:99px; background:linear-gradient(90deg, #10B981, #06B6D4); }
 
   #map-container{ height: 440px; width: 100%; border-radius: 16px; z-index: 1; border: 1px solid var(--border); box-shadow:inset 0 2px 6px rgba(0,0,0,0.04); }
 
-  /* Interactive Formula Box */
   .formula-btn{
     display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700;
     color:var(--electric); background:var(--blue-soft); padding:5px 12px; border-radius:8px;
@@ -201,13 +197,11 @@
     margin:14px 0; border:1px solid #1E293B; box-shadow:inset 0 2px 8px rgba(0,0,0,0.4);
   }
 
-  /* Charts Container */
   .chart-grid{ display:grid; grid-template-columns:1fr; gap:20px; margin-bottom:26px; }
   @media(min-width:1024px){ .chart-grid{ grid-template-columns:1fr 1fr; } }
   .chart-card h3{ font-size:15px; font-weight:800; color:var(--navy); margin:0 0 16px; }
   .chart-wrap{ height:320px; position:relative; width:100%; }
 
-  /* Forms & Modern Controls */
   .toolbar{ display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
   .toolbar input, .toolbar select{
     padding:11px 16px; border:1px solid var(--border); border-radius:12px; font-size:13px; font-family:inherit; background:var(--surface); flex:1; min-height:46px;
@@ -229,7 +223,6 @@
   .btn-secondary:hover{ background:#F1F5F9; }
   .btn-success{ display:inline-flex; align-items:center; justify-content:center; gap:6px; border:none; border-radius:12px; padding:11px 18px; font-size:13px; font-weight:700; color:#fff; background:linear-gradient(135deg, #10B981, #059669); cursor:pointer; font-family:inherit; transition:0.2s; min-height:44px; }
 
-  /* Mobile Record List */
   .mobile-record-list{ display:flex; flex-direction:column; gap:12px; }
   @media(min-width:768px){ .mobile-record-list{ display:none; } }
   .m-record-card{
@@ -237,7 +230,6 @@
   }
   .m-card-id{ font-family:'JetBrains Mono',monospace; font-weight:800; color:var(--electric); font-size:15px; }
 
-  /* Desktop Table */
   .desktop-table-wrap{ display:none; overflow-x:auto; }
   @media(min-width:768px){ .desktop-table-wrap{ display:block; } }
   table{ width:100%; border-collapse:collapse; font-size:13px; }
@@ -247,7 +239,6 @@
 
   .pill{ display:inline-flex; align-items:center; gap:5px; border-radius:999px; padding:4px 10px; font-size:11px; font-weight:700; }
   .capacity-pill{ display:inline-flex; align-items:center; border-radius:8px; padding:3px 8px; font-size:11px; font-weight:800; font-family:'JetBrains Mono',monospace; background:var(--purple-soft); color:var(--purple); border:1px solid #DDD6FE; }
-  .dist-badge{ display:inline-flex; align-items:center; border-radius:6px; padding:2px 7px; font-size:11px; font-weight:700; font-family:'JetBrains Mono',monospace; background:#F1F5F9; color:#475569; }
   
   .btn-sm{ padding:7px 14px; font-size:12px; border-radius:8px; border:1px solid var(--electric); background:var(--blue-soft); color:var(--electric); cursor:pointer; font-family:inherit; display:inline-flex; align-items:center; justify-content:center; font-weight:700; min-height:34px; }
   .btn-sm:hover{ background:var(--electric); color:#fff; }
@@ -259,7 +250,7 @@
   }
   @media(min-width:640px){ .modal-backdrop{ align-items:center; padding:20px; } }
   .modal-card{
-    background:var(--surface); border-radius:26px 26px 0 0; width:100%; max-width:680px;
+    background:var(--surface); border-radius:26px 26px 0 0; width:100%; max-width:780px;
     max-height:88vh; overflow-y:auto; padding:26px; box-shadow:var(--shadow-lg);
   }
   @media(min-width:640px){ .modal-card{ border-radius:22px; } }
@@ -307,7 +298,6 @@ const ICONS = {
   upload: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/></svg>`,
   edit: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
   lock: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
-  rotate: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>`,
 };
 
 const C = {
@@ -328,8 +318,8 @@ const EQUIPMENT_TYPES = Object.keys(CAPACITY_OPTIONS);
 const PRIORITIES = ["สูง","กลาง","ต่ำ"];
 const PLAN_STATUSES = ["วางแผน","กำลังดำเนินการ","เสร็จสิ้น","เลื่อน"];
 const PM_STATUSES = ["เสร็จสิ้น","ระหว่างดำเนินการ","รอดำเนินการ"];
-const STORAGE_KEY = "mea_pm_clean_v200_nextgen";
-const AUTH_KEY = "mea_pm_auth_v200_nextgen";
+const STORAGE_KEY = "mea_pm_clean_v220_planmodal";
+const AUTH_KEY = "mea_pm_auth_v220_planmodal";
 
 const MEA_HQ_COORDS = [13.5991, 100.5968];
 
@@ -624,7 +614,7 @@ function showKpiDetail(type) {
 
   if (type === "total_pm") {
     title = `รายละเอียดงาน PM ทั้งหมด (${pmRecords.length} งาน)`;
-    contentHtml = `<p style="font-size:13px;color:var(--muted);">แสดงตัวอย่าง 10 รายการล่าสุดในระบบ:</p>${recordsTable(pmRecords.slice(0, 10), { compact: true })}`;
+    contentHtml = `<p style="font-size:13px;color:var(--muted);margin-bottom:14px;">แสดงรายการงาน PM ทั้งหมดในฐานข้อมูล:</p>${recordsTable(pmRecords.slice(0, 10), { compact: true })}`;
   } else if (type === "health_index") {
     title = `สรุปดัชนีสุขภาพอุปกรณ์ (Health Index Assessment)`;
     contentHtml = `<div style="background:var(--green-soft);padding:14px;border-radius:12px;margin-bottom:16px;"><div style="font-weight:700;">⚡ สุขภาพอุปกรณ์รวมทั้งเขต: 93.8% (เกณฑ์ดีเยี่ยม)</div></div><button class="formula-btn" onclick="showFormulaModal('health_index')">${ICONS.calculator} ดูสูตรคำนวณ HI</button>`;
@@ -632,8 +622,65 @@ function showKpiDetail(type) {
     title = `โครงสร้างต้นทุนงานบำรุงรักษาเชิงป้องกัน`;
     contentHtml = `<button class="formula-btn" onclick="showFormulaModal('variance')">${ICONS.calculator} ดูสูตรคำนวณ WCM Variance</button>`;
   } else if (type === "upcoming_plans") {
-    title = `แผนงานบำรุงรักษาล่วงหน้า (${planRecords.length} แผนงาน)`;
-    contentHtml = `<p style="font-size:13px;color:var(--muted);">รายการแผนงานล่วงหน้าที่กำลังจะมาถึง</p>`;
+    const high = planRecords.filter(p=>p.priority==="สูง").length;
+    const med = planRecords.filter(p=>p.priority==="กลาง").length;
+    const low = planRecords.filter(p=>p.priority==="ต่ำ").length;
+
+    title = `ตารางแผนงานบำรุงรักษา (${planRecords.length} รายการ)`;
+    contentHtml = `
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px;">
+        <div style="background:var(--red-soft);padding:12px;border-radius:12px;text-align:center;">
+          <div style="font-size:11px;color:var(--red);font-weight:700;">ความสำคัญสูง</div>
+          <div style="font-size:20px;font-weight:800;color:var(--red);font-family:'JetBrains Mono';">${high}</div>
+        </div>
+        <div style="background:var(--amber-soft);padding:12px;border-radius:12px;text-align:center;">
+          <div style="font-size:11px;color:var(--amber);font-weight:700;">ความสำคัญกลาง</div>
+          <div style="font-size:20px;font-weight:800;color:var(--amber);font-family:'JetBrains Mono';">${med}</div>
+        </div>
+        <div style="background:#F1F5F9;padding:12px;border-radius:12px;text-align:center;">
+          <div style="font-size:11px;color:var(--muted);font-weight:700;">ความสำคัญต่ำ</div>
+          <div style="font-size:20px;font-weight:800;color:var(--navy);font-family:'JetBrains Mono';">${low}</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <span style="font-size:13px;font-weight:700;color:var(--navy);">รายการแผนงานล่วงหน้า:</span>
+        <button class="btn-sm" onclick="closeKpiModal(); TAB='plan'; render();">จัดการแผนงานเต็มรูปแบบ ➔</button>
+      </div>
+      <div class="desktop-table-wrap">
+        <table>
+          <thead><tr><th>วันที่วางแผน</th><th>อุปกรณ์</th><th>ขนาดพิกัด</th><th>รหัส</th><th>สายป้อน</th><th>ทีม</th><th>ความสำคัญ</th><th>การกระทำ</th></tr></thead>
+          <tbody>
+            ${planRecords.map(p=>`
+              <tr>
+                <td>${thDate(p.plannedDate)}</td>
+                <td><strong>${esc(p.equipmentType)}</strong></td>
+                <td><span class="capacity-pill">${esc(p.capacity||"-")}</span></td>
+                <td class="mono" style="font-weight:700;color:var(--electric);">${esc(p.equipmentId)}</td>
+                <td class="muted">${esc(p.location)}</td>
+                <td><span class="pill" style="background:var(--blue-soft);color:var(--navy);">${esc(p.team)}</span></td>
+                <td><strong style="color:${p.priority==="สูง"?C.red:p.priority==="กลาง"?C.amber:C.muted}">${esc(p.priority)}</strong></td>
+                <td><button class="btn-sm" onclick="closeKpiModal(); pmForm={...emptyPm(), equipmentType:'${p.equipmentType}', capacity:'${p.capacity}', equipmentId:'${p.equipmentId}', location:'${p.location}', team:'${p.team}', date:'${p.plannedDate}'}; TAB='entry'; render();">เปิดงาน PM</button></td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+      <div class="mobile-record-list">
+        ${planRecords.slice(0, 15).map(p=>`
+          <div class="m-record-card">
+            <div style="display:flex;justify-content:space-between;">
+              <div class="m-card-id">${esc(p.equipmentId)} <span class="capacity-pill">${esc(p.capacity||"-")}</span></div>
+              <span class="pill" style="background:var(--blue-soft);color:var(--navy);">${esc(p.team)}</span>
+            </div>
+            <div style="font-size:12px;font-weight:600;">${esc(p.equipmentType)} • <span style="color:var(--muted);">${esc(p.location)}</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px dashed var(--border);padding-top:8px;">
+              <span style="font-size:12px;color:var(--muted);">${thDate(p.plannedDate)} • ความสำคัญ: <strong style="color:${p.priority==="สูง"?C.red:p.priority==="กลาง"?C.amber:C.muted}">${esc(p.priority)}</strong></span>
+              <button class="btn-sm" onclick="closeKpiModal(); pmForm={...emptyPm(), equipmentType:'${p.equipmentType}', capacity:'${p.capacity}', equipmentId:'${p.equipmentId}', location:'${p.location}', team:'${p.team}', date:'${p.plannedDate}'}; TAB='entry'; render();">เปิดงาน</button>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    `;
   }
 
   root.innerHTML = `
@@ -891,13 +938,9 @@ function renderDashboard(){
   `;
 }
 
-// -------------------------------------------------------------
-// กราฟรูปแบบใหม่: WCM Radar Matrix + Polar Area Capacity Grid
-// -------------------------------------------------------------
 function drawDashboardCharts(){
   const {pmRecords, benchmarks} = STATE;
 
-  // 1. Radar Chart: มิติเปรียบเทียบต้นทุนจริง vs เกณฑ์มาตรฐาน WCM 5 กลุ่มอุปกรณ์
   const costCtx = document.getElementById("costChart");
   if(costCtx && typeof Chart !== 'undefined'){
     if(CHARTS.cost) CHARTS.cost.destroy();
@@ -965,7 +1008,6 @@ function drawDashboardCharts(){
     });
   }
 
-  // 2. Polar Area Chart: สัดส่วนงาน PM ตามขนาดพิกัดกำลังแนวรัศมี SCADA
   const capCtx = document.getElementById("capacityChart");
   if(capCtx && typeof Chart !== 'undefined'){
     if(CHARTS.cap) CHARTS.cap.destroy();
@@ -1094,19 +1136,78 @@ function renderGuide(){
 }
 
 function renderPlan(){
+  const f = planForm;
+  const sorted = [...STATE.planRecords].sort((a,b)=>new Date(a.plannedDate)-new Date(b.plannedDate));
+  const isAdmin = CURRENT_USER?.role === 'admin';
+  const capList = CAPACITY_OPTIONS[f.equipmentType] || [];
+
   return `
-    ${sectionHeader("แผนงานบำรุงรักษาล่วงหน้า", `รายการแผนงานบำรุงรักษา (${STATE.planRecords.length} รายการ)`, `
+    ${sectionHeader("แผนงานบำรุงรักษาล่วงหน้า", `รายการแผนงานบำรุงรักษา (${sorted.length} รายการ)`, `
       <button class="btn-secondary" id="import-plan-btn">${ICONS.upload} นำเข้า Excel</button>
       <button class="btn-secondary" id="print-pdf-btn">${ICONS.filePdf} พิมพ์ PDF</button>
       <button class="btn-success" id="export-plan-excel-btn">${ICONS.fileExcel} ส่งออก Excel</button>
     `)}
-    <div class="glass-card chart-card"><h3>รายการแผนงาน</h3>${recordsTable(STATE.planRecords, {compact:true})}</div>
+    ${isAdmin ? `
+    <form class="entry-form" id="plan-form">
+      ${field("ประเภทอุปกรณ์", `<select id="p-equipmentType">${EQUIPMENT_TYPES.map(t=>`<option ${f.equipmentType===t?"selected":""}>${t}</option>`).join("")}</select>`)}
+      ${field("ขนาดและพิกัดกำลัง", `<select id="p-capacity">${capList.map(c=>`<option ${f.capacity===c?"selected":""}>${c}</option>`).join("")}</select>`)}
+      ${field("รหัสอุปกรณ์", `<input required id="p-equipmentId" placeholder="เช่น TR-SP-0210" value="${esc(f.equipmentId)}"/>`)}
+      ${field("สายป้อน / พื้นที่", `<input id="p-location" placeholder="เช่น สายป้อน สป.03" value="${esc(f.location)}"/>`)}
+      ${field("วันที่วางแผนดำเนินการ", `<input type="date" required id="p-plannedDate" value="${esc(f.plannedDate)}"/>`)}
+      ${field("ทีมที่มอบหมาย", `<input required id="p-team" placeholder="เช่น ทีม B" value="${esc(f.team)}"/>`)}
+      ${field("ระดับความสำคัญ", `<select id="p-priority">${PRIORITIES.map(p=>`<option ${f.priority===p?"selected":""}>${p}</option>`).join("")}</select>`)}
+      <div class="form-actions"><button type="submit" class="btn-primary">${ICONS.plus} เพิ่มแผนงาน</button></div>
+    </form>` : ''}
+    <div class="glass-card chart-card">
+      <h3>ตารางแผนงาน (${sorted.length} รายการ)</h3>
+      <div class="mobile-record-list">
+        ${sorted.slice(0, 30).map(p=>`
+          <div class="m-record-card">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <div class="m-card-id">${esc(p.equipmentId)} <span class="capacity-pill">${esc(p.capacity||"-")}</span></div>
+                <div style="font-size:12px;color:var(--text);font-weight:700;margin-top:2px;">${esc(p.equipmentType)}</div>
+                <div style="font-size:12px;color:var(--muted);margin-top:2px;">กำหนด: ${thDate(p.plannedDate)} • ${esc(p.team)}</div>
+              </div>
+              <div><span class="pill" style="background:var(--blue-soft);color:var(--navy);">${esc(p.status)}</span></div>
+            </div>
+            <div style="font-size:12px;color:var(--muted);">${esc(p.location||"-")} • ความสำคัญ: <strong style="color:${p.priority==="สูง"?C.red:p.priority==="กลาง"?C.amber:C.muted}">${esc(p.priority)}</strong></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px dashed var(--border);padding-top:10px;margin-top:2px;">
+              <button class="btn-sm" data-convert-plan="${p.id}">เปิดงาน PM</button>
+              ${isAdmin ? `<button class="btn-sm" style="border-color:var(--red);background:var(--red-soft);color:var(--red);" data-del-plan="${p.id}">${ICONS.trash}</button>` : ''}
+            </div>
+          </div>
+        `).join("")}
+      </div>
+      ${sorted.length ? `
+      <div class="desktop-table-wrap">
+        <table>
+          <thead><tr><th>วันที่วางแผน</th><th>อุปกรณ์</th><th>ขนาดพิกัด</th><th>รหัส</th><th>สายป้อน</th><th>ทีม</th><th>ความสำคัญ</th><th>สถานะ</th><th style="text-align:right">จัดการ</th></tr></thead>
+          <tbody>
+            ${sorted.map(p=>`<tr>
+              <td>${thDate(p.plannedDate)}</td>
+              <td><strong>${esc(p.equipmentType)}</strong></td>
+              <td><span class="capacity-pill">${esc(p.capacity||"-")}</span></td>
+              <td class="mono" style="font-weight:700;color:var(--electric);">${esc(p.equipmentId)}</td>
+              <td class="muted">${esc(p.location||"-")}</td>
+              <td><span class="pill" style="background:var(--blue-soft);color:var(--navy);">${esc(p.team)}</span></td>
+              <td><strong style="color:${p.priority==="สูง"?C.red:p.priority==="กลาง"?C.amber:C.muted}">${esc(p.priority)}</strong></td>
+              <td><span class="pill" style="background:var(--blue-soft);color:var(--navy);">${esc(p.status)}</span></td>
+              <td style="text-align:right">
+                <button class="btn-sm" data-convert-plan="${p.id}">เปิดงาน PM</button>
+                ${isAdmin ? `<button class="btn-sm" style="border-color:var(--red);background:var(--red-soft);color:var(--red);margin-left:6px;" data-del-plan="${p.id}">${ICONS.trash}</button>` : ''}
+              </td>
+            </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>` : emptyState("ยังไม่มีแผนงานในระบบ")}
+    </div>
   `;
 }
 
 function renderCost(){
   return `
-    ${sectionHeader("วิเคราะห์ต้นทุนเทียบเกณฑ์ WCM", "เปรียบเทียบต้นทุนจริงกับค่ามาตรฐาน World Class Maintenance", `
+    ${sectionHeader("วิเคราะห์ต้นทุน WCM", "เปรียบเทียบต้นทุนจริงกับค่ามาตรฐาน World Class Maintenance", `
       <button class="btn-secondary" id="print-pdf-btn">${ICONS.filePdf} พิมพ์สรุป (PDF)</button>
       <button class="btn-success" id="export-cost-excel-btn">${ICONS.fileExcel} ส่งออก Excel</button>
     `)}
@@ -1116,7 +1217,7 @@ function renderCost(){
 
 function renderKpi(){
   return `
-    ${sectionHeader("ตัวชี้วัดประสิทธิภาพ (Labor Productivity)", "วิเคราะห์ผลงานรายบุคคลและทีมตามมาตรฐาน WCM", `
+    ${sectionHeader("ตัวชี้วัด Productivity", "วิเคราะห์ผลงานรายบุคคลและทีมตามมาตรฐาน WCM", `
       <button class="btn-secondary" id="print-pdf-btn">${ICONS.filePdf} พิมพ์สรุป (PDF)</button>
       <button class="btn-success" id="export-kpi-excel-btn">${ICONS.fileExcel} ส่งออก Excel</button>
     `)}
@@ -1252,6 +1353,34 @@ function attachTabListeners(){
     };
   }
 
+  const pType = document.getElementById("p-equipmentType");
+  if(pType){
+    pType.onchange = () => {
+      const capSelect = document.getElementById("p-capacity");
+      if(capSelect && CAPACITY_OPTIONS[pType.value]){
+        capSelect.innerHTML = CAPACITY_OPTIONS[pType.value].map(c => `<option>${c}</option>`).join("");
+      }
+    };
+  }
+
+  document.querySelectorAll("[data-convert-plan]").forEach(btn=>{
+    btn.onclick = ()=>{
+      const id = btn.getAttribute("data-convert-plan");
+      const plan = STATE.planRecords.find(p=>p.id===id);
+      if(plan){
+        pmForm = { ...emptyPm(), equipmentType: plan.equipmentType, capacity: plan.capacity, equipmentId: plan.equipmentId, location: plan.location, team: plan.team, date: plan.plannedDate };
+        TAB = "entry"; render();
+      }
+    };
+  });
+
+  document.querySelectorAll("[data-del-plan]").forEach(btn=>{
+    btn.onclick = ()=>{
+      const id = btn.getAttribute("data-del-plan");
+      if(confirm("ยืนยันการลบแผนงานนี้ใช่หรือไม่?")) persist({ ...STATE, planRecords: STATE.planRecords.filter(r=>r.id!==id) });
+    };
+  });
+
   document.querySelectorAll("[data-edit-pm]").forEach(btn=>{
     btn.onclick = () => {
       const id = btn.getAttribute("data-edit-pm");
@@ -1283,6 +1412,25 @@ function attachTabListeners(){
         id: uid()
       };
       persist({ ...STATE, pmRecords: [record, ...STATE.pmRecords] });
+    };
+  }
+
+  const pForm = document.getElementById("plan-form");
+  if(pForm){
+    pForm.onsubmit = (e)=>{
+      e.preventDefault();
+      const record = {
+        equipmentType: document.getElementById("p-equipmentType").value,
+        capacity: document.getElementById("p-capacity") ? document.getElementById("p-capacity").value : "-",
+        equipmentId: document.getElementById("p-equipmentId").value,
+        location: document.getElementById("p-location").value,
+        plannedDate: document.getElementById("p-plannedDate").value,
+        team: document.getElementById("p-team").value,
+        priority: document.getElementById("p-priority").value,
+        status: "วางแผน",
+        id: uid()
+      };
+      persist({ ...STATE, planRecords: [record, ...STATE.planRecords] });
     };
   }
 }
