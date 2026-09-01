@@ -5,8 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>MEA PM Planner — กฟน. เขตสมุทรปราการ</title>
 
+<!-- Chart.js & SheetJS -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<!-- Leaflet Map CSS & JS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -19,7 +21,8 @@
     --blue-soft: #EBF4FE; --amber: #F59E0B; --amber-soft: #FEF3C7;
     --green: #10B981; --green-soft: #D1FAE5; --red: #EF4444; --red-soft: #FEE2E2;
     --purple: #8B5CF6; --purple-soft: #EDE9FE; --bg: #F0F4F9;
-    --surface: #FFFFFF; --border: #E2E8F0; --text: #0F172A; --muted: #64748B;
+    --surface: #FFFFFF; --surface-glass: rgba(255, 255, 255, 0.9);
+    --border: #E2E8F0; --text: #0F172A; --muted: #64748B;
     --bottom-nav-height: 66px; --radius: 16px;
     --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.04);
     --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
@@ -37,8 +40,9 @@
 
   .card{
     background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px;
-    box-shadow:var(--shadow-sm);
+    box-shadow:var(--shadow-sm); transition: transform 0.2s, box-shadow 0.2s;
   }
+  .card:hover{ box-shadow:var(--shadow-md); }
 
   /* Login Card */
   .login-container{
@@ -83,7 +87,7 @@
     font-size:14px; font-weight:500; color:#94A3B8; background:transparent;
     border:none; cursor:pointer; text-align:left; font-family:inherit; transition:0.2s;
   }
-  .nav-btn:hover{ background:rgba(255,255,255,0.06); color:#fff; }
+  .nav-btn:hover{ background:rgba(255,255,255,0.06); color:#fff; transform:translateX(3px); }
   .nav-btn.active{
     background:linear-gradient(135deg, var(--electric), #0066CC); color:#fff; font-weight:600;
   }
@@ -99,7 +103,7 @@
   .b-nav-item{
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     gap:3px; background:none; border:none; color:#94A3B8; font-size:10px; font-family:inherit;
-    flex:1; height:100%; cursor:pointer; padding:4px 0;
+    flex:1; height:100%; cursor:pointer; padding:4px 0; transition:0.15s;
   }
   .b-nav-item.active{ color:#00D2FF; font-weight:700; }
 
@@ -116,14 +120,15 @@
   .header-actions{ display:flex; gap:8px; flex-wrap:wrap; width:100%; }
   @media(min-width:640px){ .header-actions{ width:auto; } }
 
-  /* KPI Grid */
+  /* KPI Grid & Clickable Cards */
   .kpi-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-bottom:24px; }
   @media(min-width:1024px){ .kpi-grid{ grid-template-columns:repeat(4,1fr); gap:18px; } }
 
   .kpi-card{
     display:flex; flex-direction:column; gap:8px; border-left:4px solid var(--electric);
-    cursor:pointer;
+    cursor:pointer; position:relative; overflow:hidden;
   }
+  .kpi-card:hover{ transform:translateY(-3px); box-shadow:var(--shadow-md); }
   .kpi-card.green{ border-left-color: var(--green); }
   .kpi-card.amber{ border-left-color: var(--amber); }
   .kpi-card.red{ border-left-color: var(--red); }
@@ -141,8 +146,9 @@
   .formula-btn{
     display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600;
     color:var(--electric); background:var(--blue-soft); padding:4px 10px; border-radius:8px;
-    cursor:pointer; border:1px solid #BFDBFE;
+    cursor:pointer; border:1px solid #BFDBFE; text-decoration:none;
   }
+  .formula-btn:hover{ background:var(--electric); color:#fff; }
   .formula-box{
     background:#0F172A; color:#E2E8F0; padding:16px; border-radius:12px;
     font-family:'JetBrains Mono', monospace; font-size:13px; line-height:1.7;
@@ -153,7 +159,7 @@
   .chart-grid{ display:grid; grid-template-columns:1fr; gap:18px; margin-bottom:24px; }
   @media(min-width:1024px){ .chart-grid{ grid-template-columns:1fr 1fr; } }
   .chart-card h3{ font-size:15px; font-weight:700; color:var(--navy); margin:0 0 16px; }
-  .chart-wrap{ height:300px; position:relative; width:100%; }
+  .chart-wrap{ height:320px; position:relative; width:100%; }
 
   /* Forms & Toolbar */
   .toolbar{ display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
@@ -166,7 +172,7 @@
   .field{ display:flex; flex-direction:column; gap:6px; font-size:13px; }
   .field-label{ color:var(--muted); font-weight:600; font-size:12px; }
   .field input, .field select, .field textarea{ width:100%; border:1px solid var(--border); border-radius:10px; padding:10px 14px; font-size:14px; outline:none; background:var(--surface); color:var(--text); font-family:inherit; transition:.15s; min-height:44px; }
-  .field input:focus, .field select:focus, .field textarea:focus{ border-color:var(--electric); }
+  .field input:focus, .field select:focus, .field textarea:focus{ border-color:var(--electric); box-shadow:0 0 0 3px var(--electric-glow); }
   .span-all{ grid-column:1/-1; }
   .form-actions{ grid-column:1/-1; display:flex; justify-content:flex-end; gap:10px; }
 
@@ -195,6 +201,11 @@
   .capacity-pill{ display:inline-flex; align-items:center; border-radius:6px; padding:2px 8px; font-size:11px; font-weight:700; font-family:'JetBrains Mono',monospace; background:var(--purple-soft); color:var(--purple); border:1px solid #DDD6FE; }
   
   .btn-sm{ padding:6px 12px; font-size:12px; border-radius:8px; border:1px solid var(--electric); background:var(--blue-soft); color:var(--electric); cursor:pointer; font-family:inherit; display:inline-flex; align-items:center; justify-content:center; font-weight:600; min-height:34px; }
+  .btn-sm:hover{ background:var(--electric); color:#fff; }
+
+  .bench-grid{ display:grid; grid-template-columns:1fr; gap:12px; margin-bottom:20px; }
+  @media(min-width:640px){ .bench-grid{ grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px; } }
+  .bench-label{ font-size:12px; font-weight:600; color:var(--muted); margin-bottom:4px; }
 
   .modal-backdrop{
     position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(9,30,54,0.7);
@@ -209,13 +220,13 @@
 
   @media print {
     body { background: #fff !important; color: #000 !important; font-size: 11pt; }
-    .sidebar, .toolbar, .form-actions, form, .btn-sm, .header-actions, button, .modal-backdrop, .bottom-nav, .mobile-topbar { display: none !important; }
+    .sidebar, .toolbar, .form-actions, form, .btn-sm, .header-actions, .status-select, button, .modal-backdrop, .bottom-nav, .mobile-topbar { display: none !important; }
     .main { padding: 0 !important; }
     .card { border: none !important; box-shadow: none !important; padding: 0 !important; }
     .chart-grid, #map-container { display: none !important; }
     .desktop-table-wrap { display: block !important; }
     .mobile-record-list { display: none !important; }
-    table { width: 100% !important; border-collapse: collapse !important; }
+    table { width: 100% !important; border-collapse: collapse !important; margin-top: 10px; }
     th, td { border: 1px solid #ccc !important; padding: 6px 8px !important; }
   }
 
@@ -242,9 +253,14 @@ const ICONS = {
   navigation: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>`,
   calculator: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/></svg>`,
   fileExcel: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="17"/><line x1="16" y1="13" x2="8" y2="17"/></svg>`,
-  filePdf: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`,
+  filePdf: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M10 12h2a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1h-2v-4z"/><path d="M10 18v-2"/></svg>`,
   upload: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>`,
+  trash: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>`,
   edit: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
+  check: (c)=>`<svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`,
+  rotate: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>`,
+  lock: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
+  more: `<svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>`,
 };
 
 const C = {
@@ -265,8 +281,8 @@ const EQUIPMENT_TYPES = Object.keys(CAPACITY_OPTIONS);
 const PRIORITIES = ["สูง","กลาง","ต่ำ"];
 const PLAN_STATUSES = ["วางแผน","กำลังดำเนินการ","เสร็จสิ้น","เลื่อน"];
 const PM_STATUSES = ["เสร็จสิ้น","ระหว่างดำเนินการ","รอดำเนินการ"];
-const STORAGE_KEY = "mea_pm_clean_v100";
-const AUTH_KEY = "mea_pm_auth_v100";
+const STORAGE_KEY = "mea_pm_clean_v90_english";
+const AUTH_KEY = "mea_pm_auth_v90_english";
 
 const MEA_HQ_COORDS = [13.5991, 100.5968];
 
@@ -310,14 +326,14 @@ function generateSafeRecords(){
   const typePrefix = { "หม้อแปลงจำหน่าย":"TR-SP-", "LBS":"LBS-SP-", "UNIT SUBSTATION":"US-SP-", "รีโคลสเซอร์ (Recloser)":"RC-SP-", "ดรอปเอาท์ฟิวส์":"DF-SP-" };
 
   const pmRecords = [];
-  for (let i = 1; i <= 150; i++) {
+  for (let i = 1; i <= 300; i++) {
     const eqType = EQUIPMENT_TYPES[i % EQUIPMENT_TYPES.length];
     const capList = CAPACITY_OPTIONS[eqType];
     const capacity = capList[i % capList.length];
     const tech = TECHNICIANS[i % TECHNICIANS.length];
     const loc = LOCATIONS_LIST[i % LOCATIONS_LIST.length];
     const bench = benchmarks[eqType];
-    const varianceFactor = 0.8 + ((i % 7) * 0.05);
+    const varianceFactor = 0.8 + ((i % 7) * 0.06);
     const totalCalc = Math.round(bench * varianceFactor);
     const materialCost = Math.round(totalCalc * 0.55);
     const laborCost = Math.round(totalCalc * 0.35);
@@ -325,7 +341,7 @@ function generateSafeRecords(){
 
     pmRecords.push({
       id: "PM-SP-" + (1000 + i),
-      date: iso(-Math.floor(i * 0.4)),
+      date: iso(-Math.floor(i * 0.3)),
       equipmentType: eqType,
       capacity: capacity,
       equipmentId: typePrefix[eqType] + String(100 + i).padStart(4, '0'),
@@ -337,14 +353,14 @@ function generateSafeRecords(){
       laborCost: laborCost,
       otherCost: otherCost,
       maintenanceType: (i % 10 === 0) ? "แก้ไข" : "ป้องกัน",
-      status: i <= 135 ? "เสร็จสิ้น" : (i <= 145 ? "ระหว่างดำเนินการ" : "รอดำเนินการ"),
+      status: i <= 285 ? "เสร็จสิ้น" : (i <= 295 ? "ระหว่างดำเนินการ" : "รอดำเนินการ"),
       notes: `ตรวจเช็คตามรอบ PM ปกติ Health Index ${Math.round(98 - (i % 20))}%`,
       photo: ""
     });
   }
 
   const planRecords = [];
-  for (let j = 1; j <= 30; j++) {
+  for (let j = 1; j <= 50; j++) {
     const eqType = EQUIPMENT_TYPES[(j * 2) % EQUIPMENT_TYPES.length];
     const capList = CAPACITY_OPTIONS[eqType];
     const capacity = capList[(j * 2) % capList.length];
@@ -357,7 +373,7 @@ function generateSafeRecords(){
       capacity: capacity,
       equipmentId: typePrefix[eqType] + String(500 + j).padStart(4, '0'),
       location: loc,
-      plannedDate: iso(Math.floor(j * 0.6) + 1),
+      plannedDate: iso(Math.floor(j * 0.5) + 1),
       team: tech.team,
       priority: (j % 3 === 0) ? "สูง" : ((j % 2 === 0) ? "กลาง" : "ต่ำ"),
       status: (j % 15 === 0) ? "เลื่อน" : "วางแผน"
@@ -446,6 +462,27 @@ function handleFileImport(e) {
         if(imported.length){
           persist({ ...STATE, pmRecords: [...imported, ...STATE.pmRecords] });
           alert(`นำเข้าสำเร็จ ${imported.length} รายการ`);
+        }
+      } else if (IMPORT_TARGET === "plan") {
+        const imported = [];
+        for (let i = 1; i < rows.length; i++) {
+          const r = rows[i];
+          if (!r || !r[1] || !r[3]) continue;
+          imported.push({
+            id: uid(),
+            plannedDate: r[0] ? String(r[0]).slice(0,10) : new Date().toISOString().slice(0,10),
+            equipmentType: r[1] || EQUIPMENT_TYPES[0],
+            capacity: r[2] || CAPACITY_OPTIONS[r[1]||EQUIPMENT_TYPES[0]][0],
+            equipmentId: String(r[3]),
+            location: r[4] || "",
+            team: r[5] || "ทีม A",
+            priority: r[6] || "กลาง",
+            status: r[7] || "วางแผน"
+          });
+        }
+        if(imported.length){
+          persist({ ...STATE, planRecords: [...imported, ...STATE.planRecords] });
+          alert(`นำเข้าแผนงานสำเร็จ ${imported.length} รายการ`);
         }
       }
     } catch(err) { alert("เกิดข้อผิดพลาดในการอ่านไฟล์"); }
@@ -693,7 +730,7 @@ function render(){
   if(!CURRENT_USER){ app.innerHTML = renderLogin(); attachLoginListener(); return; }
 
   let navItems = [
-    {id:"dashboard", label:"แดชบอร์ด", icon:"gauge", roles:['admin','tech']},
+    {id:"dashboard", label:"Dashboard", icon:"gauge", roles:['admin','tech']},
     {id:"routes", label:"เส้นทางตรวจ", icon:"mapPin", roles:['admin','tech']},
     {id:"entry", label:"บันทึก PM", icon:"clipboard", roles:['admin','tech']},
     {id:"guide", label:"คู่มือเกณฑ์กรอก", icon:"book", roles:['admin','tech']},
@@ -763,7 +800,7 @@ function renderDashboard(){
   const completed = pmRecords.filter(r=>r.status==="เสร็จสิ้น").length;
 
   return `
-    ${sectionHeader("แดชบอร์ดภาพรวม", `ข้อมูลงาน PM จำนวน ${pmRecords.length} รายการ`, `
+    ${sectionHeader("Dashboard ภาพรวม", `ข้อมูลงาน PM จำนวน ${pmRecords.length} รายการ`, `
       <button class="btn-secondary" id="print-pdf-btn">${ICONS.filePdf} พิมพ์สรุป (PDF)</button>
       <button class="btn-success" id="export-dashboard-excel-btn">${ICONS.fileExcel} ส่งออก Excel</button>
     `)}
@@ -791,11 +828,11 @@ function drawDashboardCharts(){
     if(CHARTS.cost) CHARTS.cost.destroy();
 
     const ctx = costCtx.getContext('2d');
-    const gradActual = ctx.createLinearGradient(0, 0, 0, 300);
+    const gradActual = ctx.createLinearGradient(0, 0, 0, 320);
     gradActual.addColorStop(0, '#00C6FF');
     gradActual.addColorStop(1, '#0072FF');
 
-    const gradBench = ctx.createLinearGradient(0, 0, 0, 300);
+    const gradBench = ctx.createLinearGradient(0, 0, 0, 320);
     gradBench.addColorStop(0, '#F59E0B');
     gradBench.addColorStop(1, '#D97706');
 
@@ -810,8 +847,8 @@ function drawDashboardCharts(){
       data:{
         labels: ["หม้อแปลง", "LBS", ["Unit", "Substation"], ["รีโคลสเซอร์", "(Recloser)"], "ดรอปเอาท์"],
         datasets:[
-          { label:"ต้นทุนจริงเฉลี่ย", data: costByType.map(d=>d.actual), backgroundColor: gradActual, borderRadius: 8, barPercentage: 0.65 },
-          { label:"เกณฑ์ WCM", data: costByType.map(d=>d.bench), backgroundColor: gradBench, borderRadius: 8, barPercentage: 0.65 }
+          { label:"ต้นทุนจริงเฉลี่ย", data: costByType.map(d=>d.actual), backgroundColor: gradActual, borderRadius: 8, barPercentage: 0.6, categoryPercentage: 0.8 },
+          { label:"เกณฑ์ WCM", data: costByType.map(d=>d.bench), backgroundColor: gradBench, borderRadius: 8, barPercentage: 0.6, categoryPercentage: 0.8 }
         ]
       },
       options:{
@@ -833,7 +870,7 @@ function drawDashboardCharts(){
         },
         scales:{
           y:{
-            grid:{ color: 'rgba(226, 232, 240, 0.6)' },
+            grid:{ color: 'rgba(226, 232, 240, 0.6)', borderDash: [4, 4] },
             ticks:{ font:{ family:"'JetBrains Mono'", size:11 }, color: '#64748B', callback:(v)=>v.toLocaleString() }
           },
           x:{
@@ -857,6 +894,29 @@ function drawDashboardCharts(){
       "ฟิวส์ตัดตอน & พิกัดอื่น": pmRecords.filter(r=>["24 kV 100A","24 kV 200A","33 kV 100A","24 kV 1250A"].includes(r.capacity)).length,
     };
 
+    const centerTextPlugin = {
+      id: 'centerText',
+      beforeDraw(chart) {
+        const { width, height, ctx } = chart;
+        ctx.restore();
+        const fontSize = (height / 120).toFixed(2);
+        ctx.font = `800 ${fontSize}em 'Plus Jakarta Sans', sans-serif`;
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#091E36';
+        const text = pmRecords.length + " งาน";
+        const textX = Math.round((width - ctx.measureText(text).width) / 2);
+        const textY = height / 2 - 10;
+        ctx.fillText(text, textX, textY);
+        
+        ctx.font = `600 11px 'Noto Sans Thai', sans-serif`;
+        ctx.fillStyle = '#64748B';
+        const subText = "รวมทั้งหมดในระบบ";
+        const subX = Math.round((width - ctx.measureText(subText).width) / 2);
+        ctx.fillText(subText, subX, textY + 22);
+        ctx.save();
+      }
+    };
+
     CHARTS.cap = new Chart(capCtx, {
       type:"doughnut",
       data:{
@@ -873,7 +933,7 @@ function drawDashboardCharts(){
       options:{
         responsive:true,
         maintainAspectRatio:false,
-        cutout: '70%',
+        cutout: '72%',
         plugins:{
           legend:{
             position:"right",
@@ -888,7 +948,8 @@ function drawDashboardCharts(){
             callbacks: { label: (ctx) => ` จำนวน: ${ctx.parsed} รายการ (${Math.round(ctx.parsed/pmRecords.length*100)}%)` }
           }
         }
-      }
+      },
+      plugins: [centerTextPlugin]
     });
   }
 }
