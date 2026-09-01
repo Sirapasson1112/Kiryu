@@ -142,6 +142,14 @@
 
   #map-container{ height: 420px; width: 100%; border-radius: 14px; z-index: 1; border: 1px solid var(--border); }
 
+  .custom-start-pin{
+    background: linear-gradient(135deg, #10B981, #059669);
+    color: #ffffff; border-radius: 50%; width: 32px !important; height: 32px !important;
+    display: flex !important; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 14px; border: 2px solid #ffffff;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.5);
+  }
+
   /* Formula Box */
   .formula-btn{
     display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600;
@@ -180,6 +188,7 @@
   .btn-primary{ display:inline-flex; align-items:center; justify-content:center; gap:8px; border:none; border-radius:10px; padding:12px 20px; font-size:14px; font-weight:600; color:#fff; background:linear-gradient(135deg, var(--electric), #0066CC); cursor:pointer; font-family:inherit; transition:0.2s; min-height:44px; width:100%; }
   @media(min-width:640px){ .btn-primary{ width:auto; } }
   .btn-secondary{ display:inline-flex; align-items:center; justify-content:center; gap:6px; border:1px solid var(--border); border-radius:10px; padding:10px 16px; font-size:13px; font-weight:600; color:var(--text); background:var(--surface); cursor:pointer; font-family:inherit; transition:0.2s; min-height:42px; }
+  .btn-secondary:hover{ background:var(--bg); }
   .btn-success{ display:inline-flex; align-items:center; justify-content:center; gap:6px; border:none; border-radius:10px; padding:10px 16px; font-size:13px; font-weight:600; color:#fff; background:linear-gradient(135deg, #10B981, #059669); cursor:pointer; font-family:inherit; transition:0.2s; min-height:42px; }
 
   /* Mobile Record List */
@@ -254,13 +263,14 @@ const ICONS = {
   navigation: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>`,
   calculator: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/></svg>`,
   fileExcel: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="17"/><line x1="16" y1="13" x2="8" y2="17"/></svg>`,
-  filePdf: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M10 12h2a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1h-2v-4z"/><path d="M10 18v-2"/></svg>`,
+  filePdf: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`,
   upload: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>`,
   trash: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>`,
   edit: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
   check: (c)=>`<svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`,
   rotate: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>`,
   lock: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
+  more: `<svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>`,
 };
 
 const C = {
@@ -281,8 +291,8 @@ const EQUIPMENT_TYPES = Object.keys(CAPACITY_OPTIONS);
 const PRIORITIES = ["สูง","กลาง","ต่ำ"];
 const PLAN_STATUSES = ["วางแผน","กำลังดำเนินการ","เสร็จสิ้น","เลื่อน"];
 const PM_STATUSES = ["เสร็จสิ้น","ระหว่างดำเนินการ","รอดำเนินการ"];
-const STORAGE_KEY = "mea_pm_clean_v60";
-const AUTH_KEY = "mea_pm_auth_v60";
+const STORAGE_KEY = "mea_pm_clean_v50";
+const AUTH_KEY = "mea_pm_auth_v50";
 
 const MEA_HQ_COORDS = [13.5991, 100.5968];
 
@@ -318,17 +328,6 @@ const uid = () => Date.now() + "-" + Math.random().toString(36).slice(2,8);
 const baht = (n) => "฿" + Number(n||0).toLocaleString("th-TH",{maximumFractionDigits:0});
 const thDate = (d) => d ? new Date(d).toLocaleDateString("th-TH",{day:"2-digit",month:"short",year:"2-digit"}) : "-";
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-
-function calculateDistance(lat1, lon1, lat2 = MEA_HQ_COORDS[0], lon2 = MEA_HQ_COORDS[1]) {
-  const R = 6371;
-  const dLat = (lat1 - lat2) * Math.PI / 180;
-  const dLon = (lon1 - lon2) * Math.PI / 180;
-  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-            Math.cos(lat2 * Math.PI / 180) * Math.cos(lat1 * Math.PI / 180) *
-            Math.sin(dLon/2) * Math.sin(dLon/2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  return +(R * c).toFixed(1);
-}
 
 function generateSafeRecords(){
   const today = new Date();
@@ -426,6 +425,285 @@ function persist(next){
   STATE = next;
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE)); } catch(e){}
   render();
+}
+
+function triggerExcelImport(target) {
+  IMPORT_TARGET = target;
+  const fileInput = document.getElementById("excel-importer");
+  if (fileInput) { fileInput.value = ""; fileInput.click(); }
+}
+
+function handleFileImport(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    try {
+      const data = new Uint8Array(evt.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+      if (rows.length < 2) return;
+
+      if (IMPORT_TARGET === "pm") {
+        const imported = [];
+        for (let i = 1; i < rows.length; i++) {
+          const r = rows[i];
+          if (!r || !r[1] || !r[3]) continue;
+          imported.push({
+            id: uid(),
+            date: r[0] ? String(r[0]).slice(0,10) : new Date().toISOString().slice(0,10),
+            equipmentType: r[1] || EQUIPMENT_TYPES[0],
+            capacity: r[2] || CAPACITY_OPTIONS[r[1]||EQUIPMENT_TYPES[0]][0],
+            equipmentId: String(r[3]),
+            location: r[4] || "",
+            team: r[5] || "ทีม A",
+            technician: r[6] || "",
+            laborHours: Number(r[7]) || 0,
+            materialCost: Number(r[8]) || 0,
+            laborCost: Number(r[9]) || 0,
+            otherCost: Number(r[10]) || 0,
+            maintenanceType: r[12] || "ป้องกัน",
+            status: r[13] || "เสร็จสิ้น",
+            notes: r[14] || "นำเข้าจาก Excel",
+            photo: ""
+          });
+        }
+        if(imported.length){
+          persist({ ...STATE, pmRecords: [...imported, ...STATE.pmRecords] });
+          alert(`นำเข้าสำเร็จ ${imported.length} รายการ`);
+        }
+      } else if (IMPORT_TARGET === "plan") {
+        const imported = [];
+        for (let i = 1; i < rows.length; i++) {
+          const r = rows[i];
+          if (!r || !r[1] || !r[3]) continue;
+          imported.push({
+            id: uid(),
+            plannedDate: r[0] ? String(r[0]).slice(0,10) : new Date().toISOString().slice(0,10),
+            equipmentType: r[1] || EQUIPMENT_TYPES[0],
+            capacity: r[2] || CAPACITY_OPTIONS[r[1]||EQUIPMENT_TYPES[0]][0],
+            equipmentId: String(r[3]),
+            location: r[4] || "",
+            team: r[5] || "ทีม A",
+            priority: r[6] || "กลาง",
+            status: r[7] || "วางแผน"
+          });
+        }
+        if(imported.length){
+          persist({ ...STATE, planRecords: [...imported, ...STATE.planRecords] });
+          alert(`นำเข้าแผนงานสำเร็จ ${imported.length} รายการ`);
+        }
+      }
+    } catch(err) { alert("เกิดข้อผิดพลาดในการอ่านไฟล์"); }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function kpiCard(iconKey, label, value, sub, accentClass, clickAction){
+  return `<div class="card kpi-card ${accentClass}" ${clickAction ? `onclick="${clickAction}" title="คลิกเพื่อดูรายละเอียดเชิงลึก"` : ""}>
+    <div class="kpi-top">
+      <span class="kpi-label">${esc(label)}</span>
+      <span class="kpi-icon" style="background:${accentClass==='green'?C.greenSoft:accentClass==='amber'?C.amberSoft:accentClass==='purple'?C.purpleSoft:accentClass==='red'?C.redSoft:C.blueSoft}">
+        ${ICONS[iconKey](accentClass==='green'?C.green:accentClass==='amber'?C.amber:accentClass==='purple'?C.purple:accentClass==='red'?C.red:C.blue)}
+      </span>
+    </div>
+    <div class="kpi-value">${esc(value)}</div>
+    ${sub ? `<span class="kpi-sub">${esc(sub)}</span>` : ""}
+  </div>`;
+}
+
+function sectionHeader(title, desc, actionHtml=""){
+  return `<div class="section-header">
+    <div>
+      <h2 class="section-title">${esc(title)}</h2>
+      ${desc ? `<p class="section-desc">${esc(desc)}</p>` : ""}
+    </div>
+    ${actionHtml ? `<div class="header-actions">${actionHtml}</div>` : ""}
+  </div>`;
+}
+
+function emptyState(text){ return `<div class="card" style="padding:32px;text-align:center;color:var(--muted);font-size:13px;">${esc(text)}</div>`; }
+function field(label, innerHtml){ return `<label class="field"><span class="field-label">${esc(label)}</span>${innerHtml}</label>`; }
+
+function showFormulaModal(formulaType) {
+  const root = document.getElementById("formula-modal-root");
+  if (!root) return;
+  let title = "", formulaHtml = "";
+
+  if (formulaType === "health_index") {
+    title = "สูตรคำนวณ Health Index (HI %)";
+    formulaHtml = `<div class="formula-box">Health Index (%) = ( Σ (Score_i × Weight_i) / Σ Max_Score ) × 100<br><br>• ฉนวนน้ำมัน (DGA) = 40%<br>• ค่า Megger ขดลวด = 30%<br>• ตรวจความร้อน Thermoscan = 20%<br>• สภาพกายภาพภายนอก = 10%</div>`;
+  } else if (formulaType === "productivity") {
+    title = "สูตรคำนวณ Labor Productivity";
+    formulaHtml = `<div class="formula-box">Labor Productivity = งาน PM ที่เสร็จสิ้น (Tasks) / ชั่วโมงแรงงานรวม (Hours)<br><br>เกณฑ์มาตรฐาน WCM: 0.20 - 0.35 งาน/ชม.</div>`;
+  } else if (formulaType === "variance") {
+    title = "สูตรคำนวณ WCM Cost Variance (%)";
+    formulaHtml = `<div class="formula-box">Cost Variance (%) = [ (ต้นทุนจริงเฉลี่ย - มาตรฐาน WCM) / มาตรฐาน WCM ] × 100</div>`;
+  }
+
+  root.innerHTML = `
+    <div class="modal-backdrop" id="formula-modal-backdrop">
+      <div class="modal-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:10px;">
+          <h3 style="font-size:16px;font-weight:800;color:var(--navy);margin:0;">${title}</h3>
+          <button class="close-modal" onclick="closeFormulaModal()">&times;</button>
+        </div>
+        ${formulaHtml}
+        <div style="text-align:right;margin-top:14px;"><button class="btn-secondary" onclick="closeFormulaModal()">ปิด</button></div>
+      </div>
+    </div>
+  `;
+}
+function closeFormulaModal() { const root = document.getElementById("formula-modal-root"); if(root) root.innerHTML = ""; }
+
+function showKpiDetail(type) {
+  const root = document.getElementById("kpi-modal-root");
+  if (!root) return;
+  const { pmRecords, planRecords } = STATE;
+  let title = "", contentHtml = "";
+
+  if (type === "total_pm") {
+    title = `รายละเอียดงาน PM (${pmRecords.length} งาน)`;
+    contentHtml = `<p style="font-size:13px;color:var(--muted);">แสดงตัวอย่าง 10 รายการล่าสุด:</p>${recordsTable(pmRecords.slice(0, 10), { compact: true })}`;
+  } else if (type === "health_index") {
+    title = `สรุปดัชนีสุขภาพอุปกรณ์ (Health Index)`;
+    contentHtml = `<div style="background:var(--green-soft);padding:14px;border-radius:12px;margin-bottom:16px;"><div style="font-weight:700;">⚡ สุขภาพอุปกรณ์รวม: 93.8% (เกณฑ์ดีเยี่ยม)</div></div><button class="formula-btn" onclick="showFormulaModal('health_index')">${ICONS.calculator} ดูสูตรคำนวณ HI</button>`;
+  } else if (type === "total_cost") {
+    title = `โครงสร้างต้นทุนงานบำรุงรักษา`;
+    contentHtml = `<button class="formula-btn" onclick="showFormulaModal('variance')">${ICONS.calculator} ดูสูตร WCM Variance</button>`;
+  } else if (type === "upcoming_plans") {
+    title = `แผนงานบำรุงรักษา (${planRecords.length} แผนงาน)`;
+    contentHtml = `<p style="font-size:13px;color:var(--muted);">รายการแผนงานล่วงหน้าในระบบ</p>`;
+  }
+
+  root.innerHTML = `
+    <div class="modal-backdrop" id="kpi-modal-backdrop">
+      <div class="modal-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;border-bottom:1px solid var(--border);padding-bottom:12px;">
+          <h3 style="font-size:17px;font-weight:800;color:var(--navy);margin:0;">${title}</h3>
+          <button class="close-modal" onclick="closeKpiModal()">&times;</button>
+        </div>
+        <div>${contentHtml}</div>
+      </div>
+    </div>
+  `;
+}
+function closeKpiModal() { const root = document.getElementById("kpi-modal-root"); if(root) root.innerHTML = ""; }
+
+function recordsTable(records, {withDelete, compact} = {}){
+  const filtered = (records || []).filter(r => {
+    if(!SEARCH_QUERY) return true;
+    const q = SEARCH_QUERY.toLowerCase();
+    return (r.equipmentId||"").toLowerCase().includes(q) ||
+           (r.location||"").toLowerCase().includes(q) ||
+           (r.team||"").toLowerCase().includes(q) ||
+           (r.technician||"").toLowerCase().includes(q) ||
+           (r.equipmentType||"").toLowerCase().includes(q);
+  });
+
+  if(!filtered.length) return emptyState("ไม่พบข้อมูลที่ตรงกับเงื่อนไข");
+
+  const mobileCardsHtml = `
+    <div class="mobile-record-list">
+      ${filtered.slice(0, 30).map(r=>{
+        const total = Number(r.materialCost)+Number(r.laborCost)+Number(r.otherCost);
+        return `
+          <div class="m-record-card">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <div class="m-card-id">${esc(r.equipmentId)} <span class="capacity-pill">${esc(r.capacity||"-")}</span></div>
+                <div style="font-size:12px;color:var(--text);font-weight:600;margin-top:2px;">${esc(r.equipmentType)}</div>
+                <div style="font-size:12px;color:var(--muted);margin-top:2px;">${thDate(r.date)} • ${esc(r.team)} ${r.technician ? `• ${esc(r.technician)}` : ""}</div>
+              </div>
+              <div><span class="pill" style="background:var(--green-soft);color:var(--green);">${esc(r.status)}</span></div>
+            </div>
+            <div style="font-size:12px;color:var(--muted);">${esc(r.location||"-")}</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px dashed var(--border);padding-top:10px;margin-top:2px;">
+              <div style="font-size:14px;font-weight:700;font-family:'JetBrains Mono',monospace;">${baht(total)}</div>
+              <div style="display:flex;gap:6px;"><button class="btn-sm" data-edit-pm="${r.id}">${ICONS.edit} แก้ไข</button></div>
+            </div>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+
+  const headers = ["วันที่","อุปกรณ์","ขนาดพิกัด","รหัส","สายป้อน / พื้นที่","ทีม","ผู้ปฏิบัติงาน","ต้นทุนรวม","สถานะ",""];
+  const desktopTableHtml = `
+    <div class="desktop-table-wrap">
+      <table>
+        <thead><tr>${headers.map(h=>`<th>${h}</th>`).join("")}</tr></thead>
+        <tbody>
+          ${filtered.slice(0, 50).map(r=>{
+            const total = Number(r.materialCost)+Number(r.laborCost)+Number(r.otherCost);
+            return `<tr>
+              <td>${thDate(r.date)}</td>
+              <td><strong>${esc(r.equipmentType)}</strong></td>
+              <td><span class="capacity-pill">${esc(r.capacity||"-")}</span></td>
+              <td class="mono" style="font-weight:700;color:var(--electric);">${esc(r.equipmentId)}</td>
+              <td class="muted">${esc(r.location||"-")}</td>
+              <td><span class="pill" style="background:var(--blue-soft);color:var(--navy);">${esc(r.team)}</span></td>
+              <td style="font-size:12px;">${esc(r.technician||"-")}</td>
+              <td class="mono" style="font-weight:700;">${baht(total)}</td>
+              <td><span class="pill" style="background:var(--green-soft);color:var(--green);">${esc(r.status)}</span></td>
+              <td style="text-align:right">
+                <button class="btn-sm" title="แก้ไข" data-edit-pm="${r.id}">${ICONS.edit}</button>
+              </td>
+            </tr>`;
+          }).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+  return mobileCardsHtml + desktopTableHtml;
+}
+
+function renderModal(){
+  const modalRoot = document.getElementById("modal-root");
+  if(!modalRoot || !EDITING_RECORD) { if(modalRoot) modalRoot.innerHTML = ""; return; }
+  const { data } = EDITING_RECORD;
+
+  modalRoot.innerHTML = `
+    <div class="modal-backdrop" id="modal-backdrop">
+      <div class="modal-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;border-bottom:1px solid var(--border);padding-bottom:12px;">
+          <h3 style="font-size:17px;font-weight:800;color:var(--navy);margin:0;">แก้ไขงาน PM (${esc(data.equipmentId)})</h3>
+          <button class="close-modal" onclick="EDITING_RECORD=null;renderModal();">&times;</button>
+        </div>
+        <form id="edit-pm-form" class="entry-form" style="padding:0;border:none;box-shadow:none;margin-bottom:0;">
+          ${field("วันที่ปฏิบัติงาน", `<input type="date" required id="m-date" value="${esc(data.date)}"/>`)}
+          ${field("รหัสอุปกรณ์", `<input required id="m-equipmentId" value="${esc(data.equipmentId)}"/>`)}
+          ${field("สายป้อน / พิกัดสถานที่", `<input id="m-location" value="${esc(data.location||"")}"/>`)}
+          ${field("ค่าพัสดุ/อุปกรณ์ (บาท)", `<input type="number" min="0" id="m-materialCost" value="${esc(data.materialCost)}"/>`)}
+          ${field("ค่าแรง (บาท)", `<input type="number" min="0" id="m-laborCost" value="${esc(data.laborCost)}"/>`)}
+          <div class="span-all">${field("บันทึกการทำงาน", `<textarea rows="3" id="m-notes">${esc(data.notes||"")}</textarea>`)}</div>
+          <div class="form-actions" style="margin-top:14px;">
+            <button type="button" class="btn-secondary" onclick="EDITING_RECORD=null;renderModal();">ยกเลิก</button>
+            <button type="submit" class="btn-primary">บันทึก</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+
+  const editPmForm = document.getElementById("edit-pm-form");
+  if(editPmForm){
+    editPmForm.onsubmit = (e) => {
+      e.preventDefault();
+      const updated = {
+        ...EDITING_RECORD.data,
+        date: document.getElementById("m-date").value,
+        equipmentId: document.getElementById("m-equipmentId").value,
+        location: document.getElementById("m-location").value,
+        materialCost: Number(document.getElementById("m-materialCost").value)||0,
+        laborCost: Number(document.getElementById("m-laborCost").value)||0,
+        notes: document.getElementById("m-notes").value
+      };
+      persist({ ...STATE, pmRecords: STATE.pmRecords.map(r => r.id === updated.id ? updated : r) });
+      EDITING_RECORD = null; renderModal();
+    };
+  }
 }
 
 function renderLogin(){
