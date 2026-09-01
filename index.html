@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>MEA PM Planner — เขตสมุทรปราการ (Smart CMMS & Formula Inspector)</title>
+<title>MEA PM Planner — เขตสมุทรปราการ</title>
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
@@ -17,28 +17,14 @@
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap');
 
   :root{
-    --navy: #091E36;
-    --navy-dark: #051324;
-    --navy-light: #133358;
-    --electric: #0088FF;
-    --electric-glow: rgba(0, 136, 255, 0.35);
-    --blue-soft: #EBF4FE;
-    --amber: #F59E0B;
-    --amber-soft: #FEF3C7;
-    --green: #10B981;
-    --green-soft: #D1FAE5;
-    --red: #EF4444;
-    --red-soft: #FEE2E2;
-    --purple: #8B5CF6;
-    --purple-soft: #EDE9FE;
-    --bg: #F0F4F9;
-    --surface: #FFFFFF;
-    --surface-glass: rgba(255, 255, 255, 0.9);
-    --border: #E2E8F0;
-    --text: #0F172A;
-    --muted: #64748B;
-    --bottom-nav-height: 66px;
-    --radius: 16px;
+    --navy: #091E36; --navy-dark: #051324; --navy-light: #133358;
+    --electric: #0088FF; --electric-glow: rgba(0, 136, 255, 0.35);
+    --blue-soft: #EBF4FE; --amber: #F59E0B; --amber-soft: #FEF3C7;
+    --green: #10B981; --green-soft: #D1FAE5; --red: #EF4444; --red-soft: #FEE2E2;
+    --purple: #8B5CF6; --purple-soft: #EDE9FE; --bg: #F0F4F9;
+    --surface: #FFFFFF; --surface-glass: rgba(255, 255, 255, 0.9);
+    --border: #E2E8F0; --text: #0F172A; --muted: #64748B;
+    --bottom-nav-height: 66px; --radius: 16px;
     --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.04);
     --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
     --shadow-lg: 0 20px 40px rgba(9, 30, 54, 0.15);
@@ -49,9 +35,6 @@
   body{
     font-family:'Noto Sans Thai','Plus Jakarta Sans',sans-serif;
     background:var(--bg); color:var(--text);
-    background-image: radial-gradient(at 0% 0%, rgba(0, 136, 255, 0.05) 0px, transparent 50%),
-                      radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.05) 0px, transparent 50%);
-    background-attachment: fixed;
   }
   #app{ width:100%; min-height:100vh; display:flex; flex-direction:column; }
   .shell{ display:flex; flex-direction:column; min-height:100vh; width:100%; }
@@ -158,15 +141,7 @@
     display:flex; flex-direction:column; gap:8px; border-left:4px solid var(--electric);
     cursor:pointer; position:relative; overflow:hidden;
   }
-  .kpi-card:hover{
-    transform:translateY(-3px); box-shadow:var(--shadow-md);
-  }
-  .kpi-card::after{
-    content:"คลิกดูสูตร & รายละเอียด ↗"; position:absolute; bottom:8px; right:12px;
-    font-size:10px; color:var(--muted); opacity:0; transition:0.2s;
-  }
-  .kpi-card:hover::after{ opacity:1; }
-
+  .kpi-card:hover{ transform:translateY(-3px); box-shadow:var(--shadow-md); }
   .kpi-card.green{ border-left-color: var(--green); }
   .kpi-card.amber{ border-left-color: var(--amber); }
   .kpi-card.purple{ border-left-color: var(--purple); }
@@ -180,23 +155,6 @@
   .kpi-sub{ font-size:11px; color:var(--muted); }
 
   #map-container{ height: 420px; width: 100%; border-radius: 14px; z-index: 1; border: 1px solid var(--border); }
-
-  /* Formula Badge & Formula Display Boxes */
-  .formula-btn{
-    display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600;
-    color:var(--electric); background:var(--blue-soft); padding:3px 8px; border-radius:6px;
-    cursor:pointer; border:1px solid #BFDBFE; text-decoration:none;
-  }
-  .formula-btn:hover{ background:var(--electric); color:#fff; }
-
-  .formula-box{
-    background:#0F172A; color:#E2E8F0; padding:16px; border-radius:12px;
-    font-family:'JetBrains Mono', monospace; font-size:13px; line-height:1.7;
-    margin:12px 0; border:1px solid #334155; box-shadow:inset 0 2px 6px rgba(0,0,0,0.3);
-  }
-  .formula-highlight{ color:#38BDF8; font-weight:700; }
-  .formula-param{ color:#FDE047; }
-  .formula-result{ color:#4ADE80; font-weight:700; }
 
   /* Custom Numbered Map Pin */
   .custom-numbered-pin{
@@ -213,6 +171,22 @@
     font-weight: 800; font-size: 14px; border: 2px solid #ffffff;
     box-shadow: 0 4px 12px rgba(16, 185, 129, 0.5);
   }
+
+  /* Formula Box */
+  .formula-btn{
+    display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600;
+    color:var(--electric); background:var(--blue-soft); padding:4px 10px; border-radius:8px;
+    cursor:pointer; border:1px solid #BFDBFE; text-decoration:none;
+  }
+  .formula-btn:hover{ background:var(--electric); color:#fff; }
+  .formula-box{
+    background:#0F172A; color:#E2E8F0; padding:16px; border-radius:12px;
+    font-family:'JetBrains Mono', monospace; font-size:13px; line-height:1.7;
+    margin:12px 0; border:1px solid #334155;
+  }
+  .formula-highlight{ color:#38BDF8; font-weight:700; }
+  .formula-param{ color:#FDE047; }
+  .formula-result{ color:#4ADE80; font-weight:700; }
 
   /* Charts */
   .chart-grid{ display:grid; grid-template-columns:1fr; gap:18px; margin-bottom:24px; }
@@ -352,8 +326,8 @@ const EQUIPMENT_TYPES = Object.keys(CAPACITY_OPTIONS);
 const PRIORITIES = ["สูง","กลาง","ต่ำ"];
 const PLAN_STATUSES = ["วางแผน","กำลังดำเนินการ","เสร็จสิ้น","เลื่อน"];
 const PM_STATUSES = ["เสร็จสิ้น","ระหว่างดำเนินการ","รอดำเนินการ"];
-const STORAGE_KEY = "mea-pm-v30-formula-app";
-const AUTH_KEY = "mea-pm-auth-v30";
+const STORAGE_KEY = "mea-pm-v32-final";
+const AUTH_KEY = "mea-pm-auth-v32";
 
 const MEA_HQ_COORDS = [13.5991, 100.5968];
 
@@ -515,517 +489,6 @@ function persist(next){
   render();
 }
 
-function statusPill(status){
-  const map = {
-    "เสร็จสิ้น":{bg:C.greenSoft,fg:C.green,icon:'check'},
-    "กำลังดำเนินการ":{bg:C.blueSoft,fg:C.blue,icon:'pulse'},
-    "ระหว่างดำเนินการ":{bg:C.blueSoft,fg:C.blue,icon:'pulse'},
-    "รอดำเนินการ":{bg:C.amberSoft,fg:C.amber,icon:'circle'},
-    "วางแผน":{bg:C.amberSoft,fg:C.amber,icon:'circle'},
-    "เลื่อน":{bg:C.redSoft,fg:C.red,icon:'alert'},
-  };
-  const s = map[status] || {bg:C.border,fg:C.muted,icon:'circle'};
-  return `<span class="pill" style="background:${s.bg};color:${s.fg}">
-    ${s.icon==='check'?ICONS.check(s.fg):'•'} ${esc(status)}
-  </span>`;
-}
-
-function kpiCard(iconKey, label, value, sub, accentClass, clickAction){
-  return `<div class="card kpi-card ${accentClass}" ${clickAction ? `onclick="${clickAction}" title="คลิกเพื่อดูรายละเอียดเชิงลึก"` : ""}>
-    <div class="kpi-top">
-      <span class="kpi-label">${esc(label)}</span>
-      <span class="kpi-icon" style="background:${accentClass==='green'?C.greenSoft:accentClass==='amber'?C.amberSoft:accentClass==='purple'?C.purpleSoft:accentClass==='red'?C.redSoft:C.blueSoft}">
-        ${ICONS[iconKey](accentClass==='green'?C.green:accentClass==='amber'?C.amber:accentClass==='purple'?C.purple:accentClass==='red'?C.red:C.blue)}
-      </span>
-    </div>
-    <div class="kpi-value">${esc(value)}</div>
-    ${sub ? `<span class="kpi-sub">${esc(sub)}</span>` : ""}
-  </div>`;
-}
-
-function sectionHeader(title, desc, actionHtml=""){
-  return `<div class="section-header">
-    <div>
-      <h2 class="section-title">${esc(title)}</h2>
-      ${desc ? `<p class="section-desc">${esc(desc)}</p>` : ""}
-    </div>
-    ${actionHtml ? `<div class="header-actions">${actionHtml}</div>` : ""}
-  </div>`;
-}
-
-function emptyState(text){ return `<div class="card" style="padding:32px;text-align:center;color:var(--muted);font-size:13px;">${esc(text)}</div>`; }
-function field(label, innerHtml){ return `<label class="field"><span class="field-label">${esc(label)}</span>${innerHtml}</label>`; }
-
-function exportToExcel(filename, sheetName, dataArray) {
-  if (typeof XLSX === 'undefined') return alert("ระบบกำลังโหลดโมดูล Excel");
-  const ws = XLSX.utils.aoa_to_sheet(dataArray);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, sheetName);
-  XLSX.writeFile(wb, filename + ".xlsx");
-}
-
-function triggerExcelImport(target) {
-  IMPORT_TARGET = target;
-  const fileInput = document.getElementById("excel-importer");
-  if (fileInput) { fileInput.value = ""; fileInput.click(); }
-}
-
-function handleFileImport(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(evt) {
-    try {
-      const data = new Uint8Array(evt.target.result);
-      const workbook = XLSX.read(data, { type: 'array' });
-      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
-      if (rows.length < 2) return;
-
-      if (IMPORT_TARGET === "pm") {
-        const imported = [];
-        for (let i = 1; i < rows.length; i++) {
-          const r = rows[i];
-          if (!r || !r[1] || !r[3]) continue;
-          imported.push({
-            id: uid(),
-            date: r[0] ? String(r[0]).slice(0,10) : new Date().toISOString().slice(0,10),
-            equipmentType: r[1] || EQUIPMENT_TYPES[0],
-            capacity: r[2] || CAPACITY_OPTIONS[r[1]||EQUIPMENT_TYPES[0]][0],
-            equipmentId: String(r[3]),
-            location: r[4] || "",
-            team: r[5] || "ทีม A",
-            technician: r[6] || "",
-            laborHours: Number(r[7]) || 0,
-            materialCost: Number(r[8]) || 0,
-            laborCost: Number(r[9]) || 0,
-            otherCost: Number(r[10]) || 0,
-            maintenanceType: r[12] || "ป้องกัน",
-            status: r[13] || "เสร็จสิ้น",
-            notes: r[14] || "นำเข้าจาก Excel",
-            photo: ""
-          });
-        }
-        if(imported.length){
-          persist({ ...STATE, pmRecords: [...imported, ...STATE.pmRecords] });
-          alert(`นำเข้าสำเร็จ ${imported.length} รายการ`);
-        }
-      }
-    } catch(err) { alert("เกิดข้อผิดพลาดในการอ่านไฟล์"); }
-  };
-  reader.readAsArrayBuffer(file);
-}
-
-/* -------------------------------------------------------------------
-   Formula Modal (ดูสูตรคำนวณทางวิศวกรรม & สถิติ)
-------------------------------------------------------------------- */
-function showFormulaModal(formulaType) {
-  const root = document.getElementById("formula-modal-root");
-  if (!root) return;
-
-  let title = "";
-  let formulaHtml = "";
-
-  if (formulaType === "health_index") {
-    title = "สูตรการคำนวณ Health Index (HI %)";
-    formulaHtml = `
-      <div class="formula-box">
-        <span class="formula-highlight">Health Index (%)</span> = ( &Sigma; (Score<sub>i</sub> &times; Weight<sub>i</sub>) / &Sigma; Max_Score ) &times; 100<br><br>
-        <span class="formula-param">พารามิเตอร์ที่ใช้ประเมิน:</span><br>
-        1. ความเป็นฉนวนน้ำมัน (DGA & Breakdown Voltage) &rarr; Weight = 40%<br>
-        2. ค่าความเป็นฉนวนขดลวด (Insulation Resistance / Megger) &rarr; Weight = 30%<br>
-        3. ผลตรวจความร้อนจุดต่อสาย (Thermoscan IR) &rarr; Weight = 20%<br>
-        4. สภาพทางกายภาพภายนอก (Bushings, Silica Gel, ปะเก็น) &rarr; Weight = 10%<br><br>
-        <span class="formula-result">เกณฑ์ประเมิน:</span> &ge;85% (ดีเยี่ยม), 70-84% (ปานกลาง), &lt;70% (ต้องเข้าแก้ไขทันที)
-      </div>
-    `;
-  } else if (formulaType === "productivity") {
-    title = "สูตรการคำนวณ Labor Productivity (งาน / ชม.แรงงาน)";
-    formulaHtml = `
-      <div class="formula-box">
-        <span class="formula-highlight">Labor Productivity</span> = <span class="formula-param">จำนวนงาน PM ที่ปิดเสร็จสิ้น (Completed Tasks)</span> / <span class="formula-param">ชั่วโมงแรงงานรวมที่ใช้จริง (Total Labor Hours)</span><br><br>
-        <span class="formula-param">ตัวอย่าง:</span><br>
-        ช่างสมชาย ปิดงานเสร็จ 38 งาน ใช้เวลาสะสมรวม 142.5 ชม.<br>
-        &rarr; Productivity = 38 / 142.5 = <span class="formula-result">0.27 งาน / ชั่วโมงแรงงาน</span><br><br>
-        <span class="formula-result">เกณฑ์ WCM:</span> ค่าเฉลี่ยมาตรฐานอยู่ที่ 0.20 - 0.35 งาน/ชม. (ขึ้นอยู่กับประเภทอุปกรณ์)
-      </div>
-    `;
-  } else if (formulaType === "variance") {
-    title = "สูตรการคำนวณผลต่างต้นทุน WCM Variance (%)";
-    formulaHtml = `
-      <div class="formula-box">
-        <span class="formula-highlight">Cost Variance (%)</span> = [ ( <span class="formula-param">ต้นทุนจริงเฉลี่ย (Actual Avg)</span> - <span class="formula-param">เกณฑ์มาตรฐาน WCM (Benchmark)</span> ) / <span class="formula-param">เกณฑ์มาตรฐาน WCM</span> ] &times; 100<br><br>
-        <span class="formula-param">ตัวอย่าง:</span><br>
-        หม้อแปลงจำหน่าย ต้นทุนจริงเฉลี่ย = 8,350 บาท, มาตรฐาน WCM = 8,500 บาท<br>
-        &rarr; Variance = [ (8,350 - 8,500) / 8,500 ] &times; 100 = <span class="formula-result">-1.76% (ประหยัดกว่าเกณฑ์ WCM)</span>
-      </div>
-    `;
-  } else if (formulaType === "distance") {
-    title = "สูตรการคำนวณระยะทาง Haversine Formula";
-    formulaHtml = `
-      <div class="formula-box">
-        <span class="formula-highlight">d</span> = 2R &times; arcsin( &radic;( sin&sup2;(&Delta;lat/2) + cos(lat1)&times;cos(lat2)&times;sin&sup2;(&Delta;lon/2) ) )<br><br>
-        <span class="formula-param">คำอธิบาย:</span><br>
-        • R = รัศมีของโลก (6,371 กิโลเมตร)<br>
-        • จุดอ้างอิง: กฟน. เขตสมุทรปราการ (Lat: 13.5991, Lon: 100.5968)<br>
-        • ระบบใช้คำนวณระยะทางพิกัดเพื่อจัดลำดับจุดตรวจ 1, 2, 3... จากจุดที่ใกล้ที่สุดก่อน
-      </div>
-    `;
-  }
-
-  root.innerHTML = `
-    <div class="modal-backdrop" id="formula-modal-backdrop">
-      <div class="modal-card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:10px;">
-          <h3 style="font-size:16px;font-weight:800;color:var(--navy);margin:0;">${title}</h3>
-          <button class="close-modal" onclick="closeFormulaModal()">&times;</button>
-        </div>
-        ${formulaHtml}
-        <div style="text-align:right;margin-top:14px;">
-          <button class="btn-secondary" onclick="closeFormulaModal()">ปิดหน้าต่าง</button>
-        </div>
-      </div>
-    </div>
-  `;
-
-  const backdrop = document.getElementById("formula-modal-backdrop");
-  if (backdrop) backdrop.onclick = (e) => { if (e.target === backdrop) closeFormulaModal(); };
-}
-
-function closeFormulaModal() {
-  const root = document.getElementById("formula-modal-root");
-  if (root) root.innerHTML = "";
-}
-
-/* -------------------------------------------------------------------
-   Modal แสดงรายละเอียดเชิงลึกเมื่อกด 4 กรอบ KPI
-------------------------------------------------------------------- */
-function showKpiDetail(type) {
-  const root = document.getElementById("kpi-modal-root");
-  if (!root) return;
-
-  const { pmRecords, planRecords } = STATE;
-  let title = "";
-  let contentHtml = "";
-
-  if (type === "total_pm") {
-    const completed = pmRecords.filter(r => r.status === "เสร็จสิ้น").length;
-    const ongoing = pmRecords.filter(r => r.status === "ระหว่างดำเนินการ" || r.status === "กำลังดำเนินการ").length;
-    const pending = pmRecords.filter(r => r.status === "รอดำเนินการ").length;
-
-    title = `รายละเอียดงาน PM ทั้งหมด (${pmRecords.length} งาน)`;
-    contentHtml = `
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
-        <div class="card" style="padding:12px;text-align:center;border-left:3px solid var(--green);">
-          <div style="font-size:11px;color:var(--muted);">เสร็จสิ้นแล้ว</div>
-          <div style="font-size:20px;font-weight:700;color:var(--green);font-family:'JetBrains Mono';">${completed}</div>
-        </div>
-        <div class="card" style="padding:12px;text-align:center;border-left:3px solid var(--electric);">
-          <div style="font-size:11px;color:var(--muted);">ระหว่างดำเนินการ</div>
-          <div style="font-size:20px;font-weight:700;color:var(--electric);font-family:'JetBrains Mono';">${ongoing}</div>
-        </div>
-        <div class="card" style="padding:12px;text-align:center;border-left:3px solid var(--amber);">
-          <div style="font-size:11px;color:var(--muted);">รอดำเนินการ</div>
-          <div style="font-size:20px;font-weight:700;color:var(--amber);font-family:'JetBrains Mono';">${pending}</div>
-        </div>
-      </div>
-      <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">รายการงาน PM ล่าสุดในระบบ:</p>
-      ${recordsTable(pmRecords.slice(0, 10), { compact: true })}
-      <div style="margin-top:16px;text-align:right;">
-        <button class="btn-primary" onclick="closeKpiModal(); TAB='entry'; render();">ไปยังหน้ารายการ PM ทั้งหมด ➔</button>
-      </div>
-    `;
-  } else if (type === "health_index") {
-    title = `สรุปดัชนีสุขภาพอุปกรณ์ (Health Index Assessment)`;
-    contentHtml = `
-      <div style="background:var(--green-soft);padding:14px;border-radius:12px;margin-bottom:16px;border:1px solid #A7F3D0;">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <div style="font-size:14px;font-weight:700;color:var(--navy);">⚡ สุขภาพอุปกรณ์รวม: 93.8% (เกณฑ์ดีเยี่ยม)</div>
-          <button class="formula-btn" onclick="showFormulaModal('health_index')">${ICONS.calculator} ดูสูตรคำนวณ HI</button>
-        </div>
-        <div style="font-size:12px;color:var(--muted);margin-top:4px;">วิเคราะห์จากค่าความเป็นฉนวน, คุณสมบัติน้ำมัน และผลการตรวจ Thermoscan ล่าสุด</div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
-        <div class="card" style="padding:12px;">
-          <div style="font-size:12px;font-weight:600;color:var(--navy);">หม้อแปลงจำหน่าย (TR)</div>
-          <div style="font-size:16px;font-weight:700;color:var(--green);font-family:'JetBrains Mono';">HI = 94.5%</div>
-        </div>
-        <div class="card" style="padding:12px;">
-          <div style="font-size:12px;font-weight:600;color:var(--navy);">Unit Substation (US)</div>
-          <div style="font-size:16px;font-weight:700;color:var(--green);font-family:'JetBrains Mono';">HI = 93.1%</div>
-        </div>
-      </div>
-      <p style="font-size:13px;color:var(--muted);">อุปกรณ์ที่มีค่า Health Index ต่ำกว่า 80% จะถูกแจ้งเตือนให้เข้าบำรุงรักษาเชิงแก้ไขทันที</p>
-    `;
-  } else if (type === "total_cost") {
-    const totalMaterial = pmRecords.reduce((s, r) => s + Number(r.materialCost||0), 0);
-    const totalLabor = pmRecords.reduce((s, r) => s + Number(r.laborCost||0), 0);
-    const totalOther = pmRecords.reduce((s, r) => s + Number(r.otherCost||0), 0);
-    const total = totalMaterial + totalLabor + totalOther;
-
-    title = `โครงสร้างต้นทุนงานบำรุงรักษาจริง (${baht(total)})`;
-    contentHtml = `
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
-        <div class="card" style="padding:12px;text-align:center;">
-          <div style="font-size:11px;color:var(--muted);">ค่าพัสดุ/อุปกรณ์</div>
-          <div style="font-size:16px;font-weight:700;color:var(--navy);font-family:'JetBrains Mono';">${baht(totalMaterial)}</div>
-          <div style="font-size:10px;color:var(--muted);">${Math.round(totalMaterial/total*100)}% ของงบรวม</div>
-        </div>
-        <div class="card" style="padding:12px;text-align:center;">
-          <div style="font-size:11px;color:var(--muted);">ค่าแรงทีมช่าง</div>
-          <div style="font-size:16px;font-weight:700;color:var(--navy);font-family:'JetBrains Mono';">${baht(totalLabor)}</div>
-          <div style="font-size:10px;color:var(--muted);">${Math.round(totalLabor/total*100)}% ของงบรวม</div>
-        </div>
-        <div class="card" style="padding:12px;text-align:center;">
-          <div style="font-size:11px;color:var(--muted);">ค่าใช้จ่ายอื่น</div>
-          <div style="font-size:16px;font-weight:700;color:var(--navy);font-family:'JetBrains Mono';">${baht(totalOther)}</div>
-          <div style="font-size:10px;color:var(--muted);">${Math.round(totalOther/total*100)}% ของงบรวม</div>
-        </div>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;">
-        <button class="formula-btn" onclick="showFormulaModal('variance')">${ICONS.calculator} ดูสูตร WCM Variance</button>
-        <button class="btn-primary" onclick="closeKpiModal(); TAB='cost'; render();">ไปยังหน้าวิเคราะห์ WCM Cost ➔</button>
-      </div>
-    `;
-  } else if (type === "upcoming_plans") {
-    const high = planRecords.filter(p => p.priority === "สูง").length;
-    const med = planRecords.filter(p => p.priority === "กลาง").length;
-    const low = planRecords.filter(p => p.priority === "ต่ำ").length;
-
-    title = `สรุปแผนงานบำรุงรักษาล่วงหน้า (${planRecords.length} แผนงาน)`;
-    contentHtml = `
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
-        <div class="card" style="padding:12px;text-align:center;border-left:3px solid var(--red);">
-          <div style="font-size:11px;color:var(--muted);">ความสำคัญสูง</div>
-          <div style="font-size:20px;font-weight:700;color:var(--red);font-family:'JetBrains Mono';">${high}</div>
-        </div>
-        <div class="card" style="padding:12px;text-align:center;border-left:3px solid var(--amber);">
-          <div style="font-size:11px;color:var(--muted);">ความสำคัญกลาง</div>
-          <div style="font-size:20px;font-weight:700;color:var(--amber);font-family:'JetBrains Mono';">${med}</div>
-        </div>
-        <div class="card" style="padding:12px;text-align:center;border-left:3px solid var(--muted);">
-          <div style="font-size:11px;color:var(--muted);">ความสำคัญต่ำ</div>
-          <div style="font-size:20px;font-weight:700;color:var(--muted);font-family:'JetBrains Mono';">${low}</div>
-        </div>
-      </div>
-      <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">แผนงานที่ใกล้ถึงกำหนดเข้าตรวจ:</p>
-      <div class="desktop-table-wrap">
-        <table>
-          <thead><tr><th>วันที่</th><th>อุปกรณ์</th><th>รหัส</th><th>สายป้อน</th><th>ทีม</th></tr></thead>
-          <tbody>
-            ${planRecords.slice(0, 6).map(p => `
-              <tr>
-                <td>${thDate(p.plannedDate)}</td>
-                <td>${esc(p.equipmentType)}</td>
-                <td class="mono" style="color:var(--electric);font-weight:700;">${esc(p.equipmentId)}</td>
-                <td class="muted">${esc(p.location)}</td>
-                <td><span class="pill" style="background:var(--blue-soft);color:var(--navy);">${esc(p.team)}</span></td>
-              </tr>
-            `).join("")}
-          </tbody>
-        </table>
-      </div>
-      <div style="text-align:right;margin-top:16px;">
-        <button class="btn-primary" onclick="closeKpiModal(); TAB='plan'; render();">ไปยังหน้าตารางแผนงาน ➔</button>
-      </div>
-    `;
-  }
-
-  root.innerHTML = `
-    <div class="modal-backdrop" id="kpi-modal-backdrop">
-      <div class="modal-card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;border-bottom:1px solid var(--border);padding-bottom:12px;">
-          <h3 style="font-size:17px;font-weight:800;color:var(--navy);margin:0;">${title}</h3>
-          <button class="close-modal" onclick="closeKpiModal()">&times;</button>
-        </div>
-        <div>${contentHtml}</div>
-      </div>
-    </div>
-  `;
-
-  const backdrop = document.getElementById("kpi-modal-backdrop");
-  if (backdrop) backdrop.onclick = (e) => { if (e.target === backdrop) closeKpiModal(); };
-}
-
-function closeKpiModal() {
-  const root = document.getElementById("kpi-modal-root");
-  if (root) root.innerHTML = "";
-}
-
-function renderModal(){
-  const modalRoot = document.getElementById("modal-root");
-  if(!modalRoot) return;
-  if(!EDITING_RECORD){ modalRoot.innerHTML = ""; return; }
-
-  const { type, data } = EDITING_RECORD;
-
-  if (type === "pm") {
-    const curType = data.equipmentType || EQUIPMENT_TYPES[0];
-    const capList = CAPACITY_OPTIONS[curType] || [];
-
-    modalRoot.innerHTML = `
-      <div class="modal-backdrop" id="modal-backdrop">
-        <div class="modal-card">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;border-bottom:1px solid var(--border);padding-bottom:12px;">
-            <h3 style="font-size:17px;font-weight:800;color:var(--navy);margin:0;">แก้ไขงาน PM (${esc(data.equipmentId)})</h3>
-            <button class="close-modal" id="modal-close-btn">&times;</button>
-          </div>
-          <form id="edit-pm-form" class="entry-form" style="padding:0;border:none;box-shadow:none;margin-bottom:0;">
-            ${field("วันที่ปฏิบัติงาน", `<input type="date" required id="m-date" value="${esc(data.date)}"/>`)}
-            ${field("ประเภทอุปกรณ์", `<select id="m-equipmentType">${EQUIPMENT_TYPES.map(t=>`<option ${data.equipmentType===t?"selected":""}>${t}</option>`).join("")}</select>`)}
-            ${field("ขนาดและพิกัดกำลัง", `<select id="m-capacity">${capList.map(c=>`<option ${data.capacity===c?"selected":""}>${c}</option>`).join("")}</select>`)}
-            ${field("รหัสอุปกรณ์", `<input required id="m-equipmentId" value="${esc(data.equipmentId)}"/>`)}
-            
-            <div class="field">
-              <span class="field-label">สายป้อน / พิกัดสถานที่</span>
-              <div style="display:flex;gap:6px;">
-                <input id="m-location" value="${esc(data.location||"")}" placeholder="ระบุสายป้อนหรือพิกัด GPS"/>
-                <button type="button" class="btn-secondary" id="m-gps-btn" title="ดึงพิกัด GPS">${ICONS.gps} ดึง GPS</button>
-              </div>
-            </div>
-
-            ${field("ทีมปฏิบัติงาน", `<input required id="m-team" value="${esc(data.team)}"/>`)}
-            ${field("ผู้ปฏิบัติงานหลัก", `<input id="m-technician" value="${esc(data.technician||"")}"/>`)}
-            ${field("ชั่วโมงแรงงานรวม (ชม.)", `<input type="number" min="0" step="0.5" id="m-laborHours" value="${esc(data.laborHours)}"/>`)}
-            ${field("ค่าพัสดุ/อุปกรณ์ (บาท)", `<input type="number" min="0" id="m-materialCost" value="${esc(data.materialCost)}"/>`)}
-            ${field("ค่าแรง (บาท)", `<input type="number" min="0" id="m-laborCost" value="${esc(data.laborCost)}"/>`)}
-            ${field("ค่าใช้จ่ายอื่น (บาท)", `<input type="number" min="0" id="m-otherCost" value="${esc(data.otherCost)}"/>`)}
-            ${field("ประเภทการบำรุงรักษา", `<select id="m-maintenanceType"><option ${data.maintenanceType==="ป้องกัน"?"selected":""}>ป้องกัน</option><option ${data.maintenanceType==="แก้ไข"?"selected":""}>แก้ไข</option></select>`)}
-            ${field("สถานะงาน", `<select id="m-status">${PM_STATUSES.map(s=>`<option ${data.status===s?"selected":""}>${s}</option>`).join("")}</select>`)}
-            
-            <div class="field span-all">
-              <span class="field-label">แนบรูปถ่ายหน้างาน / รูปอุปกรณ์</span>
-              <input type="file" id="m-photo-input" accept="image/*" style="font-size:12px;padding:8px;"/>
-              <div id="m-photo-preview" class="photo-preview-wrap">
-                ${data.photo ? `<img src="${data.photo}" class="photo-thumb" id="m-thumb-img"/>` : ''}
-              </div>
-            </div>
-
-            <div class="span-all">${field("บันทึกการทำงาน / ข้อสังเกต / Health Index", `<textarea rows="3" id="m-notes">${esc(data.notes||"")}</textarea>`)}</div>
-            <div class="form-actions" style="margin-top:14px;">
-              <button type="button" class="btn-secondary" id="modal-cancel-btn">ยกเลิก</button>
-              <button type="submit" class="btn-primary">${ICONS.check("#fff")} บันทึกการเปลี่ยนแปลง</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    `;
-  }
-  attachModalListeners();
-}
-
-function attachModalListeners(){
-  const closeBtn = document.getElementById("modal-close-btn");
-  const cancelBtn = document.getElementById("modal-cancel-btn");
-  const backdrop = document.getElementById("modal-backdrop");
-  const closeModal = () => { EDITING_RECORD = null; renderModal(); };
-
-  if(closeBtn) closeBtn.onclick = closeModal;
-  if(cancelBtn) cancelBtn.onclick = closeModal;
-  if(backdrop) backdrop.onclick = (e) => { if(e.target === backdrop) closeModal(); };
-
-  const mGpsBtn = document.getElementById("m-gps-btn");
-  if(mGpsBtn){
-    mGpsBtn.onclick = () => {
-      if("geolocation" in navigator){
-        mGpsBtn.innerText = "กำลังหาพิกัด...";
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            const locInput = document.getElementById("m-location");
-            if(locInput){
-              locInput.value = `พิกัด GPS: ${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
-            }
-            mGpsBtn.innerHTML = `${ICONS.gps} ดึง GPS`;
-          },
-          (err) => {
-            alert("ไม่สามารถเข้าถึงตำแหน่งได้");
-            mGpsBtn.innerHTML = `${ICONS.gps} ดึง GPS`;
-          },
-          { timeout: 10000 }
-        );
-      }
-    };
-  }
-
-  let modalPhotoBase64 = EDITING_RECORD?.data?.photo || "";
-  const mPhotoInput = document.getElementById("m-photo-input");
-  if(mPhotoInput){
-    mPhotoInput.onchange = (e) => {
-      const file = e.target.files[0];
-      if(file){
-        const reader = new FileReader();
-        reader.onload = (evt) => {
-          modalPhotoBase64 = evt.target.result;
-          const prev = document.getElementById("m-photo-preview");
-          if(prev) prev.innerHTML = `<img src="${modalPhotoBase64}" class="photo-thumb" id="m-thumb-img"/>`;
-        };
-        reader.readAsDataURL(file);
-      }
-    };
-  }
-
-  const editTypeSelect = document.getElementById("m-equipmentType");
-  if(editTypeSelect){
-    editTypeSelect.onchange = () => {
-      const selectedType = editTypeSelect.value;
-      const capSelect = document.getElementById("m-capacity");
-      if(capSelect && CAPACITY_OPTIONS[selectedType]){
-        capSelect.innerHTML = CAPACITY_OPTIONS[selectedType].map(c=>`<option>${c}</option>`).join("");
-      }
-    };
-  }
-
-  const editPmForm = document.getElementById("edit-pm-form");
-  if(editPmForm){
-    editPmForm.onsubmit = (e) => {
-      e.preventDefault();
-      const val = id => document.getElementById(id).value;
-      const updated = {
-        ...EDITING_RECORD.data,
-        date: val("m-date"), equipmentType: val("m-equipmentType"), capacity: val("m-capacity"),
-        equipmentId: val("m-equipmentId"), location: val("m-location"), team: val("m-team"), technician: val("m-technician"),
-        laborHours: Number(val("m-laborHours"))||0, materialCost: Number(val("m-materialCost"))||0,
-        laborCost: Number(val("m-laborCost"))||0, otherCost: Number(val("m-otherCost"))||0,
-        maintenanceType: val("m-maintenanceType"), status: val("m-status"), notes: val("m-notes"),
-        photo: modalPhotoBase64
-      };
-      persist({ ...STATE, pmRecords: STATE.pmRecords.map(r => r.id === updated.id ? updated : r) });
-      EDITING_RECORD = null; renderModal();
-    };
-  }
-}
-
-function renderLogin(){
-  return `
-    <div class="login-container">
-      <div class="login-card">
-        <div style="text-align:center;margin-bottom:20px;">
-          <div class="login-logo">${ICONS.zap}</div>
-          <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:800;color:var(--navy);margin:0;">MEA PM PLANNER</h1>
-          <div style="font-size:13px;color:var(--muted);margin-top:4px;">ระบบบริหารงานบำรุงรักษา กฟน. เขตสมุทรปราการ (300+ Records)</div>
-        </div>
-        ${LOGIN_ERROR ? `<div class="alert-box">${esc(LOGIN_ERROR)}</div>` : ""}
-        <form id="login-form">
-          <div class="field" style="margin-bottom:14px;">
-            <span class="field-label">ชื่อผู้ใช้งาน (Username)</span>
-            <input type="text" id="l-user" placeholder="admin หรือ tech" required autocomplete="username"/>
-          </div>
-          <div class="field" style="margin-bottom:22px;">
-            <span class="field-label">รหัสผ่าน (Password)</span>
-            <input type="password" id="l-pass" placeholder="••••••••" required autocomplete="current-password"/>
-          </div>
-          <button type="submit" class="btn-primary" style="padding:14px; width:100%;">เข้าสู่ระบบ Smart CMMS</button>
-        </form>
-        <div style="margin-top:16px;padding:12px;background:var(--bg);border-radius:8px;font-size:12px;color:var(--muted);">
-          <p><strong>🔑 บัญชีทดสอบระบบ:</strong></p>
-          <p>• วิศวกร/หัวหน้างาน: <code>admin</code> / <code>admin123</code></p>
-          <p>• ช่างปฏิบัติงาน: <code>tech</code> / <code>tech123</code></p>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
 function render(){
   const app = document.getElementById("app");
   if(!app) return;
@@ -1111,6 +574,241 @@ function renderTab(){
   if(TAB==="kpi" && CURRENT_USER.role === 'admin') return renderKpi();
   return renderDashboard();
 }
+
+function renderDashboard(){
+  const {pmRecords, planRecords} = STATE;
+  const totalCost = pmRecords.reduce((s,r)=>s+Number(r.materialCost)+Number(r.laborCost)+Number(r.otherCost),0);
+  const completed = pmRecords.filter(r=>r.status==="เสร็จสิ้น").length;
+  const avgCost = pmRecords.length ? totalCost/pmRecords.length : 0;
+  const upcoming = planRecords.filter(p=>p.status!=="เสร็จสิ้น").length;
+
+  return `
+    ${sectionHeader("แดชบอร์ดภาพรวม (Big Data CMMS)", `กำลังแสดงผลข้อมูลประวัติงาน PM จำนวน ${pmRecords.length} รายการ และแผนงาน ${planRecords.length} รายการ`, `
+      <button class="btn-secondary" id="print-pdf-btn">${ICONS.filePdf} พิมพ์สรุป (PDF)</button>
+    `)}
+    <div class="kpi-grid">
+      ${kpiCard("clipboard","งาน PM ในฐานข้อมูล",pmRecords.length,`ปิดงานแล้ว ${completed} งาน`,"electric", "showKpiDetail('total_pm')")}
+      ${kpiCard("gauge","Health Index เฉลี่ย", "93.8%", "ประเมินสุขภาพอุปกรณ์รวม 5 กลุ่ม", "green", "showKpiDetail('health_index')")}
+      ${kpiCard("coins","ต้นทุนจริงรวม",baht(totalCost),`เฉลี่ย ${baht(avgCost)}/งาน`,"amber", "showKpiDetail('total_cost')")}
+      ${kpiCard("calendar","แผนงานค้าง",upcoming,"รอ / กำลังดำเนินการ","red", "showKpiDetail('upcoming_plans')")}
+    </div>
+    <div class="chart-grid">
+      <div class="card chart-card">
+        <h3>ต้นทุนเฉลี่ยจริง เทียบมาตรฐาน WCM (บาท/งาน)</h3>
+        <div class="chart-wrap"><canvas id="costChart"></canvas></div>
+      </div>
+      <div class="card chart-card">
+        <h3>สัดส่วนงาน PM ตามขนาดพิกัดกำลัง (Equipment Capacity Distribution)</h3>
+        <div class="chart-wrap"><canvas id="capacityChart"></canvas></div>
+      </div>
+    </div>
+    <div class="card chart-card">
+      <h3>รายการ PM ล่าสุด (จากทั้งหมด ${pmRecords.length} รายการ)</h3>
+      ${recordsTable(pmRecords.slice(0,8), {compact:true})}
+    </div>
+  `;
+}
+
+function drawDashboardCharts(){
+  const {pmRecords, benchmarks} = STATE;
+  if (typeof Chart === 'undefined') return;
+  if(CHARTS.cost) { CHARTS.cost.destroy(); CHARTS.cost = null; }
+  if(CHARTS.cap) { CHARTS.cap.destroy(); CHARTS.cap = null; }
+
+  const costByType = EQUIPMENT_TYPES.map(t=>{
+    const recs = pmRecords.filter(r=>r.equipmentType===t);
+    const cost = recs.reduce((s,r)=>s+Number(r.materialCost)+Number(r.laborCost)+Number(r.otherCost),0);
+    return { type:t, actual: recs.length ? Math.round(cost/recs.length) : 0, bench: benchmarks[t]||0 };
+  });
+
+  const formattedLabels = ["หม้อแปลงจำหน่าย","LBS",["UNIT","SUBSTATION"],["รีโคลสเซอร์","(Recloser)"],"ดรอปเอาท์ฟิวส์"];
+  const costCtx = document.getElementById("costChart");
+  if(costCtx){
+    CHARTS.cost = new Chart(costCtx, {
+      type:"bar",
+      data:{
+        labels: formattedLabels,
+        datasets:[
+          {label:"ต้นทุนจริงเฉลี่ย", data: costByType.map(d=>d.actual), backgroundColor:C.blue, borderRadius:6, barPercentage: 0.7},
+          {label:"เกณฑ์ WCM", data: costByType.map(d=>d.bench), backgroundColor:C.amber, borderRadius:6, barPercentage: 0.7},
+        ]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{position:"bottom", labels:{font:{family:"'Noto Sans Thai', sans-serif", size:11}, padding: 14}} },
+        scales:{
+          y:{ grid:{color:C.border}, ticks:{font:{family:"'JetBrains Mono', monospace", size:10}, callback:(v)=>v.toLocaleString()} },
+          x:{ grid:{display:false}, ticks:{font:{family:"'Noto Sans Thai', sans-serif", size:10, weight:'600'}, maxRotation: 0, minRotation: 0} }
+        }
+      }
+    });
+  }
+
+  const capMap = {};
+  pmRecords.forEach(r => {
+    const key = r.capacity || "ไม่ระบุขนาด";
+    capMap[key] = (capMap[key] || 0) + 1;
+  });
+  const capLabels = Object.keys(capMap);
+  const capCtx = document.getElementById("capacityChart");
+  if(capCtx){
+    CHARTS.cap = new Chart(capCtx, {
+      type:"doughnut",
+      data:{
+        labels: capLabels,
+        datasets:[{
+          data: Object.values(capMap),
+          backgroundColor: [C.blue, C.green, C.amber, C.purple, C.red, '#06B6D4', '#EC4899', '#84CC16', '#F97316', '#6366F1', '#14B8A6'],
+          borderWidth: 2, borderColor: '#fff'
+        }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{position:"right", labels:{font:{family:"'JetBrains Mono', 'Noto Sans Thai', sans-serif", size:10}, boxWidth: 10}} }
+      }
+    });
+  }
+}
+
+function getSortedInspectionPoints(){
+  const { planRecords, pmRecords } = STATE;
+  const activePlans = planRecords.filter(p => p.status !== "เสร็จสิ้น");
+  const pendingPMs = pmRecords.filter(p => p.status === "ระหว่างดำเนินการ" || p.status === "รอดำเนินการ").map(p => ({
+    equipmentType: p.equipmentType, capacity: p.capacity, equipmentId: p.equipmentId, location: p.location, team: p.team, priority: "สูง", status: p.status, plannedDate: p.date
+  }));
+  const combined = [...activePlans, ...pendingPMs];
+
+  const pointsWithCoords = combined.map(item => {
+    const coords = LOCATIONS_COORDS[item.location] || [13.5850, 100.6380];
+    const distance = calculateDistance(coords[0], coords[1]);
+    return { ...item, coords, distance };
+  });
+
+  pointsWithCoords.sort((a, b) => a.distance - b.distance);
+  return pointsWithCoords;
+}
+
+function renderRoutes(){
+  const allPoints = getSortedInspectionPoints();
+  const filtered = allPoints.filter(item => ROUTE_TEAM_FILTER === "ทั้งหมด" ? true : item.team === ROUTE_TEAM_FILTER);
+  const teams = ["ทั้งหมด", ...Array.from(new Set(allPoints.map(r => r.team))).filter(Boolean)];
+
+  return `
+    ${sectionHeader("แผนที่เส้นทางนำตรวจอัจฉริยะ (Smart Inspection Map)", "จัดลำดับหมุดตัวเลขตามจุดที่อยู่ใกล้ กฟน. เขตสมุทรปราการ ที่สุดก่อน เพื่อประหยัดเวลาเดินทาง", `
+      <button class="btn-secondary" id="print-pdf-btn">${ICONS.filePdf} พิมพ์ใบนำทาง (PDF)</button>
+    `)}
+
+    <div class="card" style="margin-bottom:20px;padding:12px;">
+      <div id="map-container"></div>
+    </div>
+
+    <div class="card chart-card">
+      <div class="toolbar" style="align-items:center;">
+        <span style="font-size:13px;font-weight:700;color:var(--navy);">เลือกทีม:</span>
+        <select id="route-team-select">${teams.map(t => `<option value="${t}" ${ROUTE_TEAM_FILTER===t?"selected":""}>${t}</option>`).join("")}</select>
+        <span style="font-size:12px;color:var(--muted);margin-left:auto;">รวม <strong>${filtered.length} จุดตรวจ (เรียงตามระยะทางใกล้-ไกล)</strong></span>
+      </div>
+
+      <div class="mobile-record-list">
+        ${filtered.map((item, idx) => {
+          const queryLoc = encodeURIComponent((item.location || "การไฟฟ้านครหลวง เขตสมุทรปราการ") + " สมุทรปราการ");
+          const mapUrl = `https://www.google.com/maps/search/?api=1&query=${queryLoc}`;
+          return `
+            <div class="m-record-card">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <span style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg, #0088FF, #0055CC);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">${idx+1}</span>
+                  <div>
+                    <div class="m-card-id">${esc(item.equipmentId)} <span class="capacity-pill">${esc(item.capacity||"-")}</span></div>
+                    <div style="font-size:12px;font-weight:600;margin-top:2px;">${esc(item.equipmentType)}</div>
+                  </div>
+                </div>
+                <div>${statusPill(item.status)}</div>
+              </div>
+              <div style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;">
+                <span>${esc(item.location||"สายป้อน กฟน. สป.")}</span>
+                <span class="dist-badge">~${item.distance} กม.</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px dashed var(--border);padding-top:10px;margin-top:2px;">
+                <span class="pill" style="background:var(--blue-soft);color:var(--navy);font-size:11px;">${esc(item.team)}</span>
+                <a href="${mapUrl}" target="_blank" class="btn-sm" style="text-decoration:none;gap:4px;">${ICONS.navigation} เปิด Google Maps</a>
+              </div>
+            </div>
+          `;
+        }).join("")}
+      </div>
+
+      ${filtered.length ? `
+      <div class="desktop-table-wrap">
+        <table>
+          <thead><tr><th>ลำดับ</th><th>อุปกรณ์</th><th>ขนาดพิกัด</th><th>รหัส</th><th>สายป้อน / พิกัดสถานที่</th><th>ระยะทางจาก กฟน.</th><th>ทีม</th><th>สถานะ</th><th style="text-align:right;">นำทาง</th></tr></thead>
+          <tbody>
+            ${filtered.map((item, idx) => {
+              const queryLoc = encodeURIComponent((item.location || "การไฟฟ้านครหลวง เขตสมุทรปราการ") + " สมุทรปราการ");
+              return `
+                <tr>
+                  <td><span style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg, #0088FF, #0055CC);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">${idx+1}</span></td>
+                  <td><strong>${esc(item.equipmentType)}</strong></td>
+                  <td><span class="capacity-pill">${esc(item.capacity||"-")}</span></td>
+                  <td class="mono" style="font-weight:700;color:var(--electric);">${esc(item.equipmentId)}</td>
+                  <td>${esc(item.location || "สายป้อน กฟน. สป.")}</td>
+                  <td><span class="dist-badge">~${item.distance} กม.</span></td>
+                  <td><span class="pill" style="background:var(--blue-soft);color:var(--navy);">${esc(item.team)}</span></td>
+                  <td>${statusPill(item.status)}</td>
+                  <td style="text-align:right;"><a href="https://www.google.com/maps/search/?api=1&query=${queryLoc}" target="_blank" class="btn-sm" style="text-decoration:none;gap:4px;">${ICONS.navigation} เปิด Google Maps</a></td>
+                </tr>
+              `;
+            }).join("")}
+          </tbody>
+        </table>
+      </div>` : emptyState("ไม่มีรายการจุดตรวจค้าง")}
+    </div>
+  `;
+}
+
+function initMap(){
+  const container = document.getElementById("map-container");
+  if(!container || typeof L === 'undefined') return;
+  if(LEAFLET_MAP) { LEAFLET_MAP.remove(); LEAFLET_MAP = null; }
+
+  LEAFLET_MAP = L.map('map-container').setView(MEA_HQ_COORDS, 11);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '© OpenStreetMap' }).addTo(LEAFLET_MAP);
+
+  const hqIcon = L.divIcon({
+    className: 'custom-start-pin',
+    html: '⚡',
+    iconSize: [32, 32],
+    iconAnchor: [16, 16]
+  });
+
+  L.marker(MEA_HQ_COORDS, { icon: hqIcon }).addTo(LEAFLET_MAP)
+    .bindPopup('<b>📍 กฟน. เขตสมุทรปราการ</b><br>จุดเริ่มต้นศูนย์สั่งการ').openPopup();
+
+  const points = getSortedInspectionPoints();
+  const filtered = points.filter(item => ROUTE_TEAM_FILTER === "ทั้งหมด" ? true : item.team === ROUTE_TEAM_FILTER);
+
+  filtered.forEach((r, idx) => {
+    const numIcon = L.divIcon({
+      className: 'custom-numbered-pin',
+      html: `<span>${idx + 1}</span>`,
+      iconSize: [28, 28],
+      iconAnchor: [14, 14]
+    });
+
+    L.marker(r.coords, { icon: numIcon }).addTo(LEAFLET_MAP)
+      .bindPopup(`
+        <div style="font-family:'Noto Sans Thai', sans-serif;">
+          <strong style="color:#0088FF;">ลำดับที่ ${idx + 1}</strong>: ${esc(r.equipmentId)}<br>
+          <b>ประเภท:</b> ${esc(r.equipmentType)} (${esc(r.capacity||"-")})<br>
+          <b>สถานที่:</b> ${esc(r.location)}<br>
+          <b>ระยะทางจาก กฟน.:</b> ~${r.distance} กม.<br>
+          <b>ทีมที่รับผิดชอบ:</b> ${esc(r.team)}
+        </div>
+      `);
+  });
+}
+
+let pmPhotoBase64 = "";
 
 function renderEntry(){
   const f = pmForm;
