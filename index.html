@@ -87,7 +87,7 @@
     font-size:14px; font-weight:500; color:#94A3B8; background:transparent;
     border:none; cursor:pointer; text-align:left; font-family:inherit; transition:0.2s;
   }
-  .nav-btn:hover{ background:rgba(255,255,255,0.06); color:#fff; transform:translateX(3px); }
+  .nav-btn:hover{ background:rgba(255,255,255,0.06); color:#fff; }
   .nav-btn.active{
     background:linear-gradient(135deg, var(--electric), #0066CC); color:#fff; font-weight:600;
   }
@@ -120,13 +120,13 @@
   .header-actions{ display:flex; gap:8px; flex-wrap:wrap; width:100%; }
   @media(min-width:640px){ .header-actions{ width:auto; } }
 
-  /* KPI Grid */
+  /* KPI Grid & Clickable Cards */
   .kpi-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-bottom:24px; }
   @media(min-width:1024px){ .kpi-grid{ grid-template-columns:repeat(4,1fr); gap:18px; } }
 
   .kpi-card{
     display:flex; flex-direction:column; gap:8px; border-left:4px solid var(--electric);
-    cursor:pointer;
+    cursor:pointer; position:relative; overflow:hidden;
   }
   .kpi-card:hover{ transform:translateY(-3px); box-shadow:var(--shadow-md); }
   .kpi-card.green{ border-left-color: var(--green); }
@@ -142,7 +142,20 @@
 
   #map-container{ height: 420px; width: 100%; border-radius: 14px; z-index: 1; border: 1px solid var(--border); }
 
-  /* Charts Wrap */
+  /* Formula Box */
+  .formula-btn{
+    display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600;
+    color:var(--electric); background:var(--blue-soft); padding:4px 10px; border-radius:8px;
+    cursor:pointer; border:1px solid #BFDBFE; text-decoration:none;
+  }
+  .formula-btn:hover{ background:var(--electric); color:#fff; }
+  .formula-box{
+    background:#0F172A; color:#E2E8F0; padding:16px; border-radius:12px;
+    font-family:'JetBrains Mono', monospace; font-size:13px; line-height:1.7;
+    margin:12px 0; border:1px solid #334155;
+  }
+
+  /* Charts */
   .chart-grid{ display:grid; grid-template-columns:1fr; gap:18px; margin-bottom:24px; }
   @media(min-width:1024px){ .chart-grid{ grid-template-columns:1fr 1fr; } }
   .chart-card h3{ font-size:15px; font-weight:700; color:var(--navy); margin:0 0 16px; }
@@ -159,7 +172,7 @@
   .field{ display:flex; flex-direction:column; gap:6px; font-size:13px; }
   .field-label{ color:var(--muted); font-weight:600; font-size:12px; }
   .field input, .field select, .field textarea{ width:100%; border:1px solid var(--border); border-radius:10px; padding:10px 14px; font-size:14px; outline:none; background:var(--surface); color:var(--text); font-family:inherit; transition:.15s; min-height:44px; }
-  .field input:focus, .field select:focus, .field textarea:focus{ border-color:var(--electric); }
+  .field input:focus, .field select:focus, .field textarea:focus{ border-color:var(--electric); box-shadow:0 0 0 3px var(--electric-glow); }
   .span-all{ grid-column:1/-1; }
   .form-actions{ grid-column:1/-1; display:flex; justify-content:flex-end; gap:10px; }
 
@@ -188,6 +201,7 @@
   .capacity-pill{ display:inline-flex; align-items:center; border-radius:6px; padding:2px 8px; font-size:11px; font-weight:700; font-family:'JetBrains Mono',monospace; background:var(--purple-soft); color:var(--purple); border:1px solid #DDD6FE; }
   
   .btn-sm{ padding:6px 12px; font-size:12px; border-radius:8px; border:1px solid var(--electric); background:var(--blue-soft); color:var(--electric); cursor:pointer; font-family:inherit; display:inline-flex; align-items:center; justify-content:center; font-weight:600; min-height:34px; }
+  .btn-sm:hover{ background:var(--electric); color:#fff; }
 
   .bench-grid{ display:grid; grid-template-columns:1fr; gap:12px; margin-bottom:20px; }
   @media(min-width:640px){ .bench-grid{ grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px; } }
@@ -212,7 +226,7 @@
     .chart-grid, #map-container { display: none !important; }
     .desktop-table-wrap { display: block !important; }
     .mobile-record-list { display: none !important; }
-    table { width: 100% !important; border-collapse: collapse !important; }
+    table { width: 100% !important; border-collapse: collapse !important; margin-top: 10px; }
     th, td { border: 1px solid #ccc !important; padding: 6px 8px !important; }
   }
 
@@ -246,6 +260,7 @@ const ICONS = {
   check: (c)=>`<svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`,
   rotate: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>`,
   lock: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
+  more: `<svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>`,
 };
 
 const C = {
@@ -266,8 +281,8 @@ const EQUIPMENT_TYPES = Object.keys(CAPACITY_OPTIONS);
 const PRIORITIES = ["สูง","กลาง","ต่ำ"];
 const PLAN_STATUSES = ["วางแผน","กำลังดำเนินการ","เสร็จสิ้น","เลื่อน"];
 const PM_STATUSES = ["เสร็จสิ้น","ระหว่างดำเนินการ","รอดำเนินการ"];
-const STORAGE_KEY = "mea_pm_clean_v120_moderncharts";
-const AUTH_KEY = "mea_pm_auth_v120_moderncharts";
+const STORAGE_KEY = "mea_pm_clean_v150_radar_polar";
+const AUTH_KEY = "mea_pm_auth_v150_radar_polar";
 
 const MEA_HQ_COORDS = [13.5991, 100.5968];
 
@@ -447,6 +462,27 @@ function handleFileImport(e) {
         if(imported.length){
           persist({ ...STATE, pmRecords: [...imported, ...STATE.pmRecords] });
           alert(`นำเข้าสำเร็จ ${imported.length} รายการ`);
+        }
+      } else if (IMPORT_TARGET === "plan") {
+        const imported = [];
+        for (let i = 1; i < rows.length; i++) {
+          const r = rows[i];
+          if (!r || !r[1] || !r[3]) continue;
+          imported.push({
+            id: uid(),
+            plannedDate: r[0] ? String(r[0]).slice(0,10) : new Date().toISOString().slice(0,10),
+            equipmentType: r[1] || EQUIPMENT_TYPES[0],
+            capacity: r[2] || CAPACITY_OPTIONS[r[1]||EQUIPMENT_TYPES[0]][0],
+            equipmentId: String(r[3]),
+            location: r[4] || "",
+            team: r[5] || "ทีม A",
+            priority: r[6] || "กลาง",
+            status: r[7] || "วางแผน"
+          });
+        }
+        if(imported.length){
+          persist({ ...STATE, planRecords: [...imported, ...STATE.planRecords] });
+          alert(`นำเข้าแผนงานสำเร็จ ${imported.length} รายการ`);
         }
       }
     } catch(err) { alert("เกิดข้อผิดพลาดในการอ่านไฟล์"); }
@@ -775,20 +811,20 @@ function renderDashboard(){
       ${kpiCard("calendar","แผนงานค้าง",planRecords.length,"รอดำเนินการ","red", "showKpiDetail('upcoming_plans')")}
     </div>
     <div class="chart-grid">
-      <div class="card chart-card"><h3>ต้นทุนเฉลี่ยจริง เทียบมาตรฐาน WCM (บาท/งาน)</h3><div class="chart-wrap"><canvas id="costChart"></canvas></div></div>
-      <div class="card chart-card"><h3>สัดส่วนงาน PM ตามขนาดพิกัดกำลัง</h3><div class="chart-wrap"><canvas id="capacityChart"></canvas></div></div>
+      <div class="card chart-card"><h3>WCM Benchmark Radar Matrix (มิติเปรียบเทียบต้นทุน)</h3><div class="chart-wrap"><canvas id="costChart"></canvas></div></div>
+      <div class="card chart-card"><h3>Polar Area Capacity Grid (สัดส่วนพิกัดกำลังแนวรัศมี)</h3><div class="chart-wrap"><canvas id="capacityChart"></canvas></div></div>
     </div>
     <div class="card chart-card"><h3>รายการ PM ล่าสุด</h3>${recordsTable(pmRecords.slice(0,6), {compact:true})}</div>
   `;
 }
 
-// -------------------------------------------------------------
-// ปรับแต่งกราฟใหม่: คมชัด สวยหรู จัดตำแหน่งตรงกลางแม่นยำ
-// -------------------------------------------------------------
+// ---------------------------------------------------------------------------------
+// กราฟรูปแบบใหม่: WCM Radar Matrix + Polar Area Capacity Grid (สไตล์ศูนย์สั่งการ SCADA)
+// ---------------------------------------------------------------------------------
 function drawDashboardCharts(){
   const {pmRecords, benchmarks} = STATE;
 
-  // 1. กราฟแท่งต้นทุน (Modern Floating Rounded Bar with Dual Tone)
+  // 1. Radar Chart: มิติเปรียบเทียบต้นทุนจริง vs เกณฑ์มาตรฐาน WCM 5 กลุ่มอุปกรณ์
   const costCtx = document.getElementById("costChart");
   if(costCtx && typeof Chart !== 'undefined'){
     if(CHARTS.cost) CHARTS.cost.destroy();
@@ -800,62 +836,84 @@ function drawDashboardCharts(){
     });
 
     CHARTS.cost = new Chart(costCtx, {
-      type:"bar",
-      data:{
-        labels: ["หม้อแปลง", "LBS", ["Unit", "Substation"], ["รีโคลสเซอร์", "(Recloser)"], "ดรอปเอาท์"],
-        datasets:[
+      type: "radar",
+      data: {
+        labels: ["หม้อแปลงจำหน่าย", "โหลดเบรกสวิตช์ (LBS)", "Unit Substation", "รีโคลสเซอร์ (Recloser)", "ดรอปเอาท์ฟิวส์"],
+        datasets: [
           {
-            label:"ต้นทุนจริงเฉลี่ย",
+            label: "ต้นทุนจริงเฉลี่ย (Actual)",
             data: costByType.map(d=>d.actual),
-            backgroundColor: '#0088FF',
-            borderRadius: 8,
-            borderSkipped: false,
-            barPercentage: 0.65,
-            categoryPercentage: 0.75
+            backgroundColor: "rgba(0, 136, 255, 0.28)",
+            borderColor: "#0088FF",
+            borderWidth: 2.5,
+            pointBackgroundColor: "#0088FF",
+            pointBorderColor: "#FFFFFF",
+            pointHoverBackgroundColor: "#FFFFFF",
+            pointHoverBorderColor: "#0088FF",
+            pointRadius: 4,
+            pointHoverRadius: 6
           },
           {
-            label:"เกณฑ์ WCM",
+            label: "เกณฑ์มาตรฐาน WCM (Benchmark)",
             data: costByType.map(d=>d.bench),
-            backgroundColor: '#F59E0B',
-            borderRadius: 8,
-            borderSkipped: false,
-            barPercentage: 0.65,
-            categoryPercentage: 0.75
+            backgroundColor: "rgba(245, 158, 11, 0.22)",
+            borderColor: "#F59E0B",
+            borderWidth: 2,
+            borderDash: [5, 5],
+            pointBackgroundColor: "#F59E0B",
+            pointBorderColor: "#FFFFFF",
+            pointHoverBackgroundColor: "#FFFFFF",
+            pointHoverBorderColor: "#F59E0B",
+            pointRadius: 4,
+            pointHoverRadius: 6
           }
         ]
       },
-      options:{
-        responsive:true,
-        maintainAspectRatio:false,
-        plugins:{
-          legend:{
-            position:"bottom",
-            labels:{ font:{ family:"'Plus Jakarta Sans','Noto Sans Thai'", size:12, weight:'600' }, padding: 16, usePointStyle: true, pointStyle: 'circle' }
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: "bottom",
+            labels: {
+              font: { family: "'Plus Jakarta Sans','Noto Sans Thai'", size: 12, weight: '600' },
+              padding: 16,
+              usePointStyle: true,
+              pointStyle: 'circle'
+            }
           },
-          tooltip:{
+          tooltip: {
             backgroundColor: 'rgba(9, 30, 54, 0.95)',
-            titleFont: { family:"'Plus Jakarta Sans','Noto Sans Thai'", size:13, weight:'700' },
-            bodyFont: { family:"'JetBrains Mono'", size:12 },
+            titleFont: { family: "'Plus Jakarta Sans','Noto Sans Thai'", size: 13, weight: '700' },
+            bodyFont: { family: "'JetBrains Mono'", size: 12 },
             padding: 12,
             cornerRadius: 10,
-            callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${baht(ctx.parsed.y)}` }
+            callbacks: {
+              label: (ctx) => ` ${ctx.dataset.label}: ${baht(ctx.parsed.r)}`
+            }
           }
         },
-        scales:{
-          y:{
-            grid:{ color: 'rgba(226, 232, 240, 0.7)' },
-            ticks:{ font:{ family:"'JetBrains Mono'", size:11 }, color: '#64748B', callback:(v)=>v.toLocaleString() }
-          },
-          x:{
-            grid:{ display:false },
-            ticks:{ font:{ family:"'Noto Sans Thai'", size:11, weight:'600' }, color: '#334155' }
+        scales: {
+          r: {
+            angleLines: { color: "rgba(226, 232, 240, 0.8)" },
+            grid: { color: "rgba(226, 232, 240, 0.8)" },
+            pointLabels: {
+              font: { family: "'Noto Sans Thai', sans-serif", size: 11, weight: '600' },
+              color: "#334155"
+            },
+            ticks: {
+              font: { family: "'JetBrains Mono'", size: 10 },
+              color: "#94A3B8",
+              backdropColor: "transparent",
+              callback: (v) => Number(v) > 0 ? (v / 1000) + "k" : ""
+            }
           }
         }
       }
     });
   }
 
-  // 2. กราฟโดนัทพิกัดกำลัง (Clean Modern Doughnut with Precise Centering)
+  // 2. Polar Area Chart: สัดส่วนงาน PM ตามขนาดพิกัดกำลังแนวรัศมี SCADA
   const capCtx = document.getElementById("capacityChart");
   if(capCtx && typeof Chart !== 'undefined'){
     if(CHARTS.cap) CHARTS.cap.destroy();
@@ -864,77 +922,60 @@ function drawDashboardCharts(){
       "250-500 kVA (TR)": pmRecords.filter(r=>["250 kVA","315 kVA","400 kVA","500 kVA"].includes(r.capacity)).length,
       "1000-2000 kVA (US)": pmRecords.filter(r=>["1000 kVA (24kV)","1500 kVA (24kV)","2000 kVA (24kV)","1000 kVA"].includes(r.capacity)).length,
       "24 kV 630A (LBS/RC)": pmRecords.filter(r=>["24 kV 630A","24 kV 630A (12.5kA)"].includes(r.capacity)).length,
-      "50-160 kVA (เล็ก)": pmRecords.filter(r=>["50 kVA","100 kVA","160 kVA"].includes(r.capacity)).length,
+      "50-160 kVA (หม้อแปลงเล็ก)": pmRecords.filter(r=>["50 kVA","100 kVA","160 kVA"].includes(r.capacity)).length,
       "ฟิวส์ตัดตอน & อื่นๆ": pmRecords.filter(r=>["24 kV 100A","24 kV 200A","33 kV 100A","24 kV 1250A"].includes(r.capacity)).length,
     };
 
-    // คำนวณพิกัดกึ่งกลางที่ถูกต้องตาม Chart Area
-    const accurateCenterPlugin = {
-      id: 'accurateCenterPlugin',
-      beforeDraw(chart) {
-        const { ctx, chartArea } = chart;
-        if (!chartArea) return;
-        const centerX = (chartArea.left + chartArea.right) / 2;
-        const centerY = (chartArea.top + chartArea.bottom) / 2;
-
-        ctx.save();
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-
-        // ข้อความหลัก (ตัวเลขงาน)
-        ctx.font = `800 24px 'Plus Jakarta Sans', sans-serif`;
-        ctx.fillStyle = '#091E36';
-        ctx.fillText(pmRecords.length, centerX, centerY - 10);
-
-        // ข้อความรอง
-        ctx.font = `600 11px 'Noto Sans Thai', sans-serif`;
-        ctx.fillStyle = '#64748B';
-        ctx.fillText("งานทั้งหมด", centerX, centerY + 14);
-
-        ctx.restore();
-      }
-    };
-
     CHARTS.cap = new Chart(capCtx, {
-      type:"doughnut",
-      data:{
+      type: "polarArea",
+      data: {
         labels: Object.keys(capSummary),
-        datasets:[{
+        datasets: [{
           data: Object.values(capSummary),
-          backgroundColor: ['#0088FF', '#10B981', '#8B5CF6', '#F59E0B', '#06B6D4'],
-          borderWidth: 3,
-          borderColor: '#FFFFFF',
-          hoverOffset: 6,
-          spacing: 2
+          backgroundColor: [
+            "rgba(0, 136, 255, 0.72)",
+            "rgba(16, 185, 129, 0.72)",
+            "rgba(139, 92, 246, 0.72)",
+            "rgba(245, 158, 11, 0.72)",
+            "rgba(6, 182, 212, 0.72)"
+          ],
+          borderColor: "#FFFFFF",
+          borderWidth: 2,
+          hoverBorderColor: "#091E36",
+          hoverBorderWidth: 2
         }]
       },
-      options:{
-        responsive:true,
-        maintainAspectRatio:false,
-        cutout: '72%',
-        plugins:{
-          legend:{
-            position:"right",
-            labels:{
-              font:{ family:"'Noto Sans Thai'", size:11, weight:'600' },
-              padding: 14,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: "right",
+            labels: {
+              font: { family: "'Noto Sans Thai'", size: 11, weight: '600' },
+              padding: 12,
               usePointStyle: true,
               boxWidth: 8
             }
           },
-          tooltip:{
+          tooltip: {
             backgroundColor: 'rgba(9, 30, 54, 0.95)',
-            titleFont: { family:"'Noto Sans Thai'", size:12, weight:'700' },
-            bodyFont: { family:"'JetBrains Mono'", size:12 },
+            titleFont: { family: "'Noto Sans Thai'", size: 12, weight: '700' },
+            bodyFont: { family: "'JetBrains Mono'", size: 12 },
             padding: 12,
             cornerRadius: 10,
             callbacks: {
-              label: (ctx) => ` ${ctx.label}: ${ctx.parsed} งาน (${Math.round(ctx.parsed/pmRecords.length*100)}%)`
+              label: (ctx) => ` จำนวน: ${ctx.parsed.r} งาน (${Math.round(ctx.parsed.r / pmRecords.length * 100)}%)`
             }
           }
+        },
+        scales: {
+          r: {
+            grid: { color: "rgba(226, 232, 240, 0.7)" },
+            ticks: { display: false }
+          }
         }
-      },
-      plugins: [accurateCenterPlugin]
+      }
     });
   }
 }
