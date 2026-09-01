@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>MEA PM Planner — เขตสมุทรปราการ (Smart Route & Numbered Markers)</title>
+<title>MEA PM Planner — เขตสมุทรปราการ (Smart CMMS & Interactive Dashboard)</title>
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
@@ -148,13 +148,25 @@
   .header-actions{ display:flex; gap:8px; flex-wrap:wrap; width:100%; }
   @media(min-width:640px){ .header-actions{ width:auto; } }
 
-  /* KPI Grid */
+  /* KPI Grid & Clickable Cards */
   .kpi-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-bottom:24px; }
   @media(min-width:1024px){ .kpi-grid{ grid-template-columns:repeat(4,1fr); gap:18px; } }
   .kpi-grid.kpi3{ grid-template-columns:repeat(2,1fr); }
   @media(min-width:1024px){ .kpi-grid.kpi3{ grid-template-columns:repeat(3,1fr); } }
 
-  .kpi-card{ display:flex; flex-direction:column; gap:8px; border-left:4px solid var(--electric); }
+  .kpi-card{
+    display:flex; flex-direction:column; gap:8px; border-left:4px solid var(--electric);
+    cursor:pointer; position:relative; overflow:hidden;
+  }
+  .kpi-card:hover{
+    transform:translateY(-3px); box-shadow:var(--shadow-md);
+  }
+  .kpi-card::after{
+    content:"คลิกเพื่อดูรายละเอียด ↗"; position:absolute; bottom:8px; right:12px;
+    font-size:10px; color:var(--muted); opacity:0; transition:0.2s;
+  }
+  .kpi-card:hover::after{ opacity:1; }
+
   .kpi-card.green{ border-left-color: var(--green); }
   .kpi-card.amber{ border-left-color: var(--amber); }
   .kpi-card.purple{ border-left-color: var(--purple); }
@@ -172,33 +184,16 @@
   /* Custom Numbered Map Pin */
   .custom-numbered-pin{
     background: linear-gradient(135deg, #0088FF, #0055CC);
-    color: #ffffff;
-    border-radius: 50%;
-    width: 28px !important;
-    height: 28px !important;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    font-family: 'JetBrains Mono', monospace;
-    font-weight: 700;
-    font-size: 13px;
-    border: 2px solid #ffffff;
-    box-shadow: 0 4px 10px rgba(0, 136, 255, 0.45);
-    text-align: center;
-    line-height: 1;
+    color: #ffffff; border-radius: 50%; width: 28px !important; height: 28px !important;
+    display: flex !important; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 13px;
+    border: 2px solid #ffffff; box-shadow: 0 4px 10px rgba(0, 136, 255, 0.45);
   }
   .custom-start-pin{
     background: linear-gradient(135deg, #10B981, #059669);
-    color: #ffffff;
-    border-radius: 50%;
-    width: 32px !important;
-    height: 32px !important;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    font-size: 14px;
-    border: 2px solid #ffffff;
+    color: #ffffff; border-radius: 50%; width: 32px !important; height: 32px !important;
+    display: flex !important; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 14px; border: 2px solid #ffffff;
     box-shadow: 0 4px 12px rgba(16, 185, 129, 0.5);
   }
 
@@ -293,6 +288,7 @@
 <body>
 <div id="app"></div>
 <div id="modal-root"></div>
+<div id="kpi-modal-root"></div>
 <input type="file" id="excel-importer" accept=".xlsx, .xls, .csv" style="display:none;" />
 
 <script>
@@ -337,13 +333,11 @@ const EQUIPMENT_TYPES = Object.keys(CAPACITY_OPTIONS);
 const PRIORITIES = ["สูง","กลาง","ต่ำ"];
 const PLAN_STATUSES = ["วางแผน","กำลังดำเนินการ","เสร็จสิ้น","เลื่อน"];
 const PM_STATUSES = ["เสร็จสิ้น","ระหว่างดำเนินการ","รอดำเนินการ"];
-const STORAGE_KEY = "mea-pm-v25-numbered-map";
-const AUTH_KEY = "mea-pm-auth-v25";
+const STORAGE_KEY = "mea-pm-v26-interactive-kpi";
+const AUTH_KEY = "mea-pm-auth-v26";
 
-// พิกัดศูนย์สั่งการ กฟน. เขตสมุทรปราการ (ถ.สายลวด)
 const MEA_HQ_COORDS = [13.5991, 100.5968];
 
-// พิกัดจุดตรวจในจังหวัดสมุทรปราการ
 const LOCATIONS_COORDS = {
   "สายป้อน สป.01 (ปากน้ำ-สายลวด)": [13.5991, 100.5968],
   "สายป้อน สป.02 (ท้ายบ้าน)": [13.5780, 100.6010],
@@ -387,7 +381,6 @@ const baht = (n) => "฿" + Number(n||0).toLocaleString("th-TH",{maximumFraction
 const thDate = (d) => d ? new Date(d).toLocaleDateString("th-TH",{day:"2-digit",month:"short",year:"2-digit"}) : "-";
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 
-// คำนวณระยะทางจาก กฟน. เขตสมุทรปราการ (กม.)
 function calculateDistance(lat1, lon1, lat2 = MEA_HQ_COORDS[0], lon2 = MEA_HQ_COORDS[1]) {
   const R = 6371;
   const dLat = (lat1 - lat2) * Math.PI / 180;
@@ -518,8 +511,9 @@ function statusPill(status){
   </span>`;
 }
 
-function kpiCard(iconKey,label,value,sub,accentClass){
-  return `<div class="card kpi-card ${accentClass}">
+// สร้างการ์ด KPI ที่คลิกเปิดรายละเอียดได้
+function kpiCard(iconKey, label, value, sub, accentClass, clickAction){
+  return `<div class="card kpi-card ${accentClass}" ${clickAction ? `onclick="${clickAction}" title="คลิกเพื่อดูรายละเอียดเชิงลึก"` : ""}>
     <div class="kpi-top">
       <span class="kpi-label">${esc(label)}</span>
       <span class="kpi-icon" style="background:${accentClass==='green'?C.greenSoft:accentClass==='amber'?C.amberSoft:accentClass==='purple'?C.purpleSoft:accentClass==='red'?C.redSoft:C.blueSoft}">
@@ -602,6 +596,157 @@ function handleFileImport(e) {
     } catch(err) { alert("เกิดข้อผิดพลาดในการอ่านไฟล์"); }
   };
   reader.readAsArrayBuffer(file);
+}
+
+/* -------------------------------------------------------------------
+   Modal แสดงรายละเอียดเชิงลึกเมื่อกด 4 กรอบ KPI
+------------------------------------------------------------------- */
+function showKpiDetail(type) {
+  const root = document.getElementById("kpi-modal-root");
+  if (!root) return;
+
+  const { pmRecords, planRecords } = STATE;
+  let title = "";
+  let contentHtml = "";
+
+  if (type === "total_pm") {
+    const completed = pmRecords.filter(r => r.status === "เสร็จสิ้น").length;
+    const ongoing = pmRecords.filter(r => r.status === "ระหว่างดำเนินการ" || r.status === "กำลังดำเนินการ").length;
+    const pending = pmRecords.filter(r => r.status === "รอดำเนินการ").length;
+
+    title = `รายละเอียดงาน PM ทั้งหมด (${pmRecords.length} งาน)`;
+    contentHtml = `
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
+        <div class="card" style="padding:12px;text-align:center;border-left:3px solid var(--green);">
+          <div style="font-size:11px;color:var(--muted);">เสร็จสิ้นแล้ว</div>
+          <div style="font-size:20px;font-weight:700;color:var(--green);font-family:'JetBrains Mono';">${completed}</div>
+        </div>
+        <div class="card" style="padding:12px;text-align:center;border-left:3px solid var(--electric);">
+          <div style="font-size:11px;color:var(--muted);">ระหว่างดำเนินการ</div>
+          <div style="font-size:20px;font-weight:700;color:var(--electric);font-family:'JetBrains Mono';">${ongoing}</div>
+        </div>
+        <div class="card" style="padding:12px;text-align:center;border-left:3px solid var(--amber);">
+          <div style="font-size:11px;color:var(--muted);">รอดำเนินการ</div>
+          <div style="font-size:20px;font-weight:700;color:var(--amber);font-family:'JetBrains Mono';">${pending}</div>
+        </div>
+      </div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">รายการงาน PM ล่าสุดในระบบ:</p>
+      ${recordsTable(pmRecords.slice(0, 10), { compact: true })}
+      <div style="margin-top:16px;text-align:right;">
+        <button class="btn-primary" onclick="closeKpiModal(); TAB='entry'; render();">ไปยังหน้ารายการ PM ทั้งหมด ➔</button>
+      </div>
+    `;
+  } else if (type === "health_index") {
+    title = `สรุปดัชนีสุขภาพอุปกรณ์ (Health Index Assessment)`;
+    contentHtml = `
+      <div style="background:var(--green-soft);padding:14px;border-radius:12px;margin-bottom:16px;border:1px solid #A7F3D0;">
+        <div style="font-size:14px;font-weight:700;color:var(--navy);">⚡ สุขภาพอุปกรณ์รวม: 93.8% (เกณฑ์ดีเยี่ยม)</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;">วิเคราะห์จากค่าความเป็นฉนวน, คุณสมบัติน้ำมัน และผลการตรวจ Thermoscan ล่าสุด</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+        <div class="card" style="padding:12px;">
+          <div style="font-size:12px;font-weight:600;color:var(--navy);">หม้อแปลงจำหน่าย (TR)</div>
+          <div style="font-size:16px;font-weight:700;color:var(--green);font-family:'JetBrains Mono';">HI = 94.5%</div>
+        </div>
+        <div class="card" style="padding:12px;">
+          <div style="font-size:12px;font-weight:600;color:var(--navy);">Unit Substation (US)</div>
+          <div style="font-size:16px;font-weight:700;color:var(--green);font-family:'JetBrains Mono';">HI = 93.1%</div>
+        </div>
+      </div>
+      <p style="font-size:13px;color:var(--muted);">อุปกรณ์ที่มีค่า Health Index ต่ำกว่า 80% จะถูกแจ้งเตือนให้เข้าบำรุงรักษาเชิงแก้ไขทันที</p>
+    `;
+  } else if (type === "total_cost") {
+    const totalMaterial = pmRecords.reduce((s, r) => s + Number(r.materialCost||0), 0);
+    const totalLabor = pmRecords.reduce((s, r) => s + Number(r.laborCost||0), 0);
+    const totalOther = pmRecords.reduce((s, r) => s + Number(r.otherCost||0), 0);
+    const total = totalMaterial + totalLabor + totalOther;
+
+    title = `โครงสร้างต้นทุนงานบำรุงรักษาจริง (${baht(total)})`;
+    contentHtml = `
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
+        <div class="card" style="padding:12px;text-align:center;">
+          <div style="font-size:11px;color:var(--muted);">ค่าพัสดุ/อุปกรณ์</div>
+          <div style="font-size:16px;font-weight:700;color:var(--navy);font-family:'JetBrains Mono';">${baht(totalMaterial)}</div>
+          <div style="font-size:10px;color:var(--muted);">${Math.round(totalMaterial/total*100)}% ของงบรวม</div>
+        </div>
+        <div class="card" style="padding:12px;text-align:center;">
+          <div style="font-size:11px;color:var(--muted);">ค่าแรงทีมช่าง</div>
+          <div style="font-size:16px;font-weight:700;color:var(--navy);font-family:'JetBrains Mono';">${baht(totalLabor)}</div>
+          <div style="font-size:10px;color:var(--muted);">${Math.round(totalLabor/total*100)}% ของงบรวม</div>
+        </div>
+        <div class="card" style="padding:12px;text-align:center;">
+          <div style="font-size:11px;color:var(--muted);">ค่าใช้จ่ายอื่น</div>
+          <div style="font-size:16px;font-weight:700;color:var(--navy);font-family:'JetBrains Mono';">${baht(totalOther)}</div>
+          <div style="font-size:10px;color:var(--muted);">${Math.round(totalOther/total*100)}% ของงบรวม</div>
+        </div>
+      </div>
+      <div style="text-align:right;margin-top:14px;">
+        <button class="btn-primary" onclick="closeKpiModal(); TAB='cost'; render();">ไปยังหน้าวิเคราะห์ WCM Cost ➔</button>
+      </div>
+    `;
+  } else if (type === "upcoming_plans") {
+    const high = planRecords.filter(p => p.priority === "สูง").length;
+    const med = planRecords.filter(p => p.priority === "กลาง").length;
+    const low = planRecords.filter(p => p.priority === "ต่ำ").length;
+
+    title = `สรุปแผนงานบำรุงรักษาล่วงหน้า (${planRecords.length} แผนงาน)`;
+    contentHtml = `
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
+        <div class="card" style="padding:12px;text-align:center;border-left:3px solid var(--red);">
+          <div style="font-size:11px;color:var(--muted);">ความสำคัญสูง</div>
+          <div style="font-size:20px;font-weight:700;color:var(--red);font-family:'JetBrains Mono';">${high}</div>
+        </div>
+        <div class="card" style="padding:12px;text-align:center;border-left:3px solid var(--amber);">
+          <div style="font-size:11px;color:var(--muted);">ความสำคัญกลาง</div>
+          <div style="font-size:20px;font-weight:700;color:var(--amber);font-family:'JetBrains Mono';">${med}</div>
+        </div>
+        <div class="card" style="padding:12px;text-align:center;border-left:3px solid var(--muted);">
+          <div style="font-size:11px;color:var(--muted);">ความสำคัญต่ำ</div>
+          <div style="font-size:20px;font-weight:700;color:var(--muted);font-family:'JetBrains Mono';">${low}</div>
+        </div>
+      </div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">แผนงานที่ใกล้ถึงกำหนดเข้าตรวจ:</p>
+      <div class="desktop-table-wrap">
+        <table>
+          <thead><tr><th>วันที่</th><th>อุปกรณ์</th><th>รหัส</th><th>สายป้อน</th><th>ทีม</th></tr></thead>
+          <tbody>
+            ${planRecords.slice(0, 6).map(p => `
+              <tr>
+                <td>${thDate(p.plannedDate)}</td>
+                <td>${esc(p.equipmentType)}</td>
+                <td class="mono" style="color:var(--electric);font-weight:700;">${esc(p.equipmentId)}</td>
+                <td class="muted">${esc(p.location)}</td>
+                <td><span class="pill" style="background:var(--blue-soft);color:var(--navy);">${esc(p.team)}</span></td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+      <div style="text-align:right;margin-top:16px;">
+        <button class="btn-primary" onclick="closeKpiModal(); TAB='plan'; render();">ไปยังหน้าตารางแผนงาน ➔</button>
+      </div>
+    `;
+  }
+
+  root.innerHTML = `
+    <div class="modal-backdrop" id="kpi-modal-backdrop">
+      <div class="modal-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;border-bottom:1px solid var(--border);padding-bottom:12px;">
+          <h3 style="font-size:17px;font-weight:800;color:var(--navy);margin:0;">${title}</h3>
+          <button class="close-modal" onclick="closeKpiModal()">&times;</button>
+        </div>
+        <div>${contentHtml}</div>
+      </div>
+    </div>
+  `;
+
+  const backdrop = document.getElementById("kpi-modal-backdrop");
+  if (backdrop) backdrop.onclick = (e) => { if (e.target === backdrop) closeKpiModal(); };
+}
+
+function closeKpiModal() {
+  const root = document.getElementById("kpi-modal-root");
+  if (root) root.innerHTML = "";
 }
 
 function recordsTable(records, {withDelete, compact} = {}){
@@ -969,10 +1114,10 @@ function renderDashboard(){
       <button class="btn-secondary" id="print-pdf-btn">${ICONS.filePdf} พิมพ์สรุป (PDF)</button>
     `)}
     <div class="kpi-grid">
-      ${kpiCard("clipboard","งาน PM ในฐานข้อมูล",pmRecords.length,`ปิดงานแล้ว ${completed} งาน`,"electric")}
-      ${kpiCard("gauge","Health Index เฉลี่ย", "93.8%", "ประเมินสุขภาพอุปกรณ์รวม 5 กลุ่ม", "green")}
-      ${kpiCard("coins","ต้นทุนจริงรวม",baht(totalCost),`เฉลี่ย ${baht(avgCost)}/งาน`,"amber")}
-      ${kpiCard("calendar","แผนงานค้าง",upcoming,"รอ / กำลังดำเนินการ","red")}
+      ${kpiCard("clipboard","งาน PM ในฐานข้อมูล",pmRecords.length,`ปิดงานแล้ว ${completed} งาน`,"electric", "showKpiDetail('total_pm')")}
+      ${kpiCard("gauge","Health Index เฉลี่ย", "93.8%", "ประเมินสุขภาพอุปกรณ์รวม 5 กลุ่ม", "green", "showKpiDetail('health_index')")}
+      ${kpiCard("coins","ต้นทุนจริงรวม",baht(totalCost),`เฉลี่ย ${baht(avgCost)}/งาน`,"amber", "showKpiDetail('total_cost')")}
+      ${kpiCard("calendar","แผนงานค้าง",upcoming,"รอ / กำลังดำเนินการ","red", "showKpiDetail('upcoming_plans')")}
     </div>
     <div class="chart-grid">
       <div class="card chart-card">
@@ -1052,9 +1197,6 @@ function drawDashboardCharts(){
   }
 }
 
-/* -------------------------------------------------------------------
-   Tab: Routes (จัดลำดับตามระยะทางที่ใกล้ที่สุดก่อน และแสดงหมุดตัวเลข)
-------------------------------------------------------------------- */
 function getSortedInspectionPoints(){
   const { planRecords, pmRecords } = STATE;
   const activePlans = planRecords.filter(p => p.status !== "เสร็จสิ้น");
@@ -1063,16 +1205,13 @@ function getSortedInspectionPoints(){
   }));
   const combined = [...activePlans, ...pendingPMs];
 
-  // คำนวณพิกัดและระยะทางจาก กฟน. เขตสมุทรปราการ
   const pointsWithCoords = combined.map(item => {
     const coords = LOCATIONS_COORDS[item.location] || [13.5850, 100.6380];
     const distance = calculateDistance(coords[0], coords[1]);
     return { ...item, coords, distance };
   });
 
-  // จัดเรียงจุดที่ใกล้ที่สุดก่อน (Shortest Distance First)
   pointsWithCoords.sort((a, b) => a.distance - b.distance);
-
   return pointsWithCoords;
 }
 
@@ -1159,11 +1298,9 @@ function initMap(){
   if(!container || typeof L === 'undefined') return;
   if(LEAFLET_MAP) { LEAFLET_MAP.remove(); LEAFLET_MAP = null; }
 
-  // จุดศูนย์กลาง กฟน. เขตสมุทรปราการ
   LEAFLET_MAP = L.map('map-container').setView(MEA_HQ_COORDS, 11);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '© OpenStreetMap' }).addTo(LEAFLET_MAP);
 
-  // ปักหมุดจุดเริ่มต้น: กฟน. เขตสมุทรปราการ (สีเขียวไอคอนพิเศษ)
   const hqIcon = L.divIcon({
     className: 'custom-start-pin',
     html: '⚡',
@@ -1174,7 +1311,6 @@ function initMap(){
   L.marker(MEA_HQ_COORDS, { icon: hqIcon }).addTo(LEAFLET_MAP)
     .bindPopup('<b>📍 กฟน. เขตสมุทรปราการ</b><br>จุดเริ่มต้นศูนย์สั่งการ').openPopup();
 
-  // ดึงจุดตรวจที่เรียงลำดับใกล้-ไกลแล้ว มาปักหมุดตัวเลข 1, 2, 3...
   const points = getSortedInspectionPoints();
   const filtered = points.filter(item => ROUTE_TEAM_FILTER === "ทั้งหมด" ? true : item.team === ROUTE_TEAM_FILTER);
 
@@ -1407,9 +1543,9 @@ function renderKpi(){
       <button class="btn-secondary" id="print-pdf-btn">${ICONS.filePdf} พิมพ์ PDF</button>
     `)}
     <div class="kpi-grid kpi3">
-      ${kpiCard("gauge","ปิดแผนงานสำเร็จ", planCompletion+"%", "ของแผนงานทั้งหมด", "green")}
-      ${kpiCard("trophy","จำนวนช่างที่บันทึก", rows.length, "ผู้รับผิดชอบงาน", "electric")}
-      ${kpiCard("gauge","Productivity เฉลี่ย", avgProd, "งานเสร็จ / ชม.แรงงาน", "amber")}
+      ${kpiCard("gauge","ปิดแผนงานสำเร็จ", planCompletion+"%", "ของแผนงานทั้งหมด", "green", "showKpiDetail('upcoming_plans')")}
+      ${kpiCard("trophy","จำนวนช่างที่บันทึก", rows.length, "ผู้รับผิดชอบงาน", "electric", "showKpiDetail('total_pm')")}
+      ${kpiCard("gauge","Productivity เฉลี่ย", avgProd, "งานเสร็จ / ชม.แรงงาน", "amber", "showKpiDetail('total_cost')")}
     </div>
     <div class="card chart-card">
       <h3>ประสิทธิภาพรายบุคคล (${pmRecords.length} งาน)</h3>
