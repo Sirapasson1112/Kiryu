@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>MEA PM Planner — เขตสมุทรปราการ (Smart CMMS & Big Data 300+)</title>
+<title>MEA PM Planner — เขตสมุทรปราการ (Smart Route & Numbered Markers)</title>
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
@@ -167,7 +167,40 @@
   @media(min-width:640px){ .kpi-value{ font-size:28px; } }
   .kpi-sub{ font-size:11px; color:var(--muted); }
 
-  #map-container{ height: 380px; width: 100%; border-radius: 14px; z-index: 1; border: 1px solid var(--border); }
+  #map-container{ height: 420px; width: 100%; border-radius: 14px; z-index: 1; border: 1px solid var(--border); }
+
+  /* Custom Numbered Map Pin */
+  .custom-numbered-pin{
+    background: linear-gradient(135deg, #0088FF, #0055CC);
+    color: #ffffff;
+    border-radius: 50%;
+    width: 28px !important;
+    height: 28px !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 13px;
+    border: 2px solid #ffffff;
+    box-shadow: 0 4px 10px rgba(0, 136, 255, 0.45);
+    text-align: center;
+    line-height: 1;
+  }
+  .custom-start-pin{
+    background: linear-gradient(135deg, #10B981, #059669);
+    color: #ffffff;
+    border-radius: 50%;
+    width: 32px !important;
+    height: 32px !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 14px;
+    border: 2px solid #ffffff;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.5);
+  }
 
   /* Charts */
   .chart-grid{ display:grid; grid-template-columns:1fr; gap:18px; margin-bottom:24px; }
@@ -217,6 +250,7 @@
 
   .pill{ display:inline-flex; align-items:center; gap:5px; border-radius:999px; padding:4px 10px; font-size:11px; font-weight:600; }
   .capacity-pill{ display:inline-flex; align-items:center; border-radius:6px; padding:2px 8px; font-size:11px; font-weight:700; font-family:'JetBrains Mono',monospace; background:var(--purple-soft); color:var(--purple); border:1px solid #DDD6FE; }
+  .dist-badge{ display:inline-flex; align-items:center; border-radius:6px; padding:2px 6px; font-size:11px; font-weight:600; font-family:'JetBrains Mono',monospace; background:#F1F5F9; color:#475569; }
   
   .btn-sm{ padding:6px 12px; font-size:12px; border-radius:8px; border:1px solid var(--electric); background:var(--blue-soft); color:var(--electric); cursor:pointer; font-family:inherit; display:inline-flex; align-items:center; justify-content:center; font-weight:600; min-height:34px; transition:0.15s; }
   .btn-sm:hover{ background:var(--electric); color:#fff; }
@@ -227,7 +261,6 @@
 
   .alert-box{ padding:10px 14px; border-radius:8px; background:var(--red-soft); color:var(--red); font-size:13px; margin-bottom:16px; }
 
-  /* Photo Preview */
   .photo-preview-wrap{ display:flex; align-items:center; gap:12px; margin-top:6px; flex-wrap:wrap; }
   .photo-thumb{ width:70px; height:70px; border-radius:8px; object-fit:cover; border:2px solid var(--border); box-shadow:var(--shadow-sm); cursor:pointer; }
 
@@ -304,22 +337,43 @@ const EQUIPMENT_TYPES = Object.keys(CAPACITY_OPTIONS);
 const PRIORITIES = ["สูง","กลาง","ต่ำ"];
 const PLAN_STATUSES = ["วางแผน","กำลังดำเนินการ","เสร็จสิ้น","เลื่อน"];
 const PM_STATUSES = ["เสร็จสิ้น","ระหว่างดำเนินการ","รอดำเนินการ"];
-const STORAGE_KEY = "mea-pm-v21-fullcode-300";
-const AUTH_KEY = "mea-pm-auth-v21";
+const STORAGE_KEY = "mea-pm-v25-numbered-map";
+const AUTH_KEY = "mea-pm-auth-v25";
 
-const uid = () => Date.now() + "-" + Math.random().toString(36).slice(2,8);
-const baht = (n) => "฿" + Number(n||0).toLocaleString("th-TH",{maximumFractionDigits:0});
-const thDate = (d) => d ? new Date(d).toLocaleDateString("th-TH",{day:"2-digit",month:"short",year:"2-digit"}) : "-";
-const esc = (s) => String(s ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+// พิกัดศูนย์สั่งการ กฟน. เขตสมุทรปราการ (ถ.สายลวด)
+const MEA_HQ_COORDS = [13.5991, 100.5968];
 
-const LOCATIONS_LIST = [
-  "สายป้อน สป.01 (ปากน้ำ-สายลวด)", "สายป้อน สป.02 (ท้ายบ้าน)", "สายป้อน สป.03 (บางเมือง)", "สายป้อน สป.04 (ด่านสำโรง)",
-  "สายป้อน สป.05 (บางปูเหนือ)", "สายป้อน สป.06 (บางโปรง)", "สายป้อน สป.07 (สำโรงเหนือ)", "สายป้อน สป.08 (ศรีนครินทร์)",
-  "สายป้อน สป.09 (ปู่เจ้าสมิงพราย)", "สายป้อน สป.10 (แบริ่ง-สุขุมวิท 107)", "สายป้อน สป.11 (แพรกษาใหม่)", "สายป้อน สป.12 (แพรกษา)",
-  "นิคมฯ บางปู ซอย 4", "นิคมฯ บางปู ซอย 8", "นิคมฯ บางปู ซอย 9", "นิคมฯ บางปู ซอย 12", "นิคมฯ บางปู ซอย 14",
-  "นิคมฯ บางพลี โครงการ 2", "นิคมฯ บางพลี โครงการ 3", "นิคมฯ บางพลี เฟส 2", "นิคมฯ บางพลี เฟส 3", "สายป้อน สป.18 (กิ่งแก้ว)",
-  "สายป้อน สป.19 (หนามแดง)", "สายป้อน สป.20 (เทพารักษ์ กม.12)", "สายป้อน สป.14 (ท้ายบ้านใหม่)", "สายป้อน สป.16 (คลองด่าน)"
-];
+// พิกัดจุดตรวจในจังหวัดสมุทรปราการ
+const LOCATIONS_COORDS = {
+  "สายป้อน สป.01 (ปากน้ำ-สายลวด)": [13.5991, 100.5968],
+  "สายป้อน สป.02 (ท้ายบ้าน)": [13.5780, 100.6010],
+  "สายป้อน สป.03 (บางเมือง)": [13.6120, 100.6120],
+  "สายป้อน สป.04 (ด่านสำโรง)": [13.6390, 100.6050],
+  "สายป้อน สป.05 (บางปูเหนือ)": [13.5420, 100.6450],
+  "สายป้อน สป.06 (บางโปรง)": [13.6210, 100.5750],
+  "สายป้อน สป.07 (สำโรงเหนือ)": [13.6490, 100.5980],
+  "สายป้อน สป.08 (ศรีนครินทร์)": [13.6280, 100.6320],
+  "สายป้อน สป.09 (ปู่เจ้าสมิงพราย)": [13.6520, 100.5650],
+  "สายป้อน สป.10 (แบริ่ง-สุขุมวิท 107)": [13.6560, 100.6090],
+  "สายป้อน สป.11 (แพรกษาใหม่)": [13.5680, 100.6650],
+  "สายป้อน สป.12 (แพรกษา)": [13.5850, 100.6380],
+  "นิคมฯ บางปู ซอย 4": [13.5280, 100.6720],
+  "นิคมฯ บางปู ซอย 8": [13.5220, 100.6810],
+  "นิคมฯ บางปู ซอย 9": [13.5190, 100.6860],
+  "นิคมฯ บางปู ซอย 12": [13.5130, 100.6950],
+  "นิคมฯ บางปู ซอย 14": [13.5090, 100.7010],
+  "นิคมฯ บางพลี โครงการ 2": [13.5820, 100.7950],
+  "นิคมฯ บางพลี โครงการ 3": [13.5750, 100.8050],
+  "นิคมฯ บางพลี เฟส 2": [13.5890, 100.7850],
+  "นิคมฯ บางพลี เฟส 3": [13.5930, 100.7780],
+  "สายป้อน สป.18 (กิ่งแก้ว)": [13.6780, 100.7180],
+  "สายป้อน สป.19 (หนามแดง)": [13.6310, 100.6480],
+  "สายป้อน สป.20 (เทพารักษ์ กม.12)": [13.6050, 100.7250],
+  "สายป้อน สป.14 (ท้ายบ้านใหม่)": [13.5650, 100.6120],
+  "สายป้อน สป.16 (คลองด่าน)": [13.5050, 100.7890]
+};
+
+const LOCATIONS_LIST = Object.keys(LOCATIONS_COORDS);
 
 const TECHNICIANS = [
   { name: "สมชาย ใจดี", team: "ทีม A" }, { name: "มนตรี แสนสุข", team: "ทีม A" },
@@ -327,6 +381,23 @@ const TECHNICIANS = [
   { name: "อรุณ พงษ์ไทย", team: "ทีม C" }, { name: "ชวลิต ดวงดี", team: "ทีม C" },
   { name: "กฤษณะ วงศ์ษา", team: "ทีม D" }, { name: "ประเสริฐ ชัยนาท", team: "ทีม D" }
 ];
+
+const uid = () => Date.now() + "-" + Math.random().toString(36).slice(2,8);
+const baht = (n) => "฿" + Number(n||0).toLocaleString("th-TH",{maximumFractionDigits:0});
+const thDate = (d) => d ? new Date(d).toLocaleDateString("th-TH",{day:"2-digit",month:"short",year:"2-digit"}) : "-";
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+// คำนวณระยะทางจาก กฟน. เขตสมุทรปราการ (กม.)
+function calculateDistance(lat1, lon1, lat2 = MEA_HQ_COORDS[0], lon2 = MEA_HQ_COORDS[1]) {
+  const R = 6371;
+  const dLat = (lat1 - lat2) * Math.PI / 180;
+  const dLon = (lon1 - lon2) * Math.PI / 180;
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat2 * Math.PI / 180) * Math.cos(lat1 * Math.PI / 180) *
+            Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return +(R * c).toFixed(1);
+}
 
 function generate300Records(){
   const today = new Date();
@@ -712,13 +783,11 @@ function attachModalListeners(){
             mGpsBtn.innerHTML = `${ICONS.gps} ดึง GPS`;
           },
           (err) => {
-            alert("ไม่สามารถเข้าถึงตำแหน่งได้ กรุณาเปิดสิทธิ์ GPS ในเบราว์เซอร์");
+            alert("ไม่สามารถเข้าถึงตำแหน่งได้");
             mGpsBtn.innerHTML = `${ICONS.gps} ดึง GPS`;
           },
           { timeout: 10000 }
         );
-      } else {
-        alert("อุปกรณ์นี้ไม่รองรับระบบระบุตำแหน่ง GPS");
       }
     };
   }
@@ -983,18 +1052,37 @@ function drawDashboardCharts(){
   }
 }
 
-function renderRoutes(){
+/* -------------------------------------------------------------------
+   Tab: Routes (จัดลำดับตามระยะทางที่ใกล้ที่สุดก่อน และแสดงหมุดตัวเลข)
+------------------------------------------------------------------- */
+function getSortedInspectionPoints(){
   const { planRecords, pmRecords } = STATE;
   const activePlans = planRecords.filter(p => p.status !== "เสร็จสิ้น");
   const pendingPMs = pmRecords.filter(p => p.status === "ระหว่างดำเนินการ" || p.status === "รอดำเนินการ").map(p => ({
     equipmentType: p.equipmentType, capacity: p.capacity, equipmentId: p.equipmentId, location: p.location, team: p.team, priority: "สูง", status: p.status, plannedDate: p.date
   }));
   const combined = [...activePlans, ...pendingPMs];
-  const filtered = combined.filter(item => ROUTE_TEAM_FILTER === "ทั้งหมด" ? true : item.team === ROUTE_TEAM_FILTER);
-  const teams = ["ทั้งหมด", ...Array.from(new Set(combined.map(r => r.team))).filter(Boolean)];
+
+  // คำนวณพิกัดและระยะทางจาก กฟน. เขตสมุทรปราการ
+  const pointsWithCoords = combined.map(item => {
+    const coords = LOCATIONS_COORDS[item.location] || [13.5850, 100.6380];
+    const distance = calculateDistance(coords[0], coords[1]);
+    return { ...item, coords, distance };
+  });
+
+  // จัดเรียงจุดที่ใกล้ที่สุดก่อน (Shortest Distance First)
+  pointsWithCoords.sort((a, b) => a.distance - b.distance);
+
+  return pointsWithCoords;
+}
+
+function renderRoutes(){
+  const allPoints = getSortedInspectionPoints();
+  const filtered = allPoints.filter(item => ROUTE_TEAM_FILTER === "ทั้งหมด" ? true : item.team === ROUTE_TEAM_FILTER);
+  const teams = ["ทั้งหมด", ...Array.from(new Set(allPoints.map(r => r.team))).filter(Boolean)];
 
   return `
-    ${sectionHeader("แผนที่เส้นทางนำตรวจอัจฉริยะ (Smart Inspection Map)", "ปักหมุดพิกัดสดและจัดลำดับเส้นทางนำตรวจอุปกรณ์ กฟน. เขตสมุทรปราการ", `
+    ${sectionHeader("แผนที่เส้นทางนำตรวจอัจฉริยะ (Smart Inspection Map)", "จัดลำดับหมุดตัวเลขตามจุดที่อยู่ใกล้ กฟน. เขตสมุทรปราการ ที่สุดก่อน เพื่อประหยัดเวลาเดินทาง", `
       <button class="btn-secondary" id="print-pdf-btn">${ICONS.filePdf} พิมพ์ใบนำทาง (PDF)</button>
     `)}
 
@@ -1006,18 +1094,18 @@ function renderRoutes(){
       <div class="toolbar" style="align-items:center;">
         <span style="font-size:13px;font-weight:700;color:var(--navy);">เลือกทีม:</span>
         <select id="route-team-select">${teams.map(t => `<option value="${t}" ${ROUTE_TEAM_FILTER===t?"selected":""}>${t}</option>`).join("")}</select>
-        <span style="font-size:12px;color:var(--muted);margin-left:auto;">รวม <strong>${filtered.length} จุดตรวจ</strong></span>
+        <span style="font-size:12px;color:var(--muted);margin-left:auto;">รวม <strong>${filtered.length} จุดตรวจ (เรียงตามระยะทางใกล้-ไกล)</strong></span>
       </div>
 
       <div class="mobile-record-list">
-        ${filtered.slice(0, 30).map((item, idx) => {
+        ${filtered.map((item, idx) => {
           const queryLoc = encodeURIComponent((item.location || "การไฟฟ้านครหลวง เขตสมุทรปราการ") + " สมุทรปราการ");
           const mapUrl = `https://www.google.com/maps/search/?api=1&query=${queryLoc}`;
           return `
             <div class="m-record-card">
               <div style="display:flex;justify-content:space-between;align-items:flex-start;">
                 <div style="display:flex;align-items:center;gap:8px;">
-                  <span style="width:24px;height:24px;border-radius:50%;background:var(--electric);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">${idx+1}</span>
+                  <span style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg, #0088FF, #0055CC);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">${idx+1}</span>
                   <div>
                     <div class="m-card-id">${esc(item.equipmentId)} <span class="capacity-pill">${esc(item.capacity||"-")}</span></div>
                     <div style="font-size:12px;font-weight:600;margin-top:2px;">${esc(item.equipmentType)}</div>
@@ -1025,7 +1113,10 @@ function renderRoutes(){
                 </div>
                 <div>${statusPill(item.status)}</div>
               </div>
-              <div style="font-size:12px;color:var(--muted);">${esc(item.location||"สายป้อน กฟน. สป.")}</div>
+              <div style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;">
+                <span>${esc(item.location||"สายป้อน กฟน. สป.")}</span>
+                <span class="dist-badge">~${item.distance} กม.</span>
+              </div>
               <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px dashed var(--border);padding-top:10px;margin-top:2px;">
                 <span class="pill" style="background:var(--blue-soft);color:var(--navy);font-size:11px;">${esc(item.team)}</span>
                 <a href="${mapUrl}" target="_blank" class="btn-sm" style="text-decoration:none;gap:4px;">${ICONS.navigation} เปิด Google Maps</a>
@@ -1038,17 +1129,18 @@ function renderRoutes(){
       ${filtered.length ? `
       <div class="desktop-table-wrap">
         <table>
-          <thead><tr><th>ลำดับ</th><th>อุปกรณ์</th><th>ขนาดพิกัด</th><th>รหัส</th><th>สายป้อน / พิกัดสถานที่</th><th>ทีม</th><th>สถานะ</th><th style="text-align:right;">นำทาง</th></tr></thead>
+          <thead><tr><th>ลำดับ</th><th>อุปกรณ์</th><th>ขนาดพิกัด</th><th>รหัส</th><th>สายป้อน / พิกัดสถานที่</th><th>ระยะทางจาก กฟน.</th><th>ทีม</th><th>สถานะ</th><th style="text-align:right;">นำทาง</th></tr></thead>
           <tbody>
             ${filtered.map((item, idx) => {
               const queryLoc = encodeURIComponent((item.location || "การไฟฟ้านครหลวง เขตสมุทรปราการ") + " สมุทรปราการ");
               return `
                 <tr>
-                  <td><span style="width:24px;height:24px;border-radius:50%;background:var(--electric);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">${idx+1}</span></td>
+                  <td><span style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg, #0088FF, #0055CC);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">${idx+1}</span></td>
                   <td><strong>${esc(item.equipmentType)}</strong></td>
                   <td><span class="capacity-pill">${esc(item.capacity||"-")}</span></td>
                   <td class="mono" style="font-weight:700;color:var(--electric);">${esc(item.equipmentId)}</td>
                   <td>${esc(item.location || "สายป้อน กฟน. สป.")}</td>
+                  <td><span class="dist-badge">~${item.distance} กม.</span></td>
                   <td><span class="pill" style="background:var(--blue-soft);color:var(--navy);">${esc(item.team)}</span></td>
                   <td>${statusPill(item.status)}</td>
                   <td style="text-align:right;"><a href="https://www.google.com/maps/search/?api=1&query=${queryLoc}" target="_blank" class="btn-sm" style="text-decoration:none;gap:4px;">${ICONS.navigation} เปิด Google Maps</a></td>
@@ -1067,17 +1159,43 @@ function initMap(){
   if(!container || typeof L === 'undefined') return;
   if(LEAFLET_MAP) { LEAFLET_MAP.remove(); LEAFLET_MAP = null; }
 
-  LEAFLET_MAP = L.map('map-container').setView([13.5850, 100.6380], 11);
+  // จุดศูนย์กลาง กฟน. เขตสมุทรปราการ
+  LEAFLET_MAP = L.map('map-container').setView(MEA_HQ_COORDS, 11);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '© OpenStreetMap' }).addTo(LEAFLET_MAP);
 
-  L.marker([13.5991, 100.5968]).addTo(LEAFLET_MAP)
-    .bindPopup('<b>กฟน. เขตสมุทรปราการ</b><br>จุดเริ่มต้นศูนย์สั่งการ').openPopup();
+  // ปักหมุดจุดเริ่มต้น: กฟน. เขตสมุทรปราการ (สีเขียวไอคอนพิเศษ)
+  const hqIcon = L.divIcon({
+    className: 'custom-start-pin',
+    html: '⚡',
+    iconSize: [32, 32],
+    iconAnchor: [16, 16]
+  });
 
-  STATE.pmRecords.slice(0, 15).forEach((r, idx) => {
-    const coords = [13.52 + (idx * 0.011) % 0.16, 100.56 + (idx * 0.017) % 0.24];
-    L.circleMarker(coords, { radius: 7, fillColor: C.blue, color: "#fff", weight: 2, fillOpacity: 0.9 })
-      .addTo(LEAFLET_MAP)
-      .bindPopup(`<b>${esc(r.equipmentId)}</b> (${esc(r.capacity||"-")})<br>${esc(r.location)}<br>ทีม: ${esc(r.team)}`);
+  L.marker(MEA_HQ_COORDS, { icon: hqIcon }).addTo(LEAFLET_MAP)
+    .bindPopup('<b>📍 กฟน. เขตสมุทรปราการ</b><br>จุดเริ่มต้นศูนย์สั่งการ').openPopup();
+
+  // ดึงจุดตรวจที่เรียงลำดับใกล้-ไกลแล้ว มาปักหมุดตัวเลข 1, 2, 3...
+  const points = getSortedInspectionPoints();
+  const filtered = points.filter(item => ROUTE_TEAM_FILTER === "ทั้งหมด" ? true : item.team === ROUTE_TEAM_FILTER);
+
+  filtered.forEach((r, idx) => {
+    const numIcon = L.divIcon({
+      className: 'custom-numbered-pin',
+      html: `<span>${idx + 1}</span>`,
+      iconSize: [28, 28],
+      iconAnchor: [14, 14]
+    });
+
+    L.marker(r.coords, { icon: numIcon }).addTo(LEAFLET_MAP)
+      .bindPopup(`
+        <div style="font-family:'Noto Sans Thai', sans-serif;">
+          <strong style="color:#0088FF;">ลำดับที่ ${idx + 1}</strong>: ${esc(r.equipmentId)}<br>
+          <b>ประเภท:</b> ${esc(r.equipmentType)} (${esc(r.capacity||"-")})<br>
+          <b>สถานที่:</b> ${esc(r.location)}<br>
+          <b>ระยะทางจาก กฟน.:</b> ~${r.distance} กม.<br>
+          <b>ทีมที่รับผิดชอบ:</b> ${esc(r.team)}
+        </div>
+      `);
   });
 }
 
@@ -1090,7 +1208,6 @@ function renderEntry(){
   return `
     ${sectionHeader("บันทึกข้อมูลงาน PM (Smart Entry)", `จัดการและบันทึกประวัติงาน PM (ปัจจุบันมี ${STATE.pmRecords.length} รายการ)`, `
       <button class="btn-secondary" id="go-guide-btn">${ICONS.book(C.blue)} คู่มือเกณฑ์กรอก</button>
-      <button class="btn-secondary" id="import-pm-btn">${ICONS.upload} นำเข้า Excel</button>
       <button class="btn-success" id="export-pm-excel-btn">${ICONS.fileExcel} ส่งออก Excel ทั้งหมด</button>
     `)}
     <form class="entry-form" id="pm-form">
@@ -1401,13 +1518,11 @@ function attachTabListeners(){
               gpsBtn.innerHTML = `${ICONS.gps} ดึง GPS`;
             },
             (err) => {
-              alert("ไม่สามารถเข้าถึงตำแหน่งได้ กรุณาเปิดสิทธิ์ GPS ในเบราว์เซอร์");
+              alert("ไม่สามารถเข้าถึงตำแหน่งได้");
               gpsBtn.innerHTML = `${ICONS.gps} ดึง GPS`;
             },
             { timeout: 10000 }
           );
-        } else {
-          alert("อุปกรณ์นี้ไม่รองรับระบบระบุตำแหน่ง GPS");
         }
       };
     }
@@ -1473,9 +1588,6 @@ function attachTabListeners(){
         exportToExcel("MEA_PM_Records_300_" + new Date().toISOString().slice(0,10), "PM_Records", [headers, ...rows]);
       };
     }
-
-    const importBtn = document.getElementById("import-pm-btn");
-    if(importBtn) importBtn.onclick = () => triggerExcelImport("pm");
 
     document.querySelectorAll("[data-del-pm]").forEach(btn=>{
       btn.onclick = ()=>{
