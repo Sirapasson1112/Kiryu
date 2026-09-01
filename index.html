@@ -221,7 +221,7 @@
   .btn-primary{ display:inline-flex; align-items:center; justify-content:center; gap:8px; border:none; border-radius:10px; padding:12px 20px; font-size:14px; font-weight:600; color:#fff; background:linear-gradient(135deg, var(--electric), #0066CC); cursor:pointer; font-family:inherit; transition:0.2s; min-height:44px; width:100%; box-shadow:0 4px 12px var(--electric-glow); }
   @media(min-width:640px){ .btn-primary{ width:auto; } }
   .btn-primary:hover{ transform:translateY(-1px); box-shadow:0 6px 16px var(--electric-glow); }
-  .btn-secondary{ display:inline-flex; align-items:center; justify-content:center; gap:6px; border:1px solid var(--border); border-radius:10px; padding:10px 16px; font-size:13px; font-weight:600; color:var(--text); background:var(--surface); cursor:pointer; font-family:inherit; transition:0.2s; min-height:42px; }
+  .btn-secondary{ display:inline-flex; align-items:center; justify-content:center; gap:6px; border:1px solid var(--border); border-radius:10px; padding:10px 16px; font-size:13px; font-weight:600; color:#text; background:var(--surface); cursor:pointer; font-family:inherit; transition:0.2s; min-height:42px; }
   .btn-secondary:hover{ background:var(--bg); }
   .btn-success{ display:inline-flex; align-items:center; justify-content:center; gap:6px; border:none; border-radius:10px; padding:10px 16px; font-size:13px; font-weight:600; color:#fff; background:linear-gradient(135deg, #10B981, #059669); cursor:pointer; font-family:inherit; transition:0.2s; min-height:42px; }
   .btn-success:hover{ transform:translateY(-1px); }
@@ -288,6 +288,7 @@
 <div id="app"></div>
 <div id="modal-root"></div>
 <div id="kpi-modal-root"></div>
+<div id="formula-modal-root"></div>
 <input type="file" id="excel-importer" accept=".xlsx, .xls, .csv" style="display:none;" />
 
 <script>
@@ -302,6 +303,7 @@ const ICONS = {
   book: (c)=>`<svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`,
   navigation: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>`,
   gps: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>`,
+  calculator: `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/></svg>`,
   plus: `<svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>`,
   fileExcel: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="17"/><line x1="16" y1="13" x2="8" y2="17"/></svg>`,
   filePdf: `<svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M10 12h2a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1h-2v-4z"/><path d="M10 18v-2"/></svg>`,
@@ -332,8 +334,8 @@ const EQUIPMENT_TYPES = Object.keys(CAPACITY_OPTIONS);
 const PRIORITIES = ["สูง","กลาง","ต่ำ"];
 const PLAN_STATUSES = ["วางแผน","กำลังดำเนินการ","เสร็จสิ้น","เลื่อน"];
 const PM_STATUSES = ["เสร็จสิ้น","ระหว่างดำเนินการ","รอดำเนินการ"];
-const STORAGE_KEY = "mea_pm_v300_radar_polar_fixed";
-const AUTH_KEY = "mea_pm_auth_v300_radar_polar_fixed";
+const STORAGE_KEY = "mea-pm-v26-interactive-kpi";
+const AUTH_KEY = "mea-pm-auth-v26";
 
 const MEA_HQ_COORDS = [13.5991, 100.5968];
 
@@ -375,18 +377,7 @@ const TECHNICIANS = [
 const uid = () => Date.now() + "-" + Math.random().toString(36).slice(2,8);
 const baht = (n) => "฿" + Number(n||0).toLocaleString("th-TH",{maximumFractionDigits:0});
 const thDate = (d) => d ? new Date(d).toLocaleDateString("th-TH",{day:"2-digit",month:"short",year:"2-digit"}) : "-";
-const esc = (s) => String(s ?? "").replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-
-function calculateDistance(lat1, lon1, lat2 = MEA_HQ_COORDS[0], lon2 = MEA_HQ_COORDS[1]) {
-  const R = 6371;
-  const dLat = (lat1 - lat2) * Math.PI / 180;
-  const dLon = (lon1 - lon2) * Math.PI / 180;
-  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-            Math.cos(lat2 * Math.PI / 180) * Math.cos(lat1 * Math.PI / 180) *
-            Math.sin(dLon/2) * Math.sin(dLon/2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  return +(R * c).toFixed(1);
-}
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 
 function generate300Records(){
   const today = new Date();
@@ -468,6 +459,8 @@ let LOGIN_ERROR = "";
 let IMPORT_TARGET = "pm";
 let EDITING_RECORD = null;
 let LEAFLET_MAP = null;
+
+let pmPhotoBase64 = "";
 
 const emptyPm = () => ({ date:new Date().toISOString().slice(0,10), equipmentType:EQUIPMENT_TYPES[0], capacity:CAPACITY_OPTIONS[EQUIPMENT_TYPES[0]][0], equipmentId:"", location:"", team:"", technician:"", laborHours:"", materialCost:"", laborCost:"", otherCost:"", maintenanceType:"ป้องกัน", status:"เสร็จสิ้น", notes:"", photo:"" });
 const emptyPlan = () => ({ equipmentType:EQUIPMENT_TYPES[0], capacity:CAPACITY_OPTIONS[EQUIPMENT_TYPES[0]][0], equipmentId:"", location:"", plannedDate:new Date().toISOString().slice(0,10), team:"", priority:"กลาง", status:"วางแผน" });
@@ -689,7 +682,7 @@ function showKpiDetail(type) {
           <div style="font-size:20px;font-weight:700;color:var(--red);font-family:'JetBrains Mono';">${high}</div>
         </div>
         <div class="card" style="padding:12px;text-align:center;border-left:3px solid var(--amber);">
-          <div style="font-size:11px;color:var(--amber);">ความสำคัญกลาง</div>
+          <div style="font-size:11px;color:var(--muted);">ความสำคัญกลาง</div>
           <div style="font-size:20px;font-weight:700;color:var(--amber);font-family:'JetBrains Mono';">${med}</div>
         </div>
         <div class="card" style="padding:12px;text-align:center;border-left:3px solid var(--muted);">
@@ -725,7 +718,7 @@ function showKpiDetail(type) {
       <div class="modal-card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;border-bottom:1px solid var(--border);padding-bottom:12px;">
           <h3 style="font-size:17px;font-weight:800;color:var(--navy);margin:0;">${title}</h3>
-          <button class="close-modal" onclick="closeKpiModal()">&times;</button>
+          <button class="btn-sm" onclick="closeKpiModal()">&times;</button>
         </div>
         <div>${contentHtml}</div>
       </div>
