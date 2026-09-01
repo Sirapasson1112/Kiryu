@@ -64,22 +64,6 @@
   }
   .card:hover{ box-shadow:var(--shadow-md); }
 
-  /* Login Card */
-  .login-container{
-    display:flex; align-items:center; justify-content:center; min-height:100vh; width:100%; padding:20px;
-    background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy) 50%, #154374 100%);
-  }
-  .login-card{
-    background:rgba(255, 255, 255, 0.95); backdrop-filter:blur(16px);
-    border-radius:24px; padding:36px; width:100%; max-width:420px;
-    box-shadow: var(--shadow-lg); border:1px solid rgba(255,255,255,0.6);
-  }
-  .login-logo{
-    width:56px; height:56px; border-radius:16px; background:linear-gradient(135deg, var(--electric), #0055AA);
-    display:inline-flex; align-items:center; justify-content:center; margin-bottom:16px;
-    box-shadow: 0 8px 20px var(--electric-glow);
-  }
-
   /* Topbar Mobile */
   .mobile-topbar{
     display:flex; align-items:center; justify-content:space-between;
@@ -253,8 +237,6 @@
   @media(min-width:640px){ .bench-grid{ grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px; } }
   .bench-label{ font-size:12px; font-weight:600; color:var(--muted); margin-bottom:4px; }
 
-  .alert-box{ padding:10px 14px; border-radius:8px; background:var(--red-soft); color:var(--red); font-size:13px; margin-bottom:16px; }
-
   .photo-preview-wrap{ display:flex; align-items:center; gap:12px; margin-top:6px; flex-wrap:wrap; }
   .photo-thumb{ width:70px; height:70px; border-radius:8px; object-fit:cover; border:2px solid var(--border); box-shadow:var(--shadow-sm); cursor:pointer; }
 
@@ -332,8 +314,8 @@ const EQUIPMENT_TYPES = Object.keys(CAPACITY_OPTIONS);
 const PRIORITIES = ["สูง","กลาง","ต่ำ"];
 const PLAN_STATUSES = ["วางแผน","กำลังดำเนินการ","เสร็จสิ้น","เลื่อน"];
 const PM_STATUSES = ["เสร็จสิ้น","ระหว่างดำเนินการ","รอดำเนินการ"];
-const STORAGE_KEY = "mea_pm_v300_radar_polar_fixed";
-const AUTH_KEY = "mea_pm_auth_v300_radar_polar_fixed";
+const STORAGE_KEY = "mea_pm_v400_nologin";
+const AUTH_KEY = "mea_pm_auth_v400_nologin";
 
 const MEA_HQ_COORDS = [13.5991, 100.5968];
 
@@ -459,12 +441,11 @@ function generate300Records(){
 }
 
 let STATE = null;
-let CURRENT_USER = null;
+let CURRENT_USER = { username: "admin", role: "admin", name: "วิศวกรหัวหน้างาน (ระบบอัตโนมัติ)" };
 let TAB = "dashboard";
 let CHARTS = {};
 let SEARCH_QUERY = "";
 let ROUTE_TEAM_FILTER = "ทั้งหมด";
-let LOGIN_ERROR = "";
 let IMPORT_TARGET = "pm";
 let EDITING_RECORD = null;
 let LEAFLET_MAP = null;
@@ -480,8 +461,6 @@ function init(){
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     STATE = saved ? JSON.parse(saved) : generate300Records();
-    const auth = localStorage.getItem(AUTH_KEY);
-    if(auth) CURRENT_USER = JSON.parse(auth);
   } catch(e) {
     STATE = generate300Records();
   }
@@ -743,6 +722,24 @@ function closeKpiModal() {
   if (root) root.innerHTML = "";
 }
 
+function getSortedInspectionPoints(){
+  const { planRecords, pmRecords } = STATE;
+  const activePlans = planRecords.filter(p => p.status !== "เสร็จสิ้น");
+  const pendingPMs = pmRecords.filter(p => p.status === "ระหว่างดำเนินการ" || p.status === "รอดำเนินการ").map(p => ({
+    equipmentType: p.equipmentType, capacity: p.capacity, equipmentId: p.equipmentId, location: p.location, team: p.team, priority: "สูง", status: p.status, plannedDate: p.date
+  }));
+  const combined = [...activePlans, ...pendingPMs];
+
+  const pointsWithCoords = combined.map(item => {
+    const coords = LOCATIONS_COORDS[item.location] || [13.5850, 100.6380];
+    const distance = calculateDistance(coords[0], coords[1]);
+    return { ...item, coords, distance };
+  });
+
+  pointsWithCoords.sort((a, b) => a.distance - b.distance);
+  return pointsWithCoords;
+}
+
 function recordsTable(records, {withDelete, compact} = {}){
   const filtered = (records || []).filter(r => {
     if(!SEARCH_QUERY) return true;
@@ -785,7 +782,7 @@ function recordsTable(records, {withDelete, compact} = {}){
               </div>
               <div style="display:flex;gap:6px;">
                 <button class="btn-sm" data-edit-pm="${r.id}">${ICONS.edit} แก้ไข</button>
-                ${withDelete && !compact && CURRENT_USER?.role === 'admin' ? `<button class="btn-sm" style="border-color:var(--red);background:var(--red-soft);color:var(--red);" data-del-pm="${r.id}">${ICONS.trash}</button>` : ""}
+                ${withDelete && !compact ? `<button class="btn-sm" style="border-color:var(--red);background:var(--red-soft);color:var(--red);" data-del-pm="${r.id}">${ICONS.trash}</button>` : ""}
               </div>
             </div>
           </div>
@@ -823,7 +820,7 @@ function recordsTable(records, {withDelete, compact} = {}){
               <td style="text-align:right">
                 <div style="display:flex;gap:6px;justify-content:flex-end;">
                   <button class="btn-sm" title="แก้ไข" data-edit-pm="${r.id}">${ICONS.edit}</button>
-                  ${withDelete && !compact && CURRENT_USER?.role === 'admin' ? `<button class="btn-sm" style="border-color:var(--red);background:var(--red-soft);color:var(--red);" title="ลบ" data-del-pm="${r.id}">${ICONS.trash}</button>` : ""}
+                  ${withDelete && !compact ? `<button class="btn-sm" style="border-color:var(--red);background:var(--red-soft);color:var(--red);" title="ลบ" data-del-pm="${r.id}">${ICONS.trash}</button>` : ""}
                 </div>
               </td>
             </tr>`;
@@ -979,71 +976,19 @@ function attachModalListeners(){
   }
 }
 
-function renderLogin(){
-  return `
-    <div class="login-container">
-      <div class="login-card">
-        <div style="text-align:center;margin-bottom:20px;">
-          <div class="login-logo">${ICONS.zap}</div>
-          <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:800;color:var(--navy);margin:0;">MEA PM PLANNER</h1>
-          <div style="font-size:13px;color:var(--muted);margin-top:4px;">ระบบบริหารงานบำรุงรักษา กฟน. เขตสมุทรปราการ (300+ Records)</div>
-        </div>
-        ${LOGIN_ERROR ? `<div class="alert-box">${esc(LOGIN_ERROR)}</div>` : ""}
-        <form id="login-form">
-          <div class="field" style="margin-bottom:14px;">
-            <span class="field-label">ชื่อผู้ใช้งาน (Username)</span>
-            <input type="text" id="l-user" placeholder="admin หรือ tech" required autocomplete="username"/>
-          </div>
-          <div class="field" style="margin-bottom:22px;">
-            <span class="field-label">รหัสผ่าน (Password)</span>
-            <input type="password" id="l-pass" placeholder="••••••••" required autocomplete="current-password"/>
-          </div>
-          <button type="submit" class="btn-primary" style="padding:14px; width:100%;">เข้าสู่ระบบ Smart CMMS</button>
-        </form>
-        <div style="margin-top:16px;padding:12px;background:var(--bg);border-radius:8px;font-size:12px;color:var(--muted);">
-          <p><strong>🔑 บัญชีทดสอบระบบ:</strong></p>
-          <p>• วิศวกร/หัวหน้างาน: <code>admin</code> / <code>admin123</code></p>
-          <p>• ช่างปฏิบัติงาน: <code>tech</code> / <code>tech123</code></p>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-function attachLoginListener(){
-  const loginForm = document.getElementById("login-form");
-  if(loginForm){
-    loginForm.addEventListener("submit", (e)=>{
-      e.preventDefault();
-      const u = document.getElementById("l-user").value.trim().toLowerCase();
-      const p = document.getElementById("l-pass").value.trim();
-      if(u === "admin" && p === "admin123"){
-        CURRENT_USER = { username: "admin", role: "admin", name: "วิศวกรหัวหน้างาน" };
-        LOGIN_ERROR = ""; localStorage.setItem(AUTH_KEY, JSON.stringify(CURRENT_USER)); render();
-      } else if(u === "tech" && p === "tech123"){
-        CURRENT_USER = { username: "tech", role: "tech", name: "ช่างประจำเขต สป." };
-        LOGIN_ERROR = ""; localStorage.setItem(AUTH_KEY, JSON.stringify(CURRENT_USER)); render();
-      } else {
-        LOGIN_ERROR = "ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง"; render();
-      }
-    });
-  }
-}
-
 function render(){
   const app = document.getElementById("app");
   if(!app) return;
-  if(!CURRENT_USER){ app.innerHTML = renderLogin(); attachLoginListener(); return; }
 
   let navItems = [
-    {id:"dashboard", label:"Dashboard", icon:"gauge", roles:['admin','tech']},
-    {id:"routes", label:"เส้นทางตรวจ", icon:"mapPin", roles:['admin','tech']},
-    {id:"entry", label:"บันทึก PM", icon:"clipboard", roles:['admin','tech']},
-    {id:"guide", label:"คู่มือเกณฑ์กรอก", icon:"book", roles:['admin','tech']},
-    {id:"plan", label:"แผนงาน", icon:"calendar", roles:['admin','tech']},
-    {id:"cost", label:"ต้นทุน WCM", icon:"coins", roles:['admin']},
-    {id:"kpi", label:"Productivity", icon:"trophy", roles:['admin']},
-  ].filter(n => n.roles.includes(CURRENT_USER.role));
+    {id:"dashboard", label:"Dashboard", icon:"gauge"},
+    {id:"routes", label:"เส้นทางตรวจ", icon:"mapPin"},
+    {id:"entry", label:"บันทึก PM", icon:"clipboard"},
+    {id:"guide", label:"คู่มือเกณฑ์กรอก", icon:"book"},
+    {id:"plan", label:"แผนงาน", icon:"calendar"},
+    {id:"cost", label:"ต้นทุน WCM", icon:"coins"},
+    {id:"kpi", label:"Productivity", icon:"trophy"},
+  ];
 
   app.innerHTML = `
     <div class="shell">
@@ -1052,11 +997,11 @@ function render(){
           <div class="brand-icon" style="width:32px;height:32px;">${ICONS.zap}</div>
           <div>
             <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:14px;">MEA PM Planner</div>
-            <div style="font-size:11px;color:#94A3B8;">${esc(CURRENT_USER.name)}</div>
+            <div style="font-size:11px;color:#94A3B8;">วิศวกรหัวหน้างาน</div>
           </div>
         </div>
         <button id="m-logout-btn" style="background:none;border:none;color:#FCA5A5;cursor:pointer;display:flex;align-items:center;gap:4px;font-size:12px;font-family:inherit;">
-          ${ICONS.lock} ออก
+          ${ICONS.lock} ล็อกอินอัตโนมัติ
         </button>
       </header>
 
@@ -1068,17 +1013,16 @@ function render(){
         
         <div class="user-badge">
           <div>
-            <div class="user-badge-role">${esc(CURRENT_USER.name)}</div>
-            <div style="font-size:11px;color:#94A3B8;">${CURRENT_USER.role === 'admin' ? 'วิศวกร / หัวหน้างาน' : 'ช่างปฏิบัติการ'}</div>
+            <div class="user-badge-role">วิศวกรหัวหน้างาน</div>
+            <div style="font-size:11px;color:#94A3B8;">ผู้ดูแลระบบ (Admin)</div>
           </div>
-          <span class="user-badge-tag">${CURRENT_USER.role.toUpperCase()}</span>
+          <span class="user-badge-tag">ADMIN</span>
         </div>
 
         ${navItems.map(n=>`<button class="nav-btn ${TAB===n.id?"active":""}" data-tab="${n.id}">${typeof ICONS[n.icon] === 'function' ? ICONS[n.icon](TAB===n.id?"#fff":"#94A3B8") : ICONS[n.icon]} ${n.label}</button>`).join("")}
         
         <div class="sidebar-footer" style="margin-top:auto;">
-          ${CURRENT_USER.role === 'admin' ? `<button class="btn-secondary" id="clear-btn" style="width:100%;font-size:12px;color:var(--electric);border-color:var(--electric);">${ICONS.rotate} ⚡ รีเซ็ตและสร้าง Mock 300+ รายการ</button>` : ''}
-          <button class="btn-secondary" id="logout-btn" style="width:100%;margin-top:8px;font-size:12px;color:var(--red);border-color:#FCA5A5;">${ICONS.lock} ออกจากระบบ</button>
+          <button class="btn-secondary" id="clear-btn" style="width:100%;font-size:12px;color:var(--electric);border-color:var(--electric);">${ICONS.rotate} ⚡ รีเซ็ตและสร้าง Mock 300+ รายการ</button>
         </div>
       </aside>
 
@@ -1111,8 +1055,8 @@ function renderTab(){
   if(TAB==="entry") return renderEntry();
   if(TAB==="guide") return renderGuide();
   if(TAB==="plan") return renderPlan();
-  if(TAB==="cost" && CURRENT_USER.role === 'admin') return renderCost();
-  if(TAB==="kpi" && CURRENT_USER.role === 'admin') return renderKpi();
+  if(TAB==="cost") return renderCost();
+  if(TAB==="kpi") return renderKpi();
   return renderDashboard();
 }
 
