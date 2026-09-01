@@ -221,7 +221,7 @@
   .btn-primary{ display:inline-flex; align-items:center; justify-content:center; gap:8px; border:none; border-radius:10px; padding:12px 20px; font-size:14px; font-weight:600; color:#fff; background:linear-gradient(135deg, var(--electric), #0066CC); cursor:pointer; font-family:inherit; transition:0.2s; min-height:44px; width:100%; box-shadow:0 4px 12px var(--electric-glow); }
   @media(min-width:640px){ .btn-primary{ width:auto; } }
   .btn-primary:hover{ transform:translateY(-1px); box-shadow:0 6px 16px var(--electric-glow); }
-  .btn-secondary{ display:inline-flex; align-items:center; justify-content:center; gap:6px; border:1px solid var(--border); border-radius:10px; padding:10px 16px; font-size:13px; font-weight:600; color:#text; background:var(--surface); cursor:pointer; font-family:inherit; transition:0.2s; min-height:42px; }
+  .btn-secondary{ display:inline-flex; align-items:center; justify-content:center; gap:6px; border:1px solid var(--border); border-radius:10px; padding:10px 16px; font-size:13px; font-weight:600; color:var(--text); background:var(--surface); cursor:pointer; font-family:inherit; transition:0.2s; min-height:42px; }
   .btn-secondary:hover{ background:var(--bg); }
   .btn-success{ display:inline-flex; align-items:center; justify-content:center; gap:6px; border:none; border-radius:10px; padding:10px 16px; font-size:13px; font-weight:600; color:#fff; background:linear-gradient(135deg, #10B981, #059669); cursor:pointer; font-family:inherit; transition:0.2s; min-height:42px; }
   .btn-success:hover{ transform:translateY(-1px); }
@@ -332,8 +332,8 @@ const EQUIPMENT_TYPES = Object.keys(CAPACITY_OPTIONS);
 const PRIORITIES = ["สูง","กลาง","ต่ำ"];
 const PLAN_STATUSES = ["วางแผน","กำลังดำเนินการ","เสร็จสิ้น","เลื่อน"];
 const PM_STATUSES = ["เสร็จสิ้น","ระหว่างดำเนินการ","รอดำเนินการ"];
-const STORAGE_KEY = "mea_pm_v300_radar_polar_fixed";
-const AUTH_KEY = "mea_pm_auth_v300_radar_polar_fixed";
+const STORAGE_KEY = "mea-pm-v26-interactive-kpi-fixed";
+const AUTH_KEY = "mea-pm-auth-v26-fixed";
 
 const MEA_HQ_COORDS = [13.5991, 100.5968];
 
@@ -1008,6 +1008,26 @@ function renderLogin(){
       </div>
     </div>
   `;
+}
+
+function attachLoginListener(){
+  const loginForm = document.getElementById("login-form");
+  if(loginForm){
+    loginForm.addEventListener("submit", (e)=>{
+      e.preventDefault();
+      const u = document.getElementById("l-user").value.trim().toLowerCase();
+      const p = document.getElementById("l-pass").value.trim();
+      if(u === "admin" && p === "admin123"){
+        CURRENT_USER = { username: "admin", role: "admin", name: "วิศวกรหัวหน้างาน" };
+        LOGIN_ERROR = ""; localStorage.setItem(AUTH_KEY, JSON.stringify(CURRENT_USER)); render();
+      } else if(u === "tech" && p === "tech123"){
+        CURRENT_USER = { username: "tech", role: "tech", name: "ช่างประจำเขต สป." };
+        LOGIN_ERROR = ""; localStorage.setItem(AUTH_KEY, JSON.stringify(CURRENT_USER)); render();
+      } else {
+        LOGIN_ERROR = "ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง"; render();
+      }
+    });
+  }
 }
 
 function render(){
